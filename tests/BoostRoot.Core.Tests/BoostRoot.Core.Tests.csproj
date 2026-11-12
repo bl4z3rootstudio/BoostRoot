@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\BoostRoot.Core\BoostRoot.Core.csproj" />
     <ProjectReference Include="..\BoostRoot.Testing\BoostRoot.Testing.csproj" />
+    <ProjectReference Include="..\..\src\BoostRoot.Games\BoostRoot.Games.csproj" />
   </ItemGroup>
   <ItemGroup><None Include="..\..\profiles\_example.json" Link="TestData\_example.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 </Project>

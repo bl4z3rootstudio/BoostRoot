@@ -1,10 +1,13 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/BoostRoot.Core/BoostRoot.Core.csproj" />
+    <Project Path="src/BoostRoot.Games/BoostRoot.Games.csproj" />
+    <Project Path="src/BoostRoot.Platform.Windows/BoostRoot.Platform.Windows.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/BoostRoot.AotProbe/BoostRoot.AotProbe.csproj" />
     <Project Path="tests/BoostRoot.Core.Tests/BoostRoot.Core.Tests.csproj" />
     <Project Path="tests/BoostRoot.Testing/BoostRoot.Testing.csproj" />
+    <Project Path="tests/BoostRoot.Windows.Tests/BoostRoot.Windows.Tests.csproj" />
   </Folder>
 </Solution>

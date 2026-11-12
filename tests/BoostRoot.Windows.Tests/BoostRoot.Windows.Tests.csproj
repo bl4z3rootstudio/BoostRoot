@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="xunit.v3" Version="3.2.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+  <ItemGroup><Using Include="Xunit" /></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BoostRoot.Platform.Windows\BoostRoot.Platform.Windows.csproj" />
+    <ProjectReference Include="..\BoostRoot.Testing\BoostRoot.Testing.csproj" />
+  </ItemGroup>
+</Project>

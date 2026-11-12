@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup><ProjectReference Include="..\BoostRoot.Core\BoostRoot.Core.csproj" /></ItemGroup>
+  <ItemGroup><InternalsVisibleTo Include="BoostRoot.Core.Tests" /></ItemGroup>
+</Project>
