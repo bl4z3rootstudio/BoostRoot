@@ -57,3 +57,42 @@ public class SessionTests
         Assert.False(svc.Saved.IsStretched(main.Home.Selected!.Entry.Profile!.Id));
     }
 }
+
+public class ShellExtrasTests
+{
+    [Fact]
+    public void Welcome_ShowsOnce()
+    {
+        var svc = ViewModelTests.Services();
+        var main = new MainViewModel(svc);
+        Assert.True(main.ShowWelcome);
+        main.FinishWelcome();
+        Assert.False(main.ShowWelcome);
+        Assert.True(svc.Saved.FirstRunDone);
+        Assert.False(new MainViewModel(svc).ShowWelcome);
+    }
+
+    [Fact]
+    public async Task Tools_AdvancedTweaks_ToggleAndUndo()
+    {
+        var svc = ViewModelTests.Services();
+        var vm = new ToolsViewModel(svc);
+        await vm.LoadCommand.ExecuteAsync(null);
+        Assert.NotEmpty(vm.Tweaks);
+        vm.Tweaks[0].IsOn = true;
+        Assert.Single(svc.Tweaks);
+        vm.Tweaks[0].IsOn = false;
+        Assert.Empty(svc.Tweaks);
+    }
+
+    [Fact]
+    public void Home_ShowsWhatChanges_ForLevel()
+    {
+        var vm = new HomeViewModel(ViewModelTests.Services());
+        Assert.NotEmpty(vm.Changes);
+        var before = vm.Changes.Count;
+        vm.ChooseLevel(vm.Levels.First(l => l.Level == BoostRoot.Core.Profiles.BoostLevel.Quality));
+        Assert.NotNull(vm.Changes);
+        Assert.True(vm.Changes.Count >= 1 && before >= 1);
+    }
+}

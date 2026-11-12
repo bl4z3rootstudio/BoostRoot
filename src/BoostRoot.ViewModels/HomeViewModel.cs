@@ -32,8 +32,31 @@ public sealed partial class LevelOptionViewModel(BoostLevel level) : ObservableO
     [ObservableProperty] public partial bool IsRecommended { get; set; }
 }
 
+public sealed record ChangeRow(string Text, string Impact, bool High);
+
 public sealed partial class HomeViewModel : ObservableObject
 {
+    public ObservableCollection<ChangeRow> Changes { get; } = [];
+    [ObservableProperty] public partial string? Tips { get; set; }
+    [ObservableProperty] public partial bool NoFileChanges { get; set; }
+
+    /// <summary>"What will change?" list for the selected game + level (from the profile's notes).</summary>
+    private void RefreshChanges()
+    {
+        Changes.Clear();
+        Tips = null;
+        if (Selected?.Entry.Profile is not { } p) return;
+        var tr = Loc.I.Language == "tr";
+        Tips = p.Tips is { } t ? (tr ? t.Tr : t.En) : null;
+        foreach (var key in p.Levels[SelectedLevel].Set.Keys)
+        {
+            if (!p.Notes.TryGetValue(key, out var n)) continue;
+            Changes.Add(new ChangeRow(tr ? n.Text.Tr : n.Text.En, Loc.I["impact." + n.FpsImpact], n.FpsImpact == "high"));
+        }
+        NoFileChanges = p.Levels[SelectedLevel].Set.Count == 0;
+        Changes.Add(new ChangeRow(Loc.I["change.windows"], Loc.I["impact.medium"], false));
+        if (p.Levels[SelectedLevel].Gpu is not null) Changes.Add(new ChangeRow(Loc.I["change.gpu"], Loc.I["impact.medium"], false));
+    }
     private readonly IAppServices _services;
     private AppSettings _settings;
 
@@ -92,6 +115,7 @@ public sealed partial class HomeViewModel : ObservableObject
             var rec = Recommended(p);
             foreach (var l in Levels) { l.IsRecommended = l.Level == rec; l.IsSelected = l.Level == rec; }
             LastOperation = _services.LastBoostOperation(p.Id);
+            RefreshChanges();
             _loadingStretch = true;
             IsStretched = _settings.IsStretched(p.Id);
             _loadingStretch = false;
@@ -102,6 +126,7 @@ public sealed partial class HomeViewModel : ObservableObject
     public void ChooseLevel(LevelOptionViewModel level)
     {
         foreach (var l in Levels) l.IsSelected = l == level;
+        RefreshChanges();
     }
 
     private bool CanBoost() => Selected?.Entry.Profile is not null && !IsBusy;

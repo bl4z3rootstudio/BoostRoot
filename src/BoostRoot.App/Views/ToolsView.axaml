@@ -39,6 +39,27 @@
       </Border>
       <Border Classes="card">
         <StackPanel Spacing="8">
+          <TextBlock Classes="h2" Text="{Binding [tools.advanced], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [tools.advancedNote], Source={x:Static loc:Loc.I}}" />
+          <ItemsControl ItemsSource="{Binding Tweaks}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:TweakRowViewModel">
+                <Grid ColumnDefinitions="*,Auto" Margin="0,6">
+                  <StackPanel Spacing="2">
+                    <TextBlock FontWeight="SemiBold" Text="{Binding Name}" />
+                    <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding Description}" />
+                    <TextBlock FontSize="12" Foreground="{StaticResource Warn}" TextWrapping="Wrap" IsVisible="{Binding HasWarning}" Text="{Binding Warning}" />
+                    <TextBlock FontSize="11" Classes="muted" IsVisible="{Binding RequiresRestart}" Text="{Binding [tools.restart], Source={x:Static loc:Loc.I}}" />
+                  </StackPanel>
+                  <ToggleSwitch Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding IsOn}" OnContent="" OffContent="" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
           <TextBlock Classes="h2" Text="{Binding [tools.startup], Source={x:Static loc:Loc.I}}" />
           <ItemsControl ItemsSource="{Binding Startup}">
             <ItemsControl.ItemTemplate>

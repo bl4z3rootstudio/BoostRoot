@@ -20,6 +20,7 @@
     <DataTemplate DataType="vm:ClipsViewModel"><v:ClipsView /></DataTemplate>
     <DataTemplate DataType="vm:PlaceholderViewModel"><v:PlaceholderView /></DataTemplate>
   </Window.DataTemplates>
+  <Panel>
   <DockPanel>
     <!-- Sidebar -->
     <Border DockPanel.Dock="Left" Width="220" Background="{StaticResource Sidebar}" BorderBrush="#221E33" BorderThickness="0,0,1,0">
@@ -61,4 +62,25 @@
     </Grid>
     <ContentControl Content="{Binding CurrentPage}" />
   </DockPanel>
+  <!-- First run -->
+  <Border IsVisible="{Binding ShowWelcome}" Background="#E60B0912">
+    <Border Classes="card" Width="560" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="36">
+      <StackPanel Spacing="16">
+        <Image Source="avares://BoostRoot/Assets/logo-256.png" Width="72" Height="72" HorizontalAlignment="Left" />
+        <TextBlock Classes="h1" FontSize="30" Text="{Binding [welcome.title], Source={x:Static loc:Loc.I}}" />
+        <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [welcome.sub], Source={x:Static loc:Loc.I}}" />
+        <StackPanel Spacing="10">
+          <TextBlock TextWrapping="Wrap"><Run Text="✓  " Foreground="{StaticResource Good}" /><Run Text="{Binding [welcome.p1], Source={x:Static loc:Loc.I}}" /></TextBlock>
+          <TextBlock TextWrapping="Wrap"><Run Text="✓  " Foreground="{StaticResource Good}" /><Run Text="{Binding [welcome.p2], Source={x:Static loc:Loc.I}}" /></TextBlock>
+          <TextBlock TextWrapping="Wrap"><Run Text="✓  " Foreground="{StaticResource Good}" /><Run Text="{Binding [welcome.p3], Source={x:Static loc:Loc.I}}" /></TextBlock>
+        </StackPanel>
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <TextBlock VerticalAlignment="Center" Margin="0,0,12,0" Text="{Binding [welcome.lang], Source={x:Static loc:Loc.I}}" />
+          <ComboBox Grid.Column="1" Width="120" HorizontalAlignment="Left" ItemsSource="{Binding Settings.Languages}" SelectedItem="{Binding Settings.Language}" />
+          <Button Grid.Column="2" Classes="primary" Command="{Binding FinishWelcomeCommand}" Content="{Binding [welcome.start], Source={x:Static loc:Loc.I}}" />
+        </Grid>
+      </StackPanel>
+    </Border>
+  </Border>
+  </Panel>
 </Window>

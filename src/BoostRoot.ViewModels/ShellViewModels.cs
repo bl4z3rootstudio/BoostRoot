@@ -130,6 +130,14 @@ public sealed partial class MainViewModel : ObservableObject
     public ClipsViewModel Clips { get; }
 
     [ObservableProperty] public partial ObservableObject CurrentPage { get; set; }
+    [ObservableProperty] public partial bool ShowWelcome { get; set; }
+
+    [RelayCommand]
+    public void FinishWelcome()
+    {
+        ShowWelcome = false;
+        Settings.Update(s => s with { FirstRunDone = true });
+    }
 
     public MainViewModel(IAppServices services)
     {
@@ -145,6 +153,7 @@ public sealed partial class MainViewModel : ObservableObject
         Stress = new StressViewModel(services);
         Fps = new FpsViewModel(services);
         Clips = new ClipsViewModel(services, () => Settings!.Current);
+        ShowWelcome = !services.LoadSettings().FirstRunDone;
         Nav =
         [
             new("boost", "M13 2 4 14h7l-1 8 9-12h-7z", Home),

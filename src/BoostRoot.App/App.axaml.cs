@@ -25,6 +25,11 @@ public sealed partial class App : Application
             });
             desktop.Exit += (_, _) => GameSession.Current?.Dispose();
             _ = vm.Scan.ScanCommand.ExecuteAsync(null); // score drives level recommendations
+            _ = Task.Run(async () =>
+            {
+                if (await services.PrefetchCoversAsync(services.LoadCatalog(), default) > 0)
+                    Avalonia.Threading.Dispatcher.UIThread.Post(vm.Home.Reload);
+            });
         }
         base.OnFrameworkInitializationCompleted();
     }

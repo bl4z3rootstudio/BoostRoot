@@ -78,8 +78,21 @@ public sealed partial class StartupRowViewModel(StartupItem item, IAppServices s
     }
 }
 
+public sealed partial class TweakRowViewModel(BoostRoot.Core.Tweaks.WindowsTweak tweak, bool on, IAppServices services) : ObservableObject
+{
+    private static bool Tr => Loc.I.Language == "tr";
+    public string Name => Tr ? tweak.Name.Tr : tweak.Name.En;
+    public string Description => Tr ? tweak.Description.Tr : tweak.Description.En;
+    public string? Warning => tweak.Warning is { } w ? (Tr ? w.Tr : w.En) : null;
+    public bool HasWarning => tweak.Warning is not null;
+    public bool RequiresRestart => tweak.RequiresRestart;
+    [ObservableProperty] public partial bool IsOn { get; set; } = on;
+    partial void OnIsOnChanged(bool value) => services.SetTweak(tweak.Id, value);
+}
+
 public sealed partial class ToolsViewModel(IAppServices services) : ObservableObject
 {
+    public ObservableCollection<TweakRowViewModel> Tweaks { get; } = [];
     public ObservableCollection<JunkRowViewModel> Junk { get; } = [];
     public ObservableCollection<StartupRowViewModel> Startup { get; } = [];
     [ObservableProperty] public partial string? JunkResult { get; set; }
@@ -105,6 +118,9 @@ public sealed partial class ToolsViewModel(IAppServices services) : ObservableOb
             Junk.Clear();
             foreach (var j in junk) Junk.Add(new JunkRowViewModel(j));
             JunkResult = null;
+            Tweaks.Clear();
+            var applied = services.AppliedTweaks();
+            foreach (var t in services.AdvancedTweaks) Tweaks.Add(new TweakRowViewModel(t, applied.ContainsKey(t.Id), services));
             Startup.Clear();
             foreach (var s in services.StartupItems()) Startup.Add(new StartupRowViewModel(s, services));
             var tr = Loc.I.Language == "tr";

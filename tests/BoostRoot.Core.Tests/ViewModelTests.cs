@@ -75,6 +75,11 @@ internal sealed class FakeAppServices : IAppServices
     public Task<string?> VerticalClipAsync(string path) => Task.FromResult<string?>(null);
     public List<string> Sent { get; } = [];
     public Task<bool> SendToDiscordAsync(string webhook, string path, CancellationToken ct) { Sent.Add(webhook); return Task.FromResult(true); }
+    public Task<int> PrefetchCoversAsync(IReadOnlyList<CatalogEntry> entries, CancellationToken ct) => Task.FromResult(0);
+    public IReadOnlyList<BoostRoot.Core.Tweaks.WindowsTweak> AdvancedTweaks => [.. BoostRoot.Core.Tweaks.WindowsTweaks.All.Where(t => t.Tier == BoostRoot.Core.Tweaks.TweakTier.Advanced)];
+    public Dictionary<string, string> Tweaks { get; } = [];
+    public IReadOnlyDictionary<string, string> AppliedTweaks() => Tweaks;
+    public void SetTweak(string id, bool on) { if (on) Tweaks[id] = "op-" + id; else Tweaks.Remove(id); }
 }
 
 public sealed class FakeFrames : IFrameSource

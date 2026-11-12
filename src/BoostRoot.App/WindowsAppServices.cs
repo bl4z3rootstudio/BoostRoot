@@ -8,6 +8,7 @@ using BoostRoot.Core.Monitoring;
 using BoostRoot.Core.Stress;
 using BoostRoot.Core.Fps;
 using BoostRoot.Core.Clips;
+using BoostRoot.Core.Tweaks;
 using BoostRoot.Platform.Windows.Sensors;
 using BoostRoot.ViewModels.Localization;
 using BoostRoot.Core.IO;
@@ -21,6 +22,7 @@ namespace BoostRoot.App;
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase, WriteIndented = true)]
 [JsonSerializable(typeof(AppSettings))]
+[JsonSerializable(typeof(Dictionary<string, string>))]
 internal sealed partial class AppJsonContext : JsonSerializerContext;
 
 /// <summary>Composition root: wires Core/Games/Platform together for the real Windows machine.</summary>
@@ -99,6 +101,7 @@ public sealed class WindowsAppServices : IAppServices
     public BoostResult Boost(CatalogEntry entry, BoostLevel level, AppSettings settings)
     {
         _currentGame = entry.Game;
+        EnsureRestorePoint();
         var profile = entry.Profile ?? throw new InvalidOperationException("No profile for this game.");
         var processNames = profile.Detect.TryGetValue("process", out var p) ? p.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) : [];
         string? exe = null;
@@ -331,5 +334,60 @@ public sealed class WindowsAppServices : IAppServices
         }
         catch (Exception ex) when (ex is HttpRequestException or IOException or TaskCanceledException or System.ComponentModel.Win32Exception) { return false; }
         finally { if (temp is not null) try { File.Delete(temp); } catch (IOException) { } }
+    }
+
+    private void EnsureRestorePoint()
+    {
+        var marker = Path.Combine(UserDataDir, "restore-point.done");
+        if (File.Exists(marker)) return;
+        var ok = RestorePoint.Create("BoostRoot - ilk Boost oncesi / before first boost");
+        Directory.CreateDirectory(UserDataDir);
+        File.WriteAllText(marker, ok ? "created " + DateTime.Now.ToString("O") : "unavailable (System Protection off) " + DateTime.Now.ToString("O"));
+    }
+
+    public async Task<int> PrefetchCoversAsync(IReadOnlyList<CatalogEntry> entries, CancellationToken ct)
+    {
+        if (LoadSettings().Offline) return 0;
+        Directory.CreateDirectory(_coversDir);
+        var added = 0;
+        foreach (var e in entries)
+        {
+            if (CoverPath(e) is not null || e.Profile?.Id is not { } id) continue;
+            var appId = e.Profile.Detect.TryGetValue("steam", out var a) ? a : e.Game?.Source == "steam" ? e.Game.SourceId : null;
+            if (appId is null || !appId.All(char.IsAsciiDigit)) continue;
+            try
+            {
+                var bytes = await _http.GetByteArrayAsync($"https://cdn.cloudflare.steamstatic.com/steam/apps/{appId}/library_600x900.jpg", ct);
+                if (bytes.Length < 1024) continue;
+                await File.WriteAllBytesAsync(Path.Combine(_coversDir, id + ".jpg"), bytes, ct);
+                added++;
+            }
+            catch (Exception ex) when (ex is HttpRequestException or IOException or TaskCanceledException) { }
+        }
+        return added;
+    }
+
+    public IReadOnlyList<WindowsTweak> AdvancedTweaks => [.. WindowsTweaks.All.Where(t => t.Tier == TweakTier.Advanced)];
+
+    private string TweakFile => Path.Combine(UserDataDir, "tweaks.json");
+
+    public IReadOnlyDictionary<string, string> AppliedTweaks()
+    {
+        try { return File.Exists(TweakFile) ? JsonSerializer.Deserialize(File.ReadAllText(TweakFile), AppJsonContext.Default.DictionaryStringString) ?? [] : []; }
+        catch (Exception ex) when (ex is JsonException or IOException) { return new Dictionary<string, string>(); }
+    }
+
+    public void SetTweak(string id, bool on)
+    {
+        var map = new Dictionary<string, string>(AppliedTweaks());
+        if (on && !map.ContainsKey(id))
+        {
+            var op = $"tweak-{id}-{DateTime.UtcNow:yyyyMMddHHmmss}";
+            WindowsTweaks.Apply(WindowsTweaks.Get(id), op, _registry, _registryChanger, null);
+            map[id] = op;
+        }
+        else if (!on && map.Remove(id, out var op)) _undo.RevertOperation(op);
+        Directory.CreateDirectory(UserDataDir);
+        File.WriteAllText(TweakFile, JsonSerializer.Serialize(map, AppJsonContext.Default.DictionaryStringString));
     }
 }

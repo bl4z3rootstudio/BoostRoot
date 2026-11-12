@@ -29,14 +29,32 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
           <TextBlock Classes="muted" Text="{Binding RecommendedText}" />
+          <StackPanel Spacing="2" IsVisible="{Binding CanStretch}">
+            <CheckBox IsChecked="{Binding IsStretched}" Content="{Binding [home.stretch], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" MaxWidth="620" HorizontalAlignment="Left" Text="{Binding [home.stretchNote], Source={x:Static loc:Loc.I}}" />
+          </StackPanel>
+          <Expander Header="{Binding [home.whatChanges], Source={x:Static loc:Loc.I}}" MaxWidth="620" HorizontalAlignment="Left" IsVisible="{Binding HasSelection}">
+            <StackPanel Spacing="6">
+              <TextBlock Classes="muted" TextWrapping="Wrap" IsVisible="{Binding NoFileChanges}" Text="{Binding [home.noFileChanges], Source={x:Static loc:Loc.I}}" />
+              <ItemsControl ItemsSource="{Binding Changes}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:ChangeRow">
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                      <TextBlock TextWrapping="Wrap" Text="{Binding Text}" />
+                      <TextBlock Grid.Column="1" Margin="12,0,0,0" FontSize="11" Foreground="{StaticResource Good}" IsVisible="{Binding High}" Text="{Binding Impact}" />
+                      <TextBlock Grid.Column="1" Margin="12,0,0,0" FontSize="11" Classes="muted" IsVisible="{Binding !High}" Text="{Binding Impact}" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <TextBlock Classes="eyebrow" Margin="0,6,0,0" IsVisible="{Binding Tips, Converter={x:Static ObjectConverters.IsNotNull}}" Text="{Binding [home.tips], Source={x:Static loc:Loc.I}}" />
+              <TextBlock TextWrapping="Wrap" Text="{Binding Tips}" IsVisible="{Binding Tips, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            </StackPanel>
+          </Expander>
           <!-- Status + post-boost actions -->
           <Border Classes="card" IsVisible="{Binding Status, Converter={x:Static ObjectConverters.IsNotNull}}" Padding="14,10" MaxWidth="620" HorizontalAlignment="Left">
             <StackPanel Spacing="10">
               <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="{StaticResource Text}" />
-              <StackPanel Spacing="2" IsVisible="{Binding CanStretch}">
-                <CheckBox IsChecked="{Binding IsStretched}" Content="{Binding [home.stretch], Source={x:Static loc:Loc.I}}" />
-                <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [home.stretchNote], Source={x:Static loc:Loc.I}}" />
-              </StackPanel>
               <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding AskLaunch}">
                 <TextBlock VerticalAlignment="Center" Classes="muted" Text="{Binding [boost.launchAsk], Source={x:Static loc:Loc.I}}" />
                 <Button Classes="primary" Command="{Binding LaunchCommand}" Content="{Binding [boost.launchYes], Source={x:Static loc:Loc.I}}" />

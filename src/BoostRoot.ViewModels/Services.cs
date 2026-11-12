@@ -7,6 +7,7 @@ using BoostRoot.Core.Monitoring;
 using BoostRoot.Core.Stress;
 using BoostRoot.Core.Fps;
 using BoostRoot.Core.Clips;
+using BoostRoot.Core.Tweaks;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Games;
 
@@ -23,7 +24,8 @@ public sealed record AppSettings(
     string OverlayCorner = "tl",
     CrosshairSettings? Crosshair = null,
     IReadOnlyList<string>? StretchGames = null,
-    ClipSettings? Clips = null)
+    ClipSettings? Clips = null,
+    bool FirstRunDone = false)
 {
     public static AppSettings Default { get; } = new("tr", true, true, false, ["chrome", "msedge", "opera", "firefox", "spotify", "steamwebhelper", "epicgameslauncher"], false);
     public static IReadOnlyList<string> AllMetrics { get; } = ["fps", "low1", "cpu", "cputemp", "gpu", "gputemp", "vram", "ram", "clock"];
@@ -92,6 +94,14 @@ public interface IAppServices
     Task<string?> VerticalClipAsync(string path);
     /// <summary>Uploads to a Discord webhook (shrinks to 10 MB first when needed).</summary>
     Task<bool> SendToDiscordAsync(string webhook, string path, CancellationToken ct);
+
+    // Covers + advanced tweaks
+    /// <summary>Downloads missing cover art (Steam CDN) unless offline; returns how many were added.</summary>
+    Task<int> PrefetchCoversAsync(IReadOnlyList<CatalogEntry> entries, CancellationToken ct);
+    IReadOnlyList<WindowsTweak> AdvancedTweaks { get; }
+    /// <summary>tweak id → operation id of tweaks currently applied by BoostRoot.</summary>
+    IReadOnlyDictionary<string, string> AppliedTweaks();
+    void SetTweak(string id, bool on);
 }
 
 public sealed record ShareCard(string Game, FrameStats Before, FrameStats After, double Gain, string Cpu, string Gpu);
