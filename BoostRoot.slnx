@@ -1,8 +1,10 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/BoostRoot.App/BoostRoot.App.csproj" />
     <Project Path="src/BoostRoot.Core/BoostRoot.Core.csproj" />
     <Project Path="src/BoostRoot.Games/BoostRoot.Games.csproj" />
     <Project Path="src/BoostRoot.Platform.Windows/BoostRoot.Platform.Windows.csproj" />
+    <Project Path="src/BoostRoot.ViewModels/BoostRoot.ViewModels.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/BoostRoot.AotProbe/BoostRoot.AotProbe.csproj" />

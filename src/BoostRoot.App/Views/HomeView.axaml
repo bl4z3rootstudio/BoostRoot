@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BoostRoot.ViewModels"
+             xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             xmlns:local="using:BoostRoot.App"
+             x:Class="BoostRoot.App.Views.HomeView"
+             x:DataType="vm:HomeViewModel">
+  <DockPanel>
+    <!-- Hero -->
+    <Border DockPanel.Dock="Top" Background="{StaticResource Hero}" BorderBrush="#221E33" BorderThickness="0,0,0,1" Padding="48,24,48,32">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Spacing="12" VerticalAlignment="Center">
+          <TextBlock Classes="eyebrow" Text="{Binding [home.selected], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="h1" Text="{Binding Selected.Name, FallbackValue=''}" TextTrimming="CharacterEllipsis" />
+          <TextBlock Classes="muted" FontSize="15" Text="{Binding [home.untouched], Source={x:Static loc:Loc.I}}" />
+          <ItemsControl ItemsSource="{Binding Levels}" Margin="0,6,0,0">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:LevelOptionViewModel">
+                <Button Classes="pill" Classes.selected="{Binding IsSelected}" Margin="0,0,8,8"
+                        ToolTip.Tip="{Binding Description}"
+                        Command="{Binding $parent[UserControl].((vm:HomeViewModel)DataContext).ChooseLevelCommand}" CommandParameter="{Binding}">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="{Binding Name}" />
+                    <TextBlock Text="★" IsVisible="{Binding IsRecommended}" />
+                  </StackPanel>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Classes="muted" Text="{Binding RecommendedText}" />
+          <!-- Status + post-boost actions -->
+          <Border Classes="card" IsVisible="{Binding Status, Converter={x:Static ObjectConverters.IsNotNull}}" Padding="14,10" MaxWidth="620" HorizontalAlignment="Left">
+            <StackPanel Spacing="10">
+              <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="{StaticResource Text}" />
+              <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding AskLaunch}">
+                <TextBlock VerticalAlignment="Center" Classes="muted" Text="{Binding [boost.launchAsk], Source={x:Static loc:Loc.I}}" />
+                <Button Classes="primary" Command="{Binding LaunchCommand}" Content="{Binding [boost.launchYes], Source={x:Static loc:Loc.I}}" />
+                <Button Classes="ghost" Command="{Binding DismissLaunchCommand}" Content="{Binding [boost.launchNo], Source={x:Static loc:Loc.I}}" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+          <Button Classes="ghost" HorizontalAlignment="Left" Command="{Binding UndoCommand}"
+                  IsVisible="{Binding LastOperation, Converter={x:Static ObjectConverters.IsNotNull}}"
+                  Content="{Binding [boost.undo], Source={x:Static loc:Loc.I}}" />
+        </StackPanel>
+        <Button Grid.Column="1" Classes="boost" Margin="32,0,0,0" Command="{Binding BoostCommand}">
+          <Panel>
+            <TextBlock Text="{Binding [home.boost], Source={x:Static loc:Loc.I}}" IsVisible="{Binding !IsBusy}" />
+            <ProgressBar IsIndeterminate="True" Width="120" IsVisible="{Binding IsBusy}" Foreground="{StaticResource Accent}" />
+          </Panel>
+        </Button>
+      </Grid>
+    </Border>
+    <!-- Game grid -->
+    <DockPanel Margin="48,24,48,24">
+      <TextBlock DockPanel.Dock="Top" Classes="h2" Margin="0,0,0,14" Text="{Binding GamesTitle}" />
+      <ScrollViewer>
+        <ItemsControl ItemsSource="{Binding Games}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:GameCardViewModel">
+              <Button Classes="cover" Classes.selected="{Binding IsSelected}" Classes.dim="{Binding !IsInstalled}" Margin="0,0,14,14"
+                      Background="{Binding Tint}"
+                      ToolTip.Tip="{Binding Name}"
+                      Command="{Binding $parent[UserControl].((vm:HomeViewModel)DataContext).SelectCommand}" CommandParameter="{Binding}">
+                <Grid>
+                  <Image Source="{Binding Cover, Converter={x:Static local:CoverConverter.Instance}}" Stretch="UniformToFill" />
+                  <Border VerticalAlignment="Bottom" Background="#B30B0A12" Padding="10,8">
+                    <StackPanel>
+                      <TextBlock Text="{Binding Name}" FontFamily="{StaticResource HeadFont}" FontWeight="Bold" FontSize="14" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Classes="muted" FontSize="11" IsVisible="{Binding !IsInstalled}" Text="{Binding [home.notInstalled], Source={x:Static loc:Loc.I}}" />
+                    </StackPanel>
+                  </Border>
+                </Grid>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </DockPanel>
+  </DockPanel>
+</UserControl>

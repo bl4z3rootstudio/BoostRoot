@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BoostRoot.Core\BoostRoot.Core.csproj" />
+    <ProjectReference Include="..\BoostRoot.Games\BoostRoot.Games.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\*.json" LogicalName="BoostRoot.Loc.%(Filename).json" />
+    <InternalsVisibleTo Include="BoostRoot.Core.Tests" />
+  </ItemGroup>
+</Project>

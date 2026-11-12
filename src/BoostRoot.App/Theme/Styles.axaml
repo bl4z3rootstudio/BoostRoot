@@ -1,0 +1,138 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Style Selector="Window">
+    <Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+    <Setter Property="Foreground" Value="{StaticResource Text}" />
+    <Setter Property="Background" Value="{StaticResource Bg}" />
+  </Style>
+  <Style Selector="TextBlock.h1">
+    <Setter Property="FontFamily" Value="{StaticResource HeadFont}" />
+    <Setter Property="FontSize" Value="44" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style Selector="TextBlock.h2">
+    <Setter Property="FontSize" Value="16" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.muted">
+    <Setter Property="Foreground" Value="{StaticResource Muted}" />
+    <Setter Property="FontSize" Value="13" />
+  </Style>
+  <Style Selector="TextBlock.eyebrow">
+    <Setter Property="Foreground" Value="{StaticResource AccentLight}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="LetterSpacing" Value="1.5" />
+  </Style>
+  <!-- Sidebar nav buttons -->
+  <Style Selector="Button.nav">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{StaticResource Muted}" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="Padding" Value="14,11" />
+    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="FontWeight" Value="Medium" />
+  </Style>
+  <Style Selector="Button.nav.active">
+    <Setter Property="Background" Value="{StaticResource NavActive}" />
+    <Setter Property="Foreground" Value="#E9D5FF" />
+  </Style>
+  <!-- Level pills -->
+  <Style Selector="Button.pill">
+    <Setter Property="Background" Value="{StaticResource Surface}" />
+    <Setter Property="BorderBrush" Value="{StaticResource Border}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="999" />
+    <Setter Property="Padding" Value="18,10" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="FontSize" Value="14" />
+  </Style>
+  <Style Selector="Button.pill.selected">
+    <Setter Property="Background" Value="{StaticResource Accent}" />
+    <Setter Property="Foreground" Value="#0B0A12" />
+    <Setter Property="BorderBrush" Value="{StaticResource Accent}" />
+  </Style>
+  <Style Selector="Button.pill.selected:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource AccentLight}" />
+    <Setter Property="Foreground" Value="#0B0A12" />
+  </Style>
+  <!-- Primary / secondary -->
+  <Style Selector="Button.primary">
+    <Setter Property="Background" Value="{StaticResource Accent}" />
+    <Setter Property="Foreground" Value="#0B0A12" />
+    <Setter Property="CornerRadius" Value="12" />
+    <Setter Property="Padding" Value="22,12" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource AccentLight}" />
+    <Setter Property="Foreground" Value="#0B0A12" />
+  </Style>
+  <Style Selector="Button.ghost">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{StaticResource Border}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="12" />
+    <Setter Property="Padding" Value="18,10" />
+  </Style>
+  <!-- Big round BOOST button -->
+  <Style Selector="Button.boost">
+    <Setter Property="Width" Value="250" />
+    <Setter Property="Height" Value="250" />
+    <Setter Property="CornerRadius" Value="125" />
+    <Setter Property="Background" Value="#120F1F" />
+    <Setter Property="BorderBrush" Value="{StaticResource Accent}" />
+    <Setter Property="BorderThickness" Value="3" />
+    <Setter Property="FontFamily" Value="{StaticResource HeadFont}" />
+    <Setter Property="FontSize" Value="42" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Effect">
+      <DropShadowEffect Color="#A855F7" BlurRadius="80" OffsetX="0" OffsetY="0" Opacity="0.55" />
+    </Setter>
+  </Style>
+  <Style Selector="Button.boost:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#1A1430" />
+    <Setter Property="BorderBrush" Value="{StaticResource AccentLight}" />
+  </Style>
+  <!-- Game cover tiles -->
+  <Style Selector="Button.cover">
+    <Setter Property="Height" Value="190" />
+    <Setter Property="CornerRadius" Value="14" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="BorderBrush" Value="{StaticResource Border}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    <Setter Property="ClipToBounds" Value="True" />
+  </Style>
+  <Style Selector="Button.cover.selected">
+    <Setter Property="BorderBrush" Value="{StaticResource Accent}" />
+    <Setter Property="BorderThickness" Value="2" />
+  </Style>
+  <Style Selector="Button.cover.dim">
+    <Setter Property="Opacity" Value="0.4" />
+  </Style>
+  <!-- Title bar buttons -->
+  <Style Selector="Button.chrome">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Width" Value="46" />
+    <Setter Property="Height" Value="36" />
+    <Setter Property="CornerRadius" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Button.chrome.close:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#C42B1C" />
+  </Style>
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{StaticResource Surface}" />
+    <Setter Property="BorderBrush" Value="{StaticResource Border}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="14" />
+    <Setter Property="Padding" Value="16" />
+  </Style>
+</Styles>

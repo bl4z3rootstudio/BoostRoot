@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BoostRoot.ViewModels"
+             xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             x:Class="BoostRoot.App.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="48,24" Spacing="16" MaxWidth="720" HorizontalAlignment="Left">
+      <TextBlock Classes="h1" FontSize="32" Text="{Binding [nav.settings], Source={x:Static loc:Loc.I}}" />
+      <Border Classes="card">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock VerticalAlignment="Center" Text="{Binding [settings.language], Source={x:Static loc:Loc.I}}" />
+          <ComboBox Grid.Column="1" ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" MinWidth="120" />
+        </Grid>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <ToggleSwitch IsChecked="{Binding Sounds}" Content="{Binding [settings.sounds], Source={x:Static loc:Loc.I}}" />
+          <ToggleSwitch IsChecked="{Binding Animations}" Content="{Binding [settings.animations], Source={x:Static loc:Loc.I}}" />
+          <ToggleSwitch IsChecked="{Binding Offline}" Content="{Binding [settings.offline], Source={x:Static loc:Loc.I}}" />
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <TextBlock Text="{Binding [settings.closeList], Source={x:Static loc:Loc.I}}" />
+          <TextBox Text="{Binding CloseList}" AcceptsReturn="False" />
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="6">
+          <TextBlock Classes="h2" Text="{Binding [settings.about], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" Text="{Binding VersionText}" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

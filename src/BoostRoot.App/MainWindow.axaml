@@ -1,0 +1,58 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:BoostRoot.ViewModels"
+        xmlns:v="using:BoostRoot.App.Views"
+        xmlns:loc="using:BoostRoot.ViewModels.Localization"
+        x:Class="BoostRoot.App.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="BoostRoot" Icon="avares://BoostRoot/Assets/boostroot.ico"
+        Width="1280" Height="800" MinWidth="1100" MinHeight="700"
+        WindowStartupLocation="CenterScreen"
+        WindowDecorations="BorderOnly">
+  <Window.DataTemplates>
+    <DataTemplate DataType="vm:HomeViewModel"><v:HomeView /></DataTemplate>
+    <DataTemplate DataType="vm:SettingsViewModel"><v:SettingsView /></DataTemplate>
+    <DataTemplate DataType="vm:PlaceholderViewModel"><v:PlaceholderView /></DataTemplate>
+  </Window.DataTemplates>
+  <DockPanel>
+    <!-- Sidebar -->
+    <Border DockPanel.Dock="Left" Width="220" Background="{StaticResource Sidebar}" BorderBrush="#221E33" BorderThickness="0,0,1,0">
+      <DockPanel Margin="14,0,14,20">
+        <Border DockPanel.Dock="Top" Height="78" Background="Transparent" PointerPressed="OnDragArea">
+          <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center" Margin="8,14,0,0">
+            <Image Source="avares://BoostRoot/Assets/logo-256.png" Width="38" Height="38" />
+            <TextBlock FontFamily="{StaticResource HeadFont}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center">
+              <Run Text="Boost" /><Run Text="Root" Foreground="{StaticResource AccentLight}" />
+            </TextBlock>
+          </StackPanel>
+        </Border>
+        <TextBlock DockPanel.Dock="Bottom" Classes="muted" FontSize="11" Margin="8,12,0,0"
+                   Text="{Binding [app.tagline], Source={x:Static loc:Loc.I}}" />
+        <ItemsControl ItemsSource="{Binding Nav}" Margin="0,8,0,0">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="4" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:NavItemViewModel">
+              <Button Classes="nav" Classes.active="{Binding IsActive}"
+                      Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).NavigateCommand}" CommandParameter="{Binding}">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <PathIcon Data="{Binding Icon}" Width="16" Height="16" />
+                  <TextBlock Text="{Binding Title}" />
+                </StackPanel>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </DockPanel>
+    </Border>
+    <!-- Title bar -->
+    <Grid DockPanel.Dock="Top" Height="36" ColumnDefinitions="*,Auto">
+      <Border Background="Transparent" PointerPressed="OnDragArea" DoubleTapped="OnToggleMaximize" />
+      <StackPanel Grid.Column="1" Orientation="Horizontal">
+        <Button Classes="chrome" Click="OnMinimize" ToolTip.Tip="−"><PathIcon Data="M4 12h16" Width="10" Height="10" /></Button>
+        <Button Classes="chrome" Click="OnToggleMaximize" ToolTip.Tip="□"><PathIcon Data="M4 4h16v16H4z" Width="10" Height="10" /></Button>
+        <Button Classes="chrome close" Click="OnClose" ToolTip.Tip="×"><PathIcon Data="M5 5l14 14M19 5L5 19" Width="10" Height="10" /></Button>
+      </StackPanel>
+    </Grid>
+    <ContentControl Content="{Binding CurrentPage}" />
+  </DockPanel>
+</Window>
