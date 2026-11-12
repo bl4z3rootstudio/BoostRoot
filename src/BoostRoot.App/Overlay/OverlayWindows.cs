@@ -138,3 +138,30 @@ public sealed class CrosshairOverlay : OverlayWindowBase
         }
     }
 }
+
+/// <summary>Short message at the bottom of the screen ("Clip saved").</summary>
+public sealed class ToastOverlay : OverlayWindowBase
+{
+    private ToastOverlay(string text)
+    {
+        Content = new Border
+        {
+            Background = new SolidColorBrush(Color.FromArgb(220, 26, 15, 51)), BorderBrush = new SolidColorBrush(Color.Parse("#A855F7")), BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(10), Padding = new Thickness(16, 10),
+            Child = new TextBlock { Text = text, Foreground = Brushes.White, FontSize = 15, FontWeight = FontWeight.SemiBold },
+        };
+    }
+
+    protected override void Place()
+    {
+        var s = Screen0;
+        Position = new PixelPoint(s.X + (s.Width - (int)(Bounds.Width * RenderScaling)) / 2, s.Bottom - (int)(Bounds.Height * RenderScaling) - 80);
+    }
+
+    public static void Show(string text)
+    {
+        var t = new ToastOverlay(text);
+        t.Show();
+        DispatcherTimer.RunOnce(t.Close, TimeSpan.FromSeconds(2.5));
+    }
+}

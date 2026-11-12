@@ -6,6 +6,7 @@ using BoostRoot.Core.Tools;
 using BoostRoot.Core.Monitoring;
 using BoostRoot.Core.Stress;
 using BoostRoot.Core.Fps;
+using BoostRoot.Core.Clips;
 using BoostRoot.Testing;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Games;
@@ -62,6 +63,18 @@ internal sealed class FakeAppServices : IAppServices
     public FpsHistory FpsHistory { get; } = new(new InMemoryFileSystem(), "C:/h.jsonl");
     public ShareCard? LastCard { get; private set; }
     public string? SaveShareCard(ShareCard card, bool story) { LastCard = card; return "C:/card.png"; }
+    public bool FfmpegInstalled { get; set; }
+    public Task InstallFfmpegAsync(IProgress<double>? progress, CancellationToken ct) { progress?.Report(1); FfmpegInstalled = true; return Task.CompletedTask; }
+    public string ClipsFolder => "C:/Clips";
+    public List<ClipFile> ClipList { get; } = [new("C:/Clips/VALORANT/a clip.mp4", "VALORANT", new DateTime(2026, 11, 1), 5 << 20), new("C:/Clips/CS2/b foto.png", "CS2", new DateTime(2026, 11, 2), 1 << 20)];
+    public IReadOnlyList<ClipFile> ListClips() => ClipList;
+    public Task<string?> ThumbnailAsync(ClipFile clip) => Task.FromResult<string?>("C:/t.jpg");
+    public Task<double?> ClipDurationAsync(string path) => Task.FromResult<double?>(30);
+    public List<(string, double, double)> Trims { get; } = [];
+    public Task<string?> TrimClipAsync(string path, double start, double end) { Trims.Add((path, start, end)); return Task.FromResult<string?>("C:/Clips/x kesit.mp4"); }
+    public Task<string?> VerticalClipAsync(string path) => Task.FromResult<string?>(null);
+    public List<string> Sent { get; } = [];
+    public Task<bool> SendToDiscordAsync(string webhook, string path, CancellationToken ct) { Sent.Add(webhook); return Task.FromResult(true); }
 }
 
 public sealed class FakeFrames : IFrameSource

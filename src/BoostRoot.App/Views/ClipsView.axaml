@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BoostRoot.ViewModels" xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             xmlns:v="using:BoostRoot.App.Views"
+             x:Class="BoostRoot.App.Views.ClipsView" x:DataType="vm:ClipsViewModel">
+  <DockPanel Margin="48,24">
+    <StackPanel DockPanel.Dock="Top" Spacing="12">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+        <TextBlock Classes="h1" FontSize="32" Text="{Binding [clips.title], Source={x:Static loc:Loc.I}}" />
+        <ComboBox Grid.Column="1" MinWidth="180" Margin="0,0,8,0" ItemsSource="{Binding Games}" SelectedItem="{Binding GameFilter}" />
+        <Button Grid.Column="2" Classes="ghost" Margin="0,0,8,0" Command="{Binding RefreshCommand}" Content="{Binding [clips.refresh], Source={x:Static loc:Loc.I}}" />
+        <Button Grid.Column="3" Classes="ghost" Command="{Binding OpenFolderCommand}" Content="{Binding [clips.openFolder], Source={x:Static loc:Loc.I}}" />
+      </Grid>
+      <Border Classes="card" IsVisible="{Binding !FfmpegInstalled}">
+        <StackPanel Spacing="8">
+          <TextBlock TextWrapping="Wrap" Text="{Binding [clips.needFfmpeg], Source={x:Static loc:Loc.I}}" />
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <Button Classes="primary" Command="{Binding InstallCommand}" IsEnabled="{Binding !IsBusy}" Content="{Binding [clips.install], Source={x:Static loc:Loc.I}}" />
+            <ProgressBar Width="240" Value="{Binding InstallProgress}" Maximum="1" IsVisible="{Binding IsBusy}" Foreground="{StaticResource Accent}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+      <TextBlock Text="{Binding Status}" Foreground="{StaticResource AccentLight}" TextWrapping="Wrap" IsVisible="{Binding Status, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    </StackPanel>
+    <Border DockPanel.Dock="Right" Width="320" Classes="card" Margin="16,12,0,0" IsVisible="{Binding HasSelection}">
+      <StackPanel Spacing="10" DataContext="{Binding}">
+        <Image Height="180" Stretch="Uniform" Source="{Binding Selected.Thumbnail, Converter={x:Static v:FileImageConverter.Instance}}" />
+        <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding Selected.Name}" />
+        <Button Classes="primary" HorizontalAlignment="Stretch" Command="{Binding OpenCommand}" Content="{Binding [clips.open], Source={x:Static loc:Loc.I}}" />
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="8" IsVisible="{Binding !Selected.IsImage}">
+          <StackPanel><TextBlock Classes="muted" Text="{Binding [clips.trimFrom], Source={x:Static loc:Loc.I}}" /><NumericUpDown Minimum="0" Maximum="{Binding Duration}" Increment="0.5" FormatString="0.0" Value="{Binding TrimStart}" /></StackPanel>
+          <StackPanel Grid.Column="1"><TextBlock Classes="muted" Text="{Binding [clips.trimTo], Source={x:Static loc:Loc.I}}" /><NumericUpDown Minimum="0" Maximum="{Binding Duration}" Increment="0.5" FormatString="0.0" Value="{Binding TrimEnd}" /></StackPanel>
+        </Grid>
+        <Button Classes="ghost" HorizontalAlignment="Stretch" IsVisible="{Binding !Selected.IsImage}" IsEnabled="{Binding !IsBusy}" Command="{Binding TrimCommand}" Content="{Binding [clips.trim], Source={x:Static loc:Loc.I}}" />
+        <Button Classes="ghost" HorizontalAlignment="Stretch" IsVisible="{Binding !Selected.IsImage}" IsEnabled="{Binding !IsBusy}" Command="{Binding VerticalCommand}" Content="{Binding [clips.makeVertical], Source={x:Static loc:Loc.I}}" />
+        <Button Classes="ghost" HorizontalAlignment="Stretch" IsEnabled="{Binding !IsBusy}" Command="{Binding SendDiscordCommand}" Content="{Binding [clips.discord], Source={x:Static loc:Loc.I}}" />
+      </StackPanel>
+    </Border>
+    <Grid Margin="0,12,0,0">
+      <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [clips.empty], Source={x:Static loc:Loc.I}}" IsVisible="{Binding !Clips.Count}" />
+      <ListBox ItemsSource="{Binding Clips}" SelectedItem="{Binding Selected}" Background="Transparent">
+        <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ListBox.ItemsPanel>
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:ClipItemViewModel">
+            <StackPanel Width="220" Spacing="4" Margin="4">
+              <Border Height="124" CornerRadius="10" ClipToBounds="True" Background="#17122A">
+                <Image Stretch="UniformToFill" Source="{Binding Thumbnail, Converter={x:Static v:FileImageConverter.Instance}}" />
+              </Border>
+              <TextBlock FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+              <TextBlock Classes="muted" FontSize="11" TextTrimming="CharacterEllipsis" Text="{Binding Info}" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Grid>
+  </DockPanel>
+</UserControl>

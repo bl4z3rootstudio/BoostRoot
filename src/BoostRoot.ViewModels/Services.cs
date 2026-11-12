@@ -6,6 +6,7 @@ using BoostRoot.Core.Tools;
 using BoostRoot.Core.Monitoring;
 using BoostRoot.Core.Stress;
 using BoostRoot.Core.Fps;
+using BoostRoot.Core.Clips;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Games;
 
@@ -78,6 +79,19 @@ public interface IAppServices
     FpsHistory FpsHistory { get; }
     /// <summary>Renders the share card PNG into Pictures\BoostRoot and returns its path.</summary>
     string? SaveShareCard(ShareCard card, bool story);
+
+    // Clips
+    bool FfmpegInstalled { get; }
+    Task InstallFfmpegAsync(IProgress<double>? progress, CancellationToken ct);
+    string ClipsFolder { get; }
+    IReadOnlyList<ClipFile> ListClips();
+    Task<string?> ThumbnailAsync(ClipFile clip);
+    Task<double?> ClipDurationAsync(string path);
+    /// <summary>Returns the new file's path, or null on failure.</summary>
+    Task<string?> TrimClipAsync(string path, double start, double end);
+    Task<string?> VerticalClipAsync(string path);
+    /// <summary>Uploads to a Discord webhook (shrinks to 10 MB first when needed).</summary>
+    Task<bool> SendToDiscordAsync(string webhook, string path, CancellationToken ct);
 }
 
 public sealed record ShareCard(string Game, FrameStats Before, FrameStats After, double Gain, string Cpu, string Gpu);
