@@ -6,6 +6,7 @@ using BoostRoot.Core.Net;
 using BoostRoot.Core.Tools;
 using BoostRoot.Core.Monitoring;
 using BoostRoot.Core.Stress;
+using BoostRoot.Core.Fps;
 using BoostRoot.Platform.Windows.Sensors;
 using BoostRoot.ViewModels.Localization;
 using BoostRoot.Core.IO;
@@ -37,6 +38,7 @@ public sealed class WindowsAppServices : IAppServices
     private readonly string _profilesDir;
     private readonly string _coversDir;
     private IReadOnlyList<GameProfile>? _profiles;
+    public static string UserDataDir { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BoostRoot");
     private readonly RegistryChanger _registryChanger;
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(30) };
     private HardwareInfo? _lastHardware;
@@ -44,7 +46,7 @@ public sealed class WindowsAppServices : IAppServices
     private WindowsAppServices()
     {
         var shared = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "BoostRoot");
-        var local = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BoostRoot");
+        var local = UserDataDir;
         _settingsPath = Path.Combine(local, "settings.json");
         _coversDir = Path.Combine(local, "covers");
         _profilesDir = Path.Combine(AppContext.BaseDirectory, "profiles");
@@ -175,4 +177,19 @@ public sealed class WindowsAppServices : IAppServices
     public IStressWorkload? CreateGpuStress() => new BoostRoot.App.Stress.GpuStressWorkload(Loc.I["stress.gpuWindow"]);
 
     public long RamStressBytes() => RamStress.Recommended(HardwareScanner.AvailableRamBytes());
+
+    public IFrameSource StartFrames(CatalogEntry entry)
+    {
+        var names = entry.Profile?.Detect.TryGetValue("process", out var p) == true ? p.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) : [];
+        return new PresentMonSource(names);
+    }
+
+    private FpsHistory? _fpsHistory;
+    public FpsHistory FpsHistory => _fpsHistory ??= new FpsHistory(PhysicalFileSystem.Instance, Path.Combine(UserDataDir, "fps-history.jsonl"));
+
+    public string? SaveShareCard(ShareCard card, bool story)
+    {
+        try { return ShareCardRenderer.Save(card, story); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return null; }
+    }
 }

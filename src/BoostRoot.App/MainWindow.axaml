@@ -16,6 +16,7 @@
     <DataTemplate DataType="vm:NetViewModel"><v:NetView /></DataTemplate>
     <DataTemplate DataType="vm:ToolsViewModel"><v:ToolsView /></DataTemplate>
     <DataTemplate DataType="vm:StressViewModel"><v:StressView /></DataTemplate>
+    <DataTemplate DataType="vm:FpsViewModel"><v:FpsView /></DataTemplate>
     <DataTemplate DataType="vm:PlaceholderViewModel"><v:PlaceholderView /></DataTemplate>
   </Window.DataTemplates>
   <DockPanel>

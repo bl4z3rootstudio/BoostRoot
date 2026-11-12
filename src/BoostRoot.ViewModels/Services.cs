@@ -5,6 +5,7 @@ using BoostRoot.Core.Net;
 using BoostRoot.Core.Tools;
 using BoostRoot.Core.Monitoring;
 using BoostRoot.Core.Stress;
+using BoostRoot.Core.Fps;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Games;
 
@@ -56,6 +57,14 @@ public interface IAppServices
     /// <summary>Opens the GPU load window; null if the GPU can't be stressed here.</summary>
     IStressWorkload? CreateGpuStress();
     long RamStressBytes();
+
+    // FPS test
+    IFrameSource StartFrames(CatalogEntry entry);
+    FpsHistory FpsHistory { get; }
+    /// <summary>Renders the share card PNG into Pictures\BoostRoot and returns its path.</summary>
+    string? SaveShareCard(ShareCard card, bool story);
 }
+
+public sealed record ShareCard(string Game, FrameStats Before, FrameStats After, double Gain, string Cpu, string Gpu);
 
 public sealed record HardwareReport(HardwareInfo Info, IReadOnlyList<HealthIssue> Issues, PcScore Score);

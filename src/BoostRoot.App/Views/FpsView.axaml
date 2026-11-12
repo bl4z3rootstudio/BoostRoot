@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BoostRoot.ViewModels" xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             xmlns:g="using:BoostRoot.Games" xmlns:f="using:BoostRoot.Core.Fps"
+             x:Class="BoostRoot.App.Views.FpsView" x:DataType="vm:FpsViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="48,24" Spacing="16">
+      <TextBlock Classes="h1" FontSize="32" Text="{Binding [fps.title], Source={x:Static loc:Loc.I}}" />
+      <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [fps.howto], Source={x:Static loc:Loc.I}}" />
+      <Grid ColumnDefinitions="Auto,*,Auto" IsEnabled="{Binding !IsRunning}">
+        <StackPanel Spacing="6">
+          <TextBlock Classes="muted" Text="{Binding [fps.game], Source={x:Static loc:Loc.I}}" />
+          <ComboBox Width="280" ItemsSource="{Binding Games}" SelectedItem="{Binding Selected}">
+            <ComboBox.ItemTemplate><DataTemplate x:DataType="g:CatalogEntry"><TextBlock Text="{Binding DisplayName}" /></DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+        </StackPanel>
+        <StackPanel Grid.Column="2" Spacing="6">
+          <TextBlock Classes="muted" Text="{Binding [fps.duration], Source={x:Static loc:Loc.I}}" />
+          <ItemsControl ItemsSource="{Binding Durations}">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:MinutesChoice">
+                <ToggleButton Classes="chip" Margin="8,0,0,0" IsChecked="{Binding IsSelected, Mode=OneWay}" Content="{Binding Title}"
+                              Command="{Binding $parent[ItemsControl].((vm:FpsViewModel)DataContext).ChooseDurationCommand}" CommandParameter="{Binding}" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Grid>
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <Button Classes="ghost" Command="{Binding MeasureCommand}" CommandParameter="before" Content="{Binding [fps.measureBefore], Source={x:Static loc:Loc.I}}" />
+        <Button Classes="primary" Command="{Binding MeasureCommand}" CommandParameter="after" Content="{Binding [fps.measureAfter], Source={x:Static loc:Loc.I}}" />
+        <Button Classes="ghost" Command="{Binding CancelCommand}" Content="{Binding [fps.cancel], Source={x:Static loc:Loc.I}}" />
+      </StackPanel>
+      <Border Classes="card" IsVisible="{Binding Phase, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Spacing="8">
+            <TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding Phase}" />
+            <ProgressBar Value="{Binding Progress}" Maximum="1" Foreground="{StaticResource Accent}" />
+          </StackPanel>
+          <StackPanel Grid.Column="1" Margin="24,0,0,0" HorizontalAlignment="Right">
+            <TextBlock Classes="muted" Text="{Binding [fps.live], Source={x:Static loc:Loc.I}}" />
+            <TextBlock FontSize="34" FontWeight="Bold" Foreground="{StaticResource AccentLight}" Text="{Binding LiveFps}" />
+          </StackPanel>
+        </Grid>
+      </Border>
+      <TextBlock Foreground="{StaticResource Bad}" TextWrapping="Wrap" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <Grid ColumnDefinitions="*,*" IsVisible="{Binding Before, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <Border Classes="card" Margin="0,0,12,0">
+          <StackPanel Spacing="4" DataContext="{Binding Before}" x:DataType="f:FrameStats">
+            <TextBlock Classes="eyebrow" Text="{Binding [fps.before], Source={x:Static loc:Loc.I}}" />
+            <TextBlock FontSize="36" FontWeight="Bold"><Run Text="{Binding AvgFps, StringFormat={}{0:0}}" /><Run Text=" FPS" FontSize="16" Foreground="{StaticResource Muted}" /></TextBlock>
+            <TextBlock Classes="muted"><Run Text="{Binding [fps.low1], Source={x:Static loc:Loc.I}}" /><Run Text=": " /><Run Text="{Binding Low1, StringFormat={}{0:0}}" /><Run Text="  ·  " /><Run Text="{Binding [fps.low01], Source={x:Static loc:Loc.I}}" /><Run Text=": " /><Run Text="{Binding Low01, StringFormat={}{0:0}}" /><Run Text="  ·  " /><Run Text="{Binding [fps.stutter], Source={x:Static loc:Loc.I}}" /><Run Text=": " /><Run Text="{Binding Stutters}" /></TextBlock>
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="1" Classes="card" BorderBrush="{StaticResource Accent}" IsVisible="{Binding After, Converter={x:Static ObjectConverters.IsNotNull}}">
+          <StackPanel Spacing="4">
+            <StackPanel Spacing="4" DataContext="{Binding After}" x:DataType="f:FrameStats">
+              <TextBlock Classes="eyebrow" Text="{Binding [fps.after], Source={x:Static loc:Loc.I}}" />
+              <TextBlock FontSize="36" FontWeight="Bold"><Run Text="{Binding AvgFps, StringFormat={}{0:0}}" /><Run Text=" FPS" FontSize="16" Foreground="{StaticResource Muted}" /></TextBlock>
+              <TextBlock Classes="muted"><Run Text="{Binding [fps.low1], Source={x:Static loc:Loc.I}}" /><Run Text=": " /><Run Text="{Binding Low1, StringFormat={}{0:0}}" /><Run Text="  ·  " /><Run Text="{Binding [fps.low01], Source={x:Static loc:Loc.I}}" /><Run Text=": " /><Run Text="{Binding Low01, StringFormat={}{0:0}}" /><Run Text="  ·  " /><Run Text="{Binding [fps.stutter], Source={x:Static loc:Loc.I}}" /><Run Text=": " /><Run Text="{Binding Stutters}" /></TextBlock>
+            </StackPanel>
+            <TextBlock FontSize="22" FontWeight="Bold" Foreground="{StaticResource Good}" IsVisible="{Binding GainPositive}" Text="{Binding GainText}" />
+            <TextBlock FontSize="22" FontWeight="Bold" Foreground="{StaticResource Warn}" IsVisible="{Binding !GainPositive}" Text="{Binding GainText}" />
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
+              <Button Classes="ghost" Command="{Binding ShareCommand}" CommandParameter="story" Content="{Binding [fps.shareStory], Source={x:Static loc:Loc.I}}" />
+              <Button Classes="ghost" Command="{Binding ShareCommand}" CommandParameter="square" Content="{Binding [fps.shareSquare], Source={x:Static loc:Loc.I}}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </Grid>
+      <TextBlock Classes="h2" Text="{Binding [fps.history], Source={x:Static loc:Loc.I}}" />
+      <ItemsControl ItemsSource="{Binding History}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:FpsHistoryRow">
+            <Grid ColumnDefinitions="110,*,90,90,90" Margin="0,3">
+              <TextBlock Classes="muted" Text="{Binding When}" />
+              <TextBlock Grid.Column="1" Text="{Binding Game}" />
+              <TextBlock Grid.Column="2" Classes="muted" Text="{Binding Label}" />
+              <TextBlock Grid.Column="3" FontWeight="SemiBold"><Run Text="{Binding Avg}" /><Run Text=" fps" /></TextBlock>
+              <TextBlock Grid.Column="4" Classes="muted"><Run Text="{Binding Low1}" /><Run Text=" 1%" /></TextBlock>
+            </Grid>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

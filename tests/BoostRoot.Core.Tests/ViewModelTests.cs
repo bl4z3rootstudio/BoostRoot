@@ -5,6 +5,8 @@ using BoostRoot.Core.Net;
 using BoostRoot.Core.Tools;
 using BoostRoot.Core.Monitoring;
 using BoostRoot.Core.Stress;
+using BoostRoot.Core.Fps;
+using BoostRoot.Testing;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Games;
 using BoostRoot.ViewModels;
@@ -55,6 +57,21 @@ internal sealed class FakeAppServices : IAppServices
     public ISensors Sensors { get; set; } = new FakeSensors();
     public IStressWorkload? CreateGpuStress() => null;
     public long RamStressBytes() => 4 << 20;
+    public FakeFrames Frames { get; } = new();
+    public IFrameSource StartFrames(CatalogEntry entry) => Frames;
+    public FpsHistory FpsHistory { get; } = new(new InMemoryFileSystem(), "C:/h.jsonl");
+    public ShareCard? LastCard { get; private set; }
+    public string? SaveShareCard(ShareCard card, bool story) { LastCard = card; return "C:/card.png"; }
+}
+
+public sealed class FakeFrames : IFrameSource
+{
+    public double Ms { get; set; } = 10;
+    private readonly Timer _t;
+    public event Action<double>? Frame;
+    public string? Error => null;
+    public FakeFrames() => _t = new Timer(_ => { for (var i = 0; i < 5; i++) Frame?.Invoke(Ms); }, null, 0, 5);
+    public void Dispose() { }
 }
 
 public sealed class FakeSensors : ISensors
@@ -69,7 +86,7 @@ public class ViewModelTests
     private static GameProfile Example => ProfileLoader.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "TestData", "_example.json")));
     private static InstalledGame Game => new("riot", "valorant", "VALORANT", "C:/x", new Dictionary<string, string>());
 
-    private static FakeAppServices Services()
+    internal static FakeAppServices Services()
     {
         var s = new FakeAppServices();
         s.Catalog.Add(new CatalogEntry(Example, Game));
