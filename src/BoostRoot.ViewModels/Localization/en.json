@@ -226,5 +226,10 @@
   "gpu.nvidia.title": "NVIDIA — automatic driver profile",
   "gpu.nvidia.1": "On Boost, BoostRoot writes a per-game NVIDIA profile: Power management = Prefer maximum performance, Low latency (max pre-rendered frames 1), V-Sync off, Texture filtering = High performance. Undo removes it.",
   "gpu.nvidia.2": "In games with Reflex, enable NVIDIA Reflex: On + Boost in game.",
-  "gpu.nvidia.3": "Auto overclock: NVIDIA App → System → Performance → \"Automatic Tuning\". Then run BoostRoot → Stress → Graphics card for 15 min; on errors/crashes reset tuning."
+  "gpu.nvidia.3": "Auto overclock: NVIDIA App → System → Performance → \"Automatic Tuning\". Then run BoostRoot → Stress → Graphics card for 15 min; on errors/crashes reset tuning.",
+  "fps.needTool": "FPS measurement needs Intel's free PresentMon tool (~5 MB). The installer includes it; the portable version downloads it once.",
+  "fps.getTool": "Download PresentMon",
+  "fps.toolDownloading": "Downloading PresentMon…",
+  "fps.toolReady": "Ready ✓",
+  "fps.toolFailed": "Download failed. Check your internet connection."
 }

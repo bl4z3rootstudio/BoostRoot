@@ -61,6 +61,8 @@ internal sealed class FakeAppServices : IAppServices
     public FakeFrames Frames { get; } = new();
     public IFrameSource StartFrames(CatalogEntry entry) => Frames;
     public FpsHistory FpsHistory { get; } = new(new InMemoryFileSystem(), "C:/h.jsonl");
+    public bool FpsToolInstalled { get; set; } = true;
+    public Task InstallFpsToolAsync(CancellationToken ct) { FpsToolInstalled = true; return Task.CompletedTask; }
     public ShareCard? LastCard { get; private set; }
     public string? SaveShareCard(ShareCard card, bool story) { LastCard = card; return "C:/card.png"; }
     public bool FfmpegInstalled { get; set; }

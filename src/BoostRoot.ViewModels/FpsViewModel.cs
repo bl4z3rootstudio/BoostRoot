@@ -28,6 +28,21 @@ public sealed partial class FpsViewModel : ObservableObject
     [ObservableProperty] public partial bool GainPositive { get; set; }
     [ObservableProperty] public partial string? SavedPath { get; set; }
 
+    [ObservableProperty] public partial bool NeedsTool { get; set; }
+
+    [RelayCommand]
+    public async Task InstallToolAsync()
+    {
+        Error = null;
+        Phase = Loc.I["fps.toolDownloading"];
+        try { await _services.InstallFpsToolAsync(CancellationToken.None); NeedsTool = !_services.FpsToolInstalled; Phase = NeedsTool ? null : Loc.I["fps.toolReady"]; }
+        catch (Exception ex) when (ex is HttpRequestException or IOException or InvalidDataException or TaskCanceledException or UnauthorizedAccessException)
+        {
+            Phase = null;
+            Error = Loc.I["fps.toolFailed"];
+        }
+    }
+
     public string Cpu { get; set; } = "";
     public string Gpu { get; set; } = "";
     private CancellationTokenSource? _cts;
@@ -35,6 +50,7 @@ public sealed partial class FpsViewModel : ObservableObject
     public FpsViewModel(IAppServices services)
     {
         _services = services;
+        NeedsTool = !services.FpsToolInstalled;
         Reload();
     }
 

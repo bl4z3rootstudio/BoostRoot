@@ -457,4 +457,9 @@ public sealed class WindowsAppServices : IAppServices
         _undo.RevertAll();
         try { File.Delete(TweakFile); } catch (IOException) { }
     }
+
+    public bool FpsToolInstalled => PresentMonSource.Installed;
+
+    public Task InstallFpsToolAsync(CancellationToken ct) =>
+        LoadSettings().Offline ? Task.FromException(new HttpRequestException("Offline mode")) : PresentMonSource.InstallAsync(_http, ct);
 }

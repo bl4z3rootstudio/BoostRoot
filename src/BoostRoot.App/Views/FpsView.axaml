@@ -6,6 +6,12 @@
     <StackPanel Margin="48,24" Spacing="16">
       <TextBlock Classes="h1" FontSize="32" Text="{Binding [fps.title], Source={x:Static loc:Loc.I}}" />
       <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [fps.howto], Source={x:Static loc:Loc.I}}" />
+      <Border Classes="card" IsVisible="{Binding NeedsTool}">
+        <StackPanel Spacing="8">
+          <TextBlock TextWrapping="Wrap" Text="{Binding [fps.needTool], Source={x:Static loc:Loc.I}}" />
+          <Button Classes="primary" HorizontalAlignment="Left" Command="{Binding InstallToolCommand}" Content="{Binding [fps.getTool], Source={x:Static loc:Loc.I}}" />
+        </StackPanel>
+      </Border>
       <Grid ColumnDefinitions="Auto,*,Auto" IsEnabled="{Binding !IsRunning}">
         <StackPanel Spacing="6">
           <TextBlock Classes="muted" Text="{Binding [fps.game], Source={x:Static loc:Loc.I}}" />

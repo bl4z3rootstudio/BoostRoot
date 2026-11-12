@@ -1,22 +1,30 @@
 # BoostRoot — İlerleme Notu (devam etmek için önce bunu oku)
 
-Son güncelleme: 12.11.2026 gece
+Son güncelleme: 12.11.2026 gece · sürüm 26.11.1 · testler: 169 (Linux) + Windows entegrasyon testleri (CI)
 
-## Bitti
-- **Tasarım** onaylı: `docs/superpowers/specs/2026-11-12-boostroot-design.md` (sürüm 26.11.1, 4:3 Stretched dahil)
-- **Yol haritası:** `docs/superpowers/plans/2026-11-12-00-roadmap.md`
-- **Plan 01 Temel** ✅ — sürüm (YY.AY.N), IFileSystem/TextFile (BOM+CRLF korur), ayar biçimleri (ini, keyvalue, keyvalues, json, xml), NeverTouchGuard (+4:3 istisnası), Journal + SafeFileEditor, profil şeması/yükleyici/doğrulayıcı, PathResolver + ProfileApplier, PcScorer + Recommender, CI, NativeAOT sondası (uyarısız)
-- **Plan 02 Platform/Oyunlar/Boost** ✅ — IRegistry/IProcessManager/IPowerPlans, RegistryChanger + PowerPlanChanger + UndoService, WindowsTweaks kataloğu (güvenli + gelişmiş; ağ/DNS/Defender/Update'e asla dokunmaz), BoostOrchestrator (oyun açıkken reddeder, kritik hata = tam geri alma, korunan süreçler asla kapatılmaz), Steam/Epic/Riot/Xbox/Minecraft/Roblox bulucuları, GameCatalog, LaunchCommands, Platform.Windows (kayıt defteri, işlemler + askıya alma, güç planı, geri yükleme noktası)
-- **Plan 03 Arayüz — kabuk** ✅ — Avalonia 12.1.6 uygulaması (`src/BoostRoot.App`, exe adı BoostRoot), A1 roket ikonu, tema, kendi başlık çubuğu (WindowDecorations=BorderOnly), sol menü, Ana ekran C (seçili oyun + BOOST + 4 seviye + kapak ızgarası), Ayarlar, TR/EN (`Loc`), WindowsAppServices bileşim kökü, ViewModel testleri
-- Testler: 102 (Linux'ta), + Windows entegrasyon testleri (CI windows-latest)
+## Bitti (kod + otomatik testler)
+- Plan 01 Temel, 02 Platform/Oyunlar/Boost, 03 Arayüz (ana ekran, "Ne değişecek?" önizleme + ipuçları, PC Karnesi, ilk açılış ekranı, Steam kapak indirme, ilk Boost'ta geri yükleme noktası, gelişmiş Windows ayarları)
+- Plan 04 GPU: NVIDIA oyun başına sürücü profili (NVAPI DRS, geri alınabilir); AMD için Adrenalin + otomatik hız aşırtma rehberi (AMD güvenli API sunmadığı için otomatik değil)
+- Plan 05 FPS testi: PresentMon (kurulumla gelir / taşınabilirde indirilir), ortalama/%1/%0.1/takılma, geçmiş (jsonl), hikâye + kare paylaşım görseli
+- Plan 06 Stres: CPU (deterministik hesap hatası), RAM (desen doğrulama), GPU (OpenGL/ANGLE ağır shader), hepsi birden; canlı grafik; 90°C / hotspot 105°C kesme; ısıl yavaşlama tespiti. Sensörler: NVML (NVIDIA), ADL OD5/6/N/8 (AMD), CPU yük+MHz+throttle
+- Plan 07 İnternet + Araçlar
+- Plan 08 Oyun oturumu: Alt+O gösterge, Alt+C nişangâh, global kısayollar, 4:3 Stretched (geçici masaüstü modu + oyun anahtarları)
+- Plan 09 Klipler: ffmpeg (talep üzerine, SHA-256 doğrulamalı), Desktop Duplication + GPU kodlayıcı, replay (Alt+F10), kayıt (Alt+F9), foto (Alt+F1), WASAPI ses (sistem/mikrofon), galeri, kes, dikey 9:16, Discord webhook (10 MB'a sıkıştırır)
+- Plan 10 Profiller: 30 oyun (10'u ayar dosyası düzenler, 20'si sürücü/Windows + rehber); üretici `tools/gen-profiles.py`
+- Plan 11 Güncelleyici (GitHub Releases + SHA256SUMS), Inno Setup kurulum, kaldırırken "her şeyi geri al" (`BoostRoot.exe --revert-all`), release workflow (tag `v26.11.1`)
+- Plan 12 README TR/EN, `docs/index.html` tanıtım sitesi (GitHub Pages /docs), FUNDING.yml, sürüm notları
 
-## Sıradaki (sırayla)
-1. Plan 03 kalan: HardwareScanner (Platform.Windows) + HardwareTables + HealthChecks (Core) → PC Karnesi sayfası + ilk açılış sihirbazı; oyun detay ekranı (seviye kartları, adım listesi, (?) ipuçları); kapak indirme (Steam CDN header.jpg, çevrimdışı modda kapalı); geri yükleme noktası ilk boost'ta.
-2. Plan 10 öne alınabilir: gerçek oyun profilleri (şu an yalnızca `_example.json` var, uygulamada oyun listesi BOŞ görünür). Valorant için ayar dosyası anahtarları kullanıcının kendi dosyalarından doğrulanmalı (`%LOCALAPPDATA%\VALORANT\Saved\Config\<id>\Windows\RiotUserSettings.ini` ve `WindowsClient\GameUserSettings.ini`).
-3. Plan 04 GPU (NVAPI/ADLX), 05 FPS testi, 06 stres, 07 internet+araçlar, 08 Agent/overlay/4:3, 09 klip, 11 güncelleyici+kurulum, 12 yayın.
+## Bilinçli olarak yapılmayanlar / sınırlar
+- İşlemci sıcaklığı: kernel sürücüsü (PawnIO/WinRing0) gerektirdiği için okunmuyor (anti-cheat riski). GPU sıcaklığı var.
+- AMD sürücü ayarları ve otomatik hız aşırtma otomatik değil, adım adım rehber.
+- Profil paketleri ayrı imzalı (Ed25519) güncellenmiyor; uygulama güncellemesiyle geliyor.
+- Gösterge/nişangâh exclusive fullscreen'de görünmeyebilir (enjeksiyon yapmadığımız için).
+- Kripto adresleri README'de "yakında" — kullanıcıdan alınacak.
+
+## Sıradaki
+1. Kullanıcı PC testi: `docs/TEST-CHECKLIST.md`
+2. GitHub'a yükleme + `v26.11.1` etiketi → CI kurulum dosyasını üretir.
 
 ## Notlar
-- Bu ortamda .NET 10 SDK: `export PATH=$HOME/.dotnet:$PATH`; Linux'ta Windows hedefli projeler derlenir (EnableWindowsTargeting) ama çalıştırılamaz.
-- Avalonia 12: `ExtendClientAreaChromeHints` yok → `WindowDecorations`.
-- Kullanıcının PC'sinden dosya okuma (device_stage_files) bu oturumda HTTP 401 verdi; klasör izni isteği otomatik reddedildi. Gerçek testler kullanıcı başındayken yapılacak.
-- Kullanıcı tercihleri: Türkçe adım adım anlatım, ücretli şey önermeden önce sor, bütçe 0 TL, kullanım limitini az harca.
+- .NET 10 SDK: `export PATH=$HOME/.dotnet:$PATH`; Linux'ta Windows projeleri derlenir ama çalışmaz; NativeAOT yalnızca Windows CI'da.
+- Avalonia 12: `WindowDecorations`; XAML'de generic tip yok (KindChoice/MinutesChoice).

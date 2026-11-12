@@ -11,7 +11,34 @@ public sealed class PresentMonSource : IFrameSource
     public event Action<double>? Frame;
     public string? Error { get; }
 
-    public static string ExePath => Path.Combine(AppContext.BaseDirectory, "tools", "PresentMon.exe");
+    /// <summary>Bundled by the installer; portable builds download it on demand to LocalAppData.</summary>
+    public static string ExePath => File.Exists(Bundled) ? Bundled : Downloaded;
+    private static string Bundled => Path.Combine(AppContext.BaseDirectory, "tools", "PresentMon.exe");
+    public static string Downloaded { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BoostRoot", "tools", "PresentMon.exe");
+    public static bool Installed => File.Exists(Bundled) || File.Exists(Downloaded);
+
+    /// <summary>Downloads the latest PresentMon console exe from GitHub; verifies the asset's SHA-256 digest when GitHub provides one.</summary>
+    public static async Task InstallAsync(HttpClient http, CancellationToken ct)
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/repos/GameTechDev/PresentMon/releases/latest");
+        req.Headers.UserAgent.ParseAdd("BoostRoot");
+        using var resp = await http.SendAsync(req, ct).ConfigureAwait(false);
+        resp.EnsureSuccessStatusCode();
+        using var doc = System.Text.Json.JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
+        foreach (var a in doc.RootElement.GetProperty("assets").EnumerateArray())
+        {
+            var name = a.GetProperty("name").GetString() ?? "";
+            if (!name.StartsWith("PresentMon-", StringComparison.Ordinal) || !name.EndsWith("-x64.exe", StringComparison.Ordinal)) continue;
+            var bytes = await http.GetByteArrayAsync(a.GetProperty("browser_download_url").GetString(), ct).ConfigureAwait(false);
+            if (a.TryGetProperty("digest", out var dg) && dg.GetString() is { } digest && digest.StartsWith("sha256:", StringComparison.Ordinal)
+                && !string.Equals(digest[7..], Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(bytes)), StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("PresentMon checksum mismatch");
+            Directory.CreateDirectory(Path.GetDirectoryName(Downloaded)!);
+            await File.WriteAllBytesAsync(Downloaded, bytes, ct).ConfigureAwait(false);
+            return;
+        }
+        throw new FileNotFoundException("PresentMon asset not found");
+    }
 
     public PresentMonSource(IReadOnlyList<string> processNames)
     {

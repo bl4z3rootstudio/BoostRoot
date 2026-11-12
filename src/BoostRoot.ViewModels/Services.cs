@@ -80,6 +80,8 @@ public interface IAppServices
     // FPS test
     IFrameSource StartFrames(CatalogEntry entry);
     FpsHistory FpsHistory { get; }
+    bool FpsToolInstalled { get; }
+    Task InstallFpsToolAsync(CancellationToken ct);
     /// <summary>Renders the share card PNG into Pictures\BoostRoot and returns its path.</summary>
     string? SaveShareCard(ShareCard card, bool story);
 

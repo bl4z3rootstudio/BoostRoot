@@ -226,5 +226,10 @@
   "gpu.nvidia.title": "NVIDIA — sürücü profili otomatik",
   "gpu.nvidia.1": "Boost'a bastığında BoostRoot oyuna özel NVIDIA profili yazar: Güç yönetimi = Maksimum performans, Düşük gecikme (önceden işlenen kare 1), Dikey eşitleme kapalı, Doku filtreleme = Yüksek performans. Geri Al hepsini siler.",
   "gpu.nvidia.2": "Reflex destekleyen oyunlarda oyun içinden NVIDIA Reflex: Açık + Boost seç.",
-  "gpu.nvidia.3": "Otomatik hız aşırtma: NVIDIA App → Sistem → Performans → \"Otomatik Ayarlama\". Sonra BoostRoot → Stres Testi → Ekran kartı 15 dk çalıştır; hata/çökme olursa ayarlamayı sıfırla."
+  "gpu.nvidia.3": "Otomatik hız aşırtma: NVIDIA App → Sistem → Performans → \"Otomatik Ayarlama\". Sonra BoostRoot → Stres Testi → Ekran kartı 15 dk çalıştır; hata/çökme olursa ayarlamayı sıfırla.",
+  "fps.needTool": "FPS ölçümü için Intel'in ücretsiz PresentMon aracı gerekiyor (~5 MB). Kurulum sürümünde hazır gelir; taşınabilir sürümde bir kez indirilir.",
+  "fps.getTool": "PresentMon'u indir",
+  "fps.toolDownloading": "PresentMon indiriliyor…",
+  "fps.toolReady": "Hazır ✓",
+  "fps.toolFailed": "İndirilemedi. İnternet bağlantını kontrol et."
 }
