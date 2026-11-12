@@ -208,5 +208,11 @@
   "welcome.p2": "Every change is recorded and can be undone with one click. A Windows restore point is created before the first boost.",
   "welcome.p3": "Nothing is injected into games; it is safe with Vanguard, EAC and BattlEye.",
   "welcome.lang": "Language",
-  "welcome.start": "Let's go"
+  "welcome.start": "Let's go",
+  "update.available": "New version available: {0}",
+  "update.install": "Update",
+  "update.failed": "Couldn't download the update; you can download it from GitHub manually.",
+  "update.verifying": "Downloading and verifying…",
+  "donate.button": "Support",
+  "donate.tip": "BoostRoot is completely free. If you like it you can support it via GitHub Sponsors or crypto (see README)."
 }

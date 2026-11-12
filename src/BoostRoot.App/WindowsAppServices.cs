@@ -9,6 +9,7 @@ using BoostRoot.Core.Stress;
 using BoostRoot.Core.Fps;
 using BoostRoot.Core.Clips;
 using BoostRoot.Core.Tweaks;
+using BoostRoot.Core.Updates;
 using BoostRoot.Platform.Windows.Sensors;
 using BoostRoot.ViewModels.Localization;
 using BoostRoot.Core.IO;
@@ -389,5 +390,56 @@ public sealed class WindowsAppServices : IAppServices
         else if (!on && map.Remove(id, out var op)) _undo.RevertOperation(op);
         Directory.CreateDirectory(UserDataDir);
         File.WriteAllText(TweakFile, JsonSerializer.Serialize(map, AppJsonContext.Default.DictionaryStringString));
+    }
+
+    public async Task<UpdateInfo?> CheckUpdateAsync(CancellationToken ct)
+    {
+        if (LoadSettings().Offline) return null;
+        using var req = new HttpRequestMessage(HttpMethod.Get, Updater.LatestUrl);
+        req.Headers.UserAgent.ParseAdd("BoostRoot/" + Core.Versioning.AppVersion.Current);
+        req.Headers.Accept.ParseAdd("application/vnd.github+json");
+        using var resp = await _http.SendAsync(req, ct);
+        if (!resp.IsSuccessStatusCode) return null;
+        if (Updater.ParseRelease(await resp.Content.ReadAsStringAsync(ct)) is not { } rel) return null;
+        var sums = Updater.SumsUrl(rel) is { } u ? await _http.GetStringAsync(u, ct) : null;
+        return Updater.Evaluate(rel, Core.Versioning.AppVersion.Current, sums);
+    }
+
+    /// <summary>Called after the installer starts so the app can close (the installer replaces it).</summary>
+    public Action? ExitForUpdate { get; set; }
+
+    public async Task<bool> InstallUpdateAsync(UpdateInfo update, IProgress<double>? progress, CancellationToken ct)
+    {
+        if (update.Sha256 is null) return false; // never run an unverified installer
+        var path = Path.Combine(Path.GetTempPath(), update.Setup.Name);
+        using (var resp = await _http.GetAsync(update.Setup.Url, HttpCompletionOption.ResponseHeadersRead, ct))
+        {
+            resp.EnsureSuccessStatusCode();
+            await using var src = await resp.Content.ReadAsStreamAsync(ct);
+            await using var dst = File.Create(path);
+            var buf = new byte[1 << 16];
+            long done = 0; int n;
+            while ((n = await src.ReadAsync(buf, ct)) > 0)
+            {
+                await dst.WriteAsync(buf.AsMemory(0, n), ct);
+                done += n;
+                if (update.Setup.Size > 0) progress?.Report(done / (double)update.Setup.Size);
+            }
+        }
+        await using (var f = File.OpenRead(path))
+        {
+            var hash = Convert.ToHexStringLower(await System.Security.Cryptography.SHA256.HashDataAsync(f, ct));
+            if (hash != update.Sha256) { File.Delete(path); return false; }
+        }
+        _processes.Start(path, "/SILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS", true);
+        ExitForUpdate?.Invoke();
+        return true;
+    }
+
+    /// <summary>Uninstaller: reverts every change BoostRoot ever made (journal), including advanced tweaks.</summary>
+    public void RevertAll()
+    {
+        _undo.RevertAll();
+        try { File.Delete(TweakFile); } catch (IOException) { }
     }
 }

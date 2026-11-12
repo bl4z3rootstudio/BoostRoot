@@ -80,6 +80,10 @@ internal sealed class FakeAppServices : IAppServices
     public Dictionary<string, string> Tweaks { get; } = [];
     public IReadOnlyDictionary<string, string> AppliedTweaks() => Tweaks;
     public void SetTweak(string id, bool on) { if (on) Tweaks[id] = "op-" + id; else Tweaks.Remove(id); }
+    public BoostRoot.Core.Updates.UpdateInfo? NextUpdate { get; set; }
+    public Task<BoostRoot.Core.Updates.UpdateInfo?> CheckUpdateAsync(CancellationToken ct) => Task.FromResult(NextUpdate);
+    public bool UpdateOk { get; set; } = true;
+    public Task<bool> InstallUpdateAsync(BoostRoot.Core.Updates.UpdateInfo update, IProgress<double>? progress, CancellationToken ct) => Task.FromResult(UpdateOk);
 }
 
 public sealed class FakeFrames : IFrameSource

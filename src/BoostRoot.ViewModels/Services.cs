@@ -8,6 +8,7 @@ using BoostRoot.Core.Stress;
 using BoostRoot.Core.Fps;
 using BoostRoot.Core.Clips;
 using BoostRoot.Core.Tweaks;
+using BoostRoot.Core.Updates;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Games;
 
@@ -102,6 +103,11 @@ public interface IAppServices
     /// <summary>tweak id → operation id of tweaks currently applied by BoostRoot.</summary>
     IReadOnlyDictionary<string, string> AppliedTweaks();
     void SetTweak(string id, bool on);
+
+    // Updates (GitHub Releases)
+    Task<UpdateInfo?> CheckUpdateAsync(CancellationToken ct);
+    /// <summary>Downloads + verifies the installer, starts it and asks the app to exit. False on failure.</summary>
+    Task<bool> InstallUpdateAsync(UpdateInfo update, IProgress<double>? progress, CancellationToken ct);
 }
 
 public sealed record ShareCard(string Game, FrameStats Before, FrameStats After, double Gain, string Cpu, string Gpu);

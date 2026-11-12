@@ -24,6 +24,8 @@ public sealed partial class App : Application
                 session.Ended += () => { window.WindowState = Avalonia.Controls.WindowState.Normal; window.Activate(); };
             });
             desktop.Exit += (_, _) => GameSession.Current?.Dispose();
+            services.ExitForUpdate = () => Avalonia.Threading.Dispatcher.UIThread.Post(() => desktop.Shutdown());
+            Avalonia.Threading.DispatcherTimer.RunOnce(() => _ = vm.CheckUpdateAsync(), TimeSpan.FromSeconds(4));
             _ = vm.Scan.ScanCommand.ExecuteAsync(null); // score drives level recommendations
             _ = Task.Run(async () =>
             {

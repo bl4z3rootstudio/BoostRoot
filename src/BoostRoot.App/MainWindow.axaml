@@ -35,6 +35,12 @@
         </Border>
         <TextBlock DockPanel.Dock="Bottom" Classes="muted" FontSize="11" Margin="8,12,0,0"
                    Text="{Binding [app.tagline], Source={x:Static loc:Loc.I}}" />
+        <Button DockPanel.Dock="Bottom" Classes="nav" Command="{Binding DonateCommand}" ToolTip.Tip="{Binding [donate.tip], Source={x:Static loc:Loc.I}}">
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <PathIcon Data="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6C19 16.5 12 21 12 21z" Width="16" Height="16" Foreground="#F472B6" />
+            <TextBlock Text="{Binding [donate.button], Source={x:Static loc:Loc.I}}" />
+          </StackPanel>
+        </Button>
         <ItemsControl ItemsSource="{Binding Nav}" Margin="0,8,0,0">
           <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="4" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
@@ -60,6 +66,17 @@
         <Button Classes="chrome close" Click="OnClose" ToolTip.Tip="×"><PathIcon Data="M5 5l14 14M19 5L5 19" Width="10" Height="10" /></Button>
       </StackPanel>
     </Grid>
+    <!-- Update banner -->
+    <Border DockPanel.Dock="Top" IsVisible="{Binding Update, Converter={x:Static ObjectConverters.IsNotNull}}" Background="#2A1650" BorderBrush="#A855F7" BorderThickness="0,0,0,1" Padding="16,8">
+      <Grid ColumnDefinitions="*,Auto,Auto">
+        <StackPanel VerticalAlignment="Center">
+          <TextBlock FontWeight="SemiBold" Text="{Binding UpdateText}" />
+          <TextBlock Classes="muted" FontSize="11" Foreground="{StaticResource Warn}" Text="{Binding UpdateError}" IsVisible="{Binding UpdateError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        </StackPanel>
+        <ProgressBar Grid.Column="1" Width="160" Margin="0,0,12,0" Value="{Binding UpdateProgress}" Maximum="1" IsVisible="{Binding IsUpdating}" Foreground="{StaticResource Accent}" />
+        <Button Grid.Column="2" Classes="primary" Command="{Binding InstallUpdateCommand}" IsEnabled="{Binding !IsUpdating}" Content="{Binding [update.install], Source={x:Static loc:Loc.I}}" />
+      </Grid>
+    </Border>
     <ContentControl Content="{Binding CurrentPage}" />
   </DockPanel>
   <!-- First run -->

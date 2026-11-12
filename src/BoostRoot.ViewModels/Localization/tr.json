@@ -208,5 +208,11 @@
   "welcome.p2": "Yaptığı her değişikliği kaydeder; tek tıkla geri alınır. İlk Boost'tan önce Windows geri yükleme noktası oluşturur.",
   "welcome.p3": "Oyuna hiçbir şey enjekte etmez; Vanguard, EAC ve BattlEye ile güvenle çalışır.",
   "welcome.lang": "Dil",
-  "welcome.start": "Başlayalım"
+  "welcome.start": "Başlayalım",
+  "update.available": "Yeni sürüm hazır: {0}",
+  "update.install": "Güncelle",
+  "update.failed": "Güncelleme indirilemedi; GitHub'dan elle indirip kurabilirsin.",
+  "update.verifying": "İndiriliyor ve doğrulanıyor…",
+  "donate.button": "Destek ol",
+  "donate.tip": "BoostRoot tamamen ücretsiz. Beğendiysen GitHub Sponsors veya kripto ile destek olabilirsin (README'de)."
 }

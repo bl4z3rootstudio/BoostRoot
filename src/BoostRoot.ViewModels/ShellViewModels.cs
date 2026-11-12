@@ -131,6 +131,40 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty] public partial ObservableObject CurrentPage { get; set; }
     [ObservableProperty] public partial bool ShowWelcome { get; set; }
+    [ObservableProperty] public partial BoostRoot.Core.Updates.UpdateInfo? Update { get; set; }
+    [ObservableProperty] public partial double UpdateProgress { get; set; }
+    [ObservableProperty] public partial bool IsUpdating { get; set; }
+    [ObservableProperty] public partial string? UpdateError { get; set; }
+    public string UpdateText => Update is null ? "" : Loc.I.Format("update.available", Update.Version);
+    partial void OnUpdateChanged(BoostRoot.Core.Updates.UpdateInfo? value) => OnPropertyChanged(nameof(UpdateText));
+    private readonly IAppServices _services;
+
+    public const string SponsorsUrl = "https://github.com/sponsors/bl4z3root";
+    [RelayCommand] public void Donate() => _services.OpenUrl(SponsorsUrl);
+
+    public async Task CheckUpdateAsync()
+    {
+        try { Update = await _services.CheckUpdateAsync(CancellationToken.None); }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException) { }
+    }
+
+    [RelayCommand]
+    public async Task InstallUpdateAsync()
+    {
+        if (Update is null || IsUpdating) return;
+        IsUpdating = true;
+        UpdateError = null;
+        try
+        {
+            if (!await _services.InstallUpdateAsync(Update, new Progress<double>(p => UpdateProgress = p), CancellationToken.None))
+                UpdateError = Loc.I["update.failed"];
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or UnauthorizedAccessException)
+        {
+            UpdateError = Loc.I["update.failed"];
+        }
+        finally { IsUpdating = false; }
+    }
 
     [RelayCommand]
     public void FinishWelcome()
@@ -141,6 +175,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public MainViewModel(IAppServices services)
     {
+        _services = services;
         Home = new HomeViewModel(services);
         Settings = new SettingsViewModel(services, s => Home.ApplySettings(s));
         Home.StretchChanged = (id, on) => Settings.Update(s => s with

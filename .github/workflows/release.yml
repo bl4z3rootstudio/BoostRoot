@@ -1,0 +1,60 @@
+name: Release
+# Push a tag like v26.11.1 → builds NativeAOT app, bundles PresentMon, builds the installer,
+# writes SHA256SUMS.txt and publishes a GitHub Release (the in-app updater reads it).
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Version from tag
+        id: v
+        shell: pwsh
+        run: |
+          $v = "${{ github.ref_name }}".TrimStart('v')
+          if ($v -notmatch '^\d{2}\.\d{1,2}\.\d+$') { throw "Tag must look like v26.11.1" }
+          "version=$v" >> $env:GITHUB_OUTPUT
+      - run: dotnet test -c Release
+      - name: Publish (NativeAOT)
+        run: dotnet publish src/BoostRoot.App -c Release -r win-x64 -p:Version=${{ steps.v.outputs.version }} -o publish/app
+      - name: Bundle PresentMon (MIT, Intel)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force publish/app/tools | Out-Null
+          gh release download --repo GameTechDev/PresentMon --pattern "PresentMon-*-x64.exe" --dir pm
+          $exe = Get-ChildItem pm -Filter "PresentMon-*-x64.exe" | Where-Object { $_.Name -notmatch 'Setup|Capture' } | Select-Object -First 1
+          Copy-Item $exe.FullName publish/app/tools/PresentMon.exe
+          Invoke-WebRequest https://raw.githubusercontent.com/GameTechDev/PresentMon/main/LICENSE.txt -OutFile publish/app/tools/PresentMon-LICENSE.txt
+      - name: Remove debug symbols
+        shell: pwsh
+        run: Get-ChildItem publish/app -Recurse -Include *.pdb | Remove-Item
+      - name: Installer
+        shell: pwsh
+        run: |
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\iscc.exe" /DAppVersion=${{ steps.v.outputs.version }} /DSourceDir=..\publish\app installer\BoostRoot.iss
+      - name: Portable zip + checksums
+        shell: pwsh
+        run: |
+          $v = "${{ steps.v.outputs.version }}"
+          Compress-Archive -Path publish/app/* -DestinationPath publish/BoostRoot-Portable-$v.zip
+          Push-Location publish
+          $lines = Get-ChildItem -File -Path *.exe,*.zip | ForEach-Object { "$((Get-FileHash $_ -Algorithm SHA256).Hash.ToLower())  $($_.Name)" }
+          $lines | Set-Content -Encoding ascii SHA256SUMS.txt
+          Pop-Location
+      - name: GitHub Release
+        shell: pwsh
+        run: |
+          $v = "${{ steps.v.outputs.version }}"
+          $notes = if (Test-Path "docs/release-notes/$v.md") { "docs/release-notes/$v.md" } else { $null }
+          $args = @("${{ github.ref_name }}", "publish/BoostRoot-Setup-$v.exe", "publish/BoostRoot-Portable-$v.zip", "publish/SHA256SUMS.txt", "--title", "BoostRoot $v")
+          if ($notes) { $args += @("--notes-file", $notes) } else { $args += @("--generate-notes") }
+          gh release create @args
