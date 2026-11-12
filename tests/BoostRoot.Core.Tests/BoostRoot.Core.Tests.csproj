@@ -12,5 +12,9 @@
     <ProjectReference Include="..\..\src\BoostRoot.Games\BoostRoot.Games.csproj" />
     <ProjectReference Include="..\..\src\BoostRoot.ViewModels\BoostRoot.ViewModels.csproj" />
   </ItemGroup>
-  <ItemGroup><None Include="..\..\profiles\_example.json" Link="TestData\_example.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\profiles\*.json" LinkBase="TestData\profiles" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\profiles\_example.json" Link="TestData\_example.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="TestData\valorant\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

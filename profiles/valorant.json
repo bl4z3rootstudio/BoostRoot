@@ -1,0 +1,75 @@
+{
+  // Keys verified against a real VALORANT install (Nov 2026). VALORANT only writes non-default values,
+  // so settings without a verified key (multithreaded rendering, vignette, shadows, anti-aliasing) are left to the tips card.
+  "id": "valorant",
+  "name": "VALORANT",
+  "schemaVersion": 1,
+  "antiCheat": "vanguard",
+  "competitive": true,
+  "group": "A",
+  "detect": { "riot": "valorant", "exe": "VALORANT-Win64-Shipping.exe", "process": "VALORANT-Win64-Shipping.exe,VALORANT.exe" },
+  "launch": { "riot": "valorant" },
+  "configs": [
+    { "id": "rus", "format": "ini", "path": "%LOCALAPPDATA%/VALORANT/Saved/Config/*/Windows/RiotUserSettings.ini", "pick": "newest" },
+    { "id": "gus", "format": "ini", "path": "%LOCALAPPDATA%/VALORANT/Saved/Config/*/WindowsClient/GameUserSettings.ini", "pick": "newest" }
+  ],
+  "neverTouch": ["rus:*Crosshair*", "rus:*Color*", "rus:*Minimap*", "rus:*Show*", "rus:*Voice*", "rus:*Mic*", "rus:*Music*", "gus:*Monitor*", "gus:*Window*", "gus:*Letterbox*", "gus:*HDR*", "gus:*DesiredScreen*"],
+  "levels": {
+    "quality": { "set": {
+      "rus:Settings/EAresIntSettingName::BloomQuality": "0",
+      "rus:Settings/EAresBoolSettingName::DisableDistortion": "True",
+      "gus:/Script/ShooterGame.ShooterGameUserSettings/bUseVSync": "False"
+    } },
+    "balanced": { "set": {
+      "rus:Settings/EAresIntSettingName::MaterialQuality": "1",
+      "rus:Settings/EAresIntSettingName::DetailQuality": "1",
+      "rus:Settings/EAresIntSettingName::BloomQuality": "0",
+      "rus:Settings/EAresBoolSettingName::DisableDistortion": "True",
+      "gus:/Script/ShooterGame.ShooterGameUserSettings/bUseVSync": "False"
+    } },
+    "maxfps": { "set": {
+      "rus:Settings/EAresIntSettingName::MaterialQuality": "0",
+      "rus:Settings/EAresIntSettingName::TextureQuality": "0",
+      "rus:Settings/EAresIntSettingName::DetailQuality": "0",
+      "rus:Settings/EAresIntSettingName::UIQuality": "0",
+      "rus:Settings/EAresIntSettingName::BloomQuality": "0",
+      "rus:Settings/EAresBoolSettingName::DisableDistortion": "True",
+      "rus:Settings/EAresBoolSettingName::ImproveClarity": "False",
+      "rus:Settings/EAresIntSettingName::AnisotropicFiltering": "1",
+      "gus:/Script/ShooterGame.ShooterGameUserSettings/bUseVSync": "False"
+    } },
+    "competitive": { "set": {
+      "rus:Settings/EAresIntSettingName::MaterialQuality": "0",
+      "rus:Settings/EAresIntSettingName::TextureQuality": "0",
+      "rus:Settings/EAresIntSettingName::DetailQuality": "0",
+      "rus:Settings/EAresIntSettingName::UIQuality": "0",
+      "rus:Settings/EAresIntSettingName::BloomQuality": "0",
+      "rus:Settings/EAresBoolSettingName::DisableDistortion": "True",
+      "rus:Settings/EAresIntSettingName::AnisotropicFiltering": "1",
+      "gus:/Script/ShooterGame.ShooterGameUserSettings/bUseVSync": "False"
+    }, "gpu": { "lowLatency": true, "vSync": false, "radeonBoost": false, "chill": false, "textureFiltering": "performance", "upscaler": "off" } }
+  },
+  "recommend": [ { "level": "competitive" } ],
+  "notes": {
+    "rus:Settings/EAresIntSettingName::MaterialQuality": { "text": { "tr": "Malzeme kalitesi", "en": "Material quality" }, "fpsImpact": "high", "visualImpact": "medium" },
+    "rus:Settings/EAresIntSettingName::TextureQuality": { "text": { "tr": "Doku kalitesi (VRAM)", "en": "Texture quality (VRAM)" }, "fpsImpact": "low", "visualImpact": "medium" },
+    "rus:Settings/EAresIntSettingName::DetailQuality": { "text": { "tr": "Detay kalitesi", "en": "Detail quality" }, "fpsImpact": "medium", "visualImpact": "low" },
+    "rus:Settings/EAresIntSettingName::UIQuality": { "text": { "tr": "Arayüz kalitesi", "en": "UI quality" }, "fpsImpact": "low", "visualImpact": "low" },
+    "rus:Settings/EAresIntSettingName::BloomQuality": { "text": { "tr": "Parlama (bloom)", "en": "Bloom" }, "fpsImpact": "medium", "visualImpact": "low" },
+    "rus:Settings/EAresBoolSettingName::DisableDistortion": { "text": { "tr": "Bozulma efekti kapalı", "en": "Distortion off" }, "fpsImpact": "low", "visualImpact": "low" },
+    "rus:Settings/EAresBoolSettingName::ImproveClarity": { "text": { "tr": "Netliği artır (kapalı = daha çok FPS)", "en": "Improve clarity (off = more FPS)" }, "fpsImpact": "medium", "visualImpact": "low" },
+    "rus:Settings/EAresIntSettingName::AnisotropicFiltering": { "text": { "tr": "Anizotropik filtreleme 1x", "en": "Anisotropic filtering 1x" }, "fpsImpact": "low", "visualImpact": "low" },
+    "gus:/Script/ShooterGame.ShooterGameUserSettings/bUseVSync": { "text": { "tr": "Dikey eşitleme kapalı (gecikme düşer)", "en": "V-Sync off (lower latency)" }, "fpsImpact": "high", "visualImpact": "low" }
+  },
+  "tips": {
+    "tr": "Oyun içinde elle kontrol et: Video > Grafik Kalitesi > Çok iş parçacıklı işleme AÇIK, Vinyet KAPALI, Gölgeler KAPALI, Kenar yumuşatma YOK. Çözünürlük, tuşlar, sens ve nişangaha dokunulmadı.",
+    "en": "Check in game: Video > Graphics Quality > Multithreaded Rendering ON, Vignette OFF, Shadows OFF, Anti-Aliasing NONE. Resolution, keybinds, sensitivity and crosshair were not touched."
+  },
+  "verifiedOn": "2026-11",
+  "stretchKeys": [
+    "gus:/Script/ShooterGame.ShooterGameUserSettings/ResolutionSizeX", "gus:/Script/ShooterGame.ShooterGameUserSettings/ResolutionSizeY",
+    "gus:/Script/ShooterGame.ShooterGameUserSettings/LastUserConfirmedResolutionSizeX", "gus:/Script/ShooterGame.ShooterGameUserSettings/LastUserConfirmedResolutionSizeY",
+    "gus:/Script/ShooterGame.ShooterGameUserSettings/bShouldLetterbox", "gus:/Script/ShooterGame.ShooterGameUserSettings/bLastConfirmedShouldLetterbox",
+    "gus:/Script/ShooterGame.ShooterGameUserSettings/PreferredFullscreenMode", "gus:/Script/ShooterGame.ShooterGameUserSettings/LastConfirmedFullscreenMode"
+  ]
+}
