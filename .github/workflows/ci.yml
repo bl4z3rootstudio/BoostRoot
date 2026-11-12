@@ -1,0 +1,22 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet test -c Release
+      - name: NativeAOT probe
+        if: runner.os == 'Windows'
+        run: |
+          dotnet publish tests/BoostRoot.AotProbe -c Release -r win-x64 -o publish/aot
+          ./publish/aot/BoostRoot.AotProbe.exe profiles/_example.json

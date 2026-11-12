@@ -1,0 +1,29 @@
+{
+  // Example used by tests and the AOT probe. Real values live in Plan 10 profiles.
+  "id": "example-valorant",
+  "name": "VALORANT (example)",
+  "schemaVersion": 1,
+  "antiCheat": "vanguard",
+  "competitive": true,
+  "group": "A",
+  "detect": { "riot": "valorant" },
+  "launch": { "riot": "valorant" },
+  "configs": [
+    { "id": "gus", "format": "ini", "path": "%LOCALAPPDATA%/VALORANT/Saved/Config/*/WindowsClient/GameUserSettings.ini", "pick": "newest" }
+  ],
+  "neverTouch": ["gus:*Gamma*"],
+  "levels": {
+    "quality":     { "set": { "gus:ScalabilityGroups/sg.PostProcessQuality": "1" } },
+    "balanced":    { "set": { "gus:ScalabilityGroups/sg.ShadowQuality": "1", "gus:ScalabilityGroups/sg.PostProcessQuality": "0" } },
+    "maxfps":      { "set": { "gus:ScalabilityGroups/sg.ShadowQuality": "0", "gus:ScalabilityGroups/sg.EffectsQuality": "0", "gus:ScalabilityGroups/sg.PostProcessQuality": "0" } },
+    "competitive": { "set": { "gus:ScalabilityGroups/sg.ShadowQuality": "0", "gus:ScalabilityGroups/sg.EffectsQuality": "0", "gus:ScalabilityGroups/sg.PostProcessQuality": "0" },
+                     "gpu": { "lowLatency": true, "vSync": false, "radeonBoost": false, "chill": false, "textureFiltering": "performance", "upscaler": "off" } }
+  },
+  "recommend": [ { "ifScoreBelow": 40, "level": "maxfps" }, { "level": "competitive" } ],
+  "notes": {
+    "gus:ScalabilityGroups/sg.ShadowQuality": { "text": { "tr": "Gölge kalitesi", "en": "Shadow quality" }, "fpsImpact": "high", "visualImpact": "low" }
+  },
+  "tips": { "tr": "Çözünürlük ve tuşlarına dokunulmaz.", "en": "Resolution and keybinds are never changed." },
+  "verifiedOn": "2026-11",
+  "stretchKeys": ["gus:/Script/ShooterGame.ShooterGameUserSettings/ResolutionSizeX", "gus:/Script/ShooterGame.ShooterGameUserSettings/ResolutionSizeY"]
+}

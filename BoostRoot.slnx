@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BoostRoot.Core/BoostRoot.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BoostRoot.AotProbe/BoostRoot.AotProbe.csproj" />
+    <Project Path="tests/BoostRoot.Core.Tests/BoostRoot.Core.Tests.csproj" />
+    <Project Path="tests/BoostRoot.Testing/BoostRoot.Testing.csproj" />
+  </Folder>
+</Solution>
