@@ -42,6 +42,7 @@ public sealed class Loc : INotifyPropertyChanged
     }
 
     public string this[string key] => _current.TryGetValue(key, out var v) ? v : key;
+    public bool Has(string key) => _current.ContainsKey(key);
 
     public string Format(string key, params object[] args) => string.Format(CultureInfo.CurrentCulture, this[key], args);
 }

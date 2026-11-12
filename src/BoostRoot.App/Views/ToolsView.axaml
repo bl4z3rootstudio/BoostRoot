@@ -18,6 +18,19 @@
           <Button Grid.Column="1" Classes="ghost" VerticalAlignment="Center" Command="{Binding OpenDriverPageCommand}" Content="{Binding [tools.openDriver], Source={x:Static loc:Loc.I}}" />
         </Grid>
       </Border>
+      <Border Classes="card" IsVisible="{Binding GpuTitle, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <StackPanel Spacing="8">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Classes="h2" Text="{Binding GpuTitle}" />
+            <Button Grid.Column="1" Classes="ghost" Command="{Binding OpenGpuAppCommand}" Content="{Binding [gpu.openApp], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+          <ItemsControl ItemsSource="{Binding GpuSteps}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="x:String"><TextBlock Margin="0,3" TextWrapping="Wrap"><Run Text="•  " Foreground="{StaticResource AccentLight}" /><Run Text="{Binding}" /></TextBlock></DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
       <Border Classes="card">
         <StackPanel Spacing="10">
           <TextBlock Classes="h2" Text="{Binding [tools.junk], Source={x:Static loc:Loc.I}}" />

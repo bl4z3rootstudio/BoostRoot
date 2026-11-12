@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using BoostRoot.Core.Boost;
@@ -47,6 +48,7 @@ public sealed class WindowsAppServices : IAppServices
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(30) };
     private HardwareInfo? _lastHardware;
     private readonly ProfileApplier _applier;
+    private readonly Core.Gpu.GpuProfileChanger _gpu;
     /// <summary>Set by the app: starts the in-game session (overlay, hotkeys, clips, 4:3) after a boost.</summary>
     public Action<CatalogEntry, AppSettings>? SessionStarter { get; set; }
 
@@ -63,7 +65,8 @@ public sealed class WindowsAppServices : IAppServices
         var applier = _applier = new ProfileApplier(new PathResolver(_fs, p => WindowsEnvironment.Expand(ExpandGameVars(p))), editor);
         var registryChanger = _registryChanger = new RegistryChanger(_registry, _journal);
         var powerChanger = new PowerPlanChanger(new WindowsPowerPlans(), _journal);
-        _undo = new UndoService(_journal, [new FileUndoHandler(_fs), registryChanger, powerChanger]);
+        _gpu = new Core.Gpu.GpuProfileChanger(new NvidiaDrs(), _journal);
+        _undo = new UndoService(_journal, [new FileUndoHandler(_fs), registryChanger, powerChanger, _gpu]);
         _orchestrator = new BoostOrchestrator(applier, _processes, _registry, registryChanger, powerChanger, _undo, []);
     }
 
@@ -123,6 +126,18 @@ public sealed class WindowsAppServices : IAppServices
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ProtectedSettingException) { step = new StepResult("stretch", StepStatus.Failed, ex.Message); }
             result = result with { Steps = [.. result.Steps, step] };
+        }
+        if (profile.Levels[level].Gpu is { } prefs && processNames.Length > 0)
+        {
+            try
+            {
+                var n = processNames.Sum(exeName => _gpu.Apply(result.OperationId, exeName, prefs));
+                if (n > 0) result = result with { Steps = [.. result.Steps, new StepResult("gpu-profile", StepStatus.Done, "NVIDIA", n)] };
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or EntryPointNotFoundException or SEHException or AccessViolationException)
+            {
+                result = result with { Steps = [.. result.Steps, new StepResult("gpu-profile", StepStatus.Skipped, ex.Message)] };
+            }
         }
         SessionStarter?.Invoke(entry, settings);
         return result;

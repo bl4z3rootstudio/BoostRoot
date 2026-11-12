@@ -96,3 +96,40 @@ public class ShellExtrasTests
         Assert.True(vm.Changes.Count >= 1 && before >= 1);
     }
 }
+
+public class GpuProfileTests
+{
+    private sealed class FakeDrv : BoostRoot.Core.Gpu.IGpuDriverProfiles
+    {
+        public bool Supported => true;
+        public Dictionary<uint, uint> Applied = [];
+        public string? Reverted;
+        public (int, string) Apply(string exeName, IReadOnlyDictionary<uint, uint> settings) { foreach (var kv in settings) Applied[kv.Key] = kv.Value; return (settings.Count, "created=1"); }
+        public void Revert(string exeName, string backup) => Reverted = exeName + "|" + backup;
+    }
+
+    [Fact]
+    public void Nvidia_SettingsFromPrefs_AndBackupRoundTrip()
+    {
+        var d = BoostRoot.Core.Gpu.NvidiaSettings.From(new BoostRoot.Core.Profiles.GpuPrefs(LowLatency: true, VSync: false, TextureFiltering: "performance"));
+        Assert.Equal(4, d.Count);
+        Assert.Equal(BoostRoot.Core.Gpu.NvidiaSettings.VSyncForceOff, d[BoostRoot.Core.Gpu.NvidiaSettings.VSyncMode]);
+        var enc = BoostRoot.Core.Gpu.NvidiaSettings.Encode(false, new Dictionary<uint, uint?> { [0x1057EB71] = 0, [0x007BA09E] = null });
+        var (created, prev) = BoostRoot.Core.Gpu.NvidiaSettings.Decode(enc);
+        Assert.False(created);
+        Assert.Equal(0u, prev[0x1057EB71]);
+        Assert.Null(prev[0x007BA09E]);
+    }
+
+    [Fact]
+    public void Changer_JournalsAndUndoes()
+    {
+        var fs = new BoostRoot.Testing.InMemoryFileSystem();
+        var journal = new BoostRoot.Core.Safety.Journal(fs, "C:/j");
+        var drv = new FakeDrv();
+        var ch = new BoostRoot.Core.Gpu.GpuProfileChanger(drv, journal);
+        Assert.Equal(1, ch.Apply("op1", "cs2.exe", new BoostRoot.Core.Profiles.GpuPrefs()));
+        new BoostRoot.Core.Safety.UndoService(journal, [ch]).RevertOperation("op1");
+        Assert.Equal("cs2.exe|created=1", drv.Reverted);
+    }
+}

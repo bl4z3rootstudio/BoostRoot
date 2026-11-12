@@ -214,5 +214,17 @@
   "update.failed": "Güncelleme indirilemedi; GitHub'dan elle indirip kurabilirsin.",
   "update.verifying": "İndiriliyor ve doğrulanıyor…",
   "donate.button": "Destek ol",
-  "donate.tip": "BoostRoot tamamen ücretsiz. Beğendiysen GitHub Sponsors veya kripto ile destek olabilirsin (README'de)."
+  "donate.tip": "BoostRoot tamamen ücretsiz. Beğendiysen GitHub Sponsors veya kripto ile destek olabilirsin (README'de).",
+  "gpu.openApp": "Sürücü uygulamasını aç",
+  "gpu.amd.title": "AMD Radeon — önerilen Adrenalin ayarları",
+  "gpu.amd.1": "Oyunlar → oyununu seç (ya da Genel Grafik): Radeon Anti-Lag AÇIK.",
+  "gpu.amd.2": "Rekabetçi oyunlarda (VALORANT, CS2, LoL…) Radeon Boost KAPALI; diğer oyunlarda AÇIK bırakabilirsin.",
+  "gpu.amd.3": "Radeon Chill KAPALI, Dikey Yenileme Bekle: Her Zaman Kapalı.",
+  "gpu.amd.4": "Doku Filtreleme Kalitesi: Performans, Yüzey Biçimi İyileştirme: AÇIK.",
+  "gpu.amd.5": "Otomatik hız aşırtma: Performans → Ayarlama → Otomatik Ayarlama → \"GPU Hız Aşırtma\". Sonra BoostRoot → Stres Testi → Ekran kartı 15 dk çalıştır; hata/çökme olursa Ayarlama'dan \"Varsayılan\"a dön.",
+  "gpu.amd.6": "BoostRoot, AMD sürücü ayarlarını kendisi değiştirmez (AMD bunun için güvenli bir yol sunmuyor); bu yüzden adım adım gösterir.",
+  "gpu.nvidia.title": "NVIDIA — sürücü profili otomatik",
+  "gpu.nvidia.1": "Boost'a bastığında BoostRoot oyuna özel NVIDIA profili yazar: Güç yönetimi = Maksimum performans, Düşük gecikme (önceden işlenen kare 1), Dikey eşitleme kapalı, Doku filtreleme = Yüksek performans. Geri Al hepsini siler.",
+  "gpu.nvidia.2": "Reflex destekleyen oyunlarda oyun içinden NVIDIA Reflex: Açık + Boost seç.",
+  "gpu.nvidia.3": "Otomatik hız aşırtma: NVIDIA App → Sistem → Performans → \"Otomatik Ayarlama\". Sonra BoostRoot → Stres Testi → Ekran kartı 15 dk çalıştır; hata/çökme olursa ayarlamayı sıfırla."
 }

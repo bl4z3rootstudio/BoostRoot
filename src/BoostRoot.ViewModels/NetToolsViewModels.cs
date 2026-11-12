@@ -93,6 +93,9 @@ public sealed partial class TweakRowViewModel(BoostRoot.Core.Tweaks.WindowsTweak
 public sealed partial class ToolsViewModel(IAppServices services) : ObservableObject
 {
     public ObservableCollection<TweakRowViewModel> Tweaks { get; } = [];
+    public ObservableCollection<string> GpuSteps { get; } = [];
+    [ObservableProperty] public partial string? GpuTitle { get; set; }
+    private string? _gpuApp;
     public ObservableCollection<JunkRowViewModel> Junk { get; } = [];
     public ObservableCollection<StartupRowViewModel> Startup { get; } = [];
     [ObservableProperty] public partial string? JunkResult { get; set; }
@@ -124,7 +127,17 @@ public sealed partial class ToolsViewModel(IAppServices services) : ObservableOb
             Startup.Clear();
             foreach (var s in services.StartupItems()) Startup.Add(new StartupRowViewModel(s, services));
             var tr = Loc.I.Language == "tr";
-            if (services.CheckDriver() is { } d)
+            var driver = services.CheckDriver();
+            GpuSteps.Clear();
+            var vendor = driver?.Gpu.Vendor ?? BoostRoot.Core.Hardware.GpuVendor.Unknown;
+            var key = vendor switch { BoostRoot.Core.Hardware.GpuVendor.Amd => "amd", BoostRoot.Core.Hardware.GpuVendor.Nvidia => "nvidia", _ => null };
+            if (key is not null)
+            {
+                GpuTitle = Loc.I["gpu." + key + ".title"];
+                for (var i = 1; Loc.I.Has("gpu." + key + "." + i); i++) GpuSteps.Add(Loc.I["gpu." + key + "." + i]);
+                _gpuApp = key == "amd" ? @"C:\Program Files\AMD\CNext\CNext\RadeonSoftware.exe" : "https://www.nvidia.com/en-us/software/nvidia-app/";
+            }
+            if (driver is { } d)
             {
                 _driverUrl = d.DownloadUrl;
                 DriverIsOld = d.IsOld;
@@ -148,6 +161,9 @@ public sealed partial class ToolsViewModel(IAppServices services) : ObservableOb
         }
         finally { IsBusy = false; }
     }
+
+    [RelayCommand]
+    public void OpenGpuApp() { if (_gpuApp is not null) services.OpenUrl(_gpuApp); }
 
     [RelayCommand]
     public void OpenDriverPage()

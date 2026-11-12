@@ -214,5 +214,17 @@
   "update.failed": "Couldn't download the update; you can download it from GitHub manually.",
   "update.verifying": "Downloading and verifying…",
   "donate.button": "Support",
-  "donate.tip": "BoostRoot is completely free. If you like it you can support it via GitHub Sponsors or crypto (see README)."
+  "donate.tip": "BoostRoot is completely free. If you like it you can support it via GitHub Sponsors or crypto (see README).",
+  "gpu.openApp": "Open driver app",
+  "gpu.amd.title": "AMD Radeon — recommended Adrenalin settings",
+  "gpu.amd.1": "Gaming → pick your game (or Global Graphics): Radeon Anti-Lag ON.",
+  "gpu.amd.2": "Competitive games (VALORANT, CS2, LoL…): Radeon Boost OFF; you can leave it ON for other games.",
+  "gpu.amd.3": "Radeon Chill OFF, Wait for Vertical Refresh: Always Off.",
+  "gpu.amd.4": "Texture Filtering Quality: Performance, Surface Format Optimization: ON.",
+  "gpu.amd.5": "Auto overclock: Performance → Tuning → Automatic Tuning → \"Overclock GPU\". Then run BoostRoot → Stress → Graphics card for 15 min; on errors/crashes reset Tuning to \"Default\".",
+  "gpu.amd.6": "BoostRoot doesn't change AMD driver settings itself (AMD offers no safe way), so it shows the steps.",
+  "gpu.nvidia.title": "NVIDIA — automatic driver profile",
+  "gpu.nvidia.1": "On Boost, BoostRoot writes a per-game NVIDIA profile: Power management = Prefer maximum performance, Low latency (max pre-rendered frames 1), V-Sync off, Texture filtering = High performance. Undo removes it.",
+  "gpu.nvidia.2": "In games with Reflex, enable NVIDIA Reflex: On + Boost in game.",
+  "gpu.nvidia.3": "Auto overclock: NVIDIA App → System → Performance → \"Automatic Tuning\". Then run BoostRoot → Stress → Graphics card for 15 min; on errors/crashes reset tuning."
 }
