@@ -1,0 +1,73 @@
+{
+  "id": "peak",
+  "name": "PEAK",
+  "schemaVersion": 1,
+  "antiCheat": "none",
+  "competitive": false,
+  "group": "B",
+  "detect": {
+    "steam": "3527290",
+    "name": "PEAK",
+    "process": "PEAK.exe"
+  },
+  "launch": {
+    "steam": "3527290"
+  },
+  "configs": [],
+  "neverTouch": [],
+  "levels": {
+    "quality": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false
+      }
+    },
+    "balanced": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true
+      }
+    },
+    "maxfps": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    },
+    "competitive": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "ifScoreBelow": 40,
+      "level": "maxfps"
+    },
+    {
+      "ifScoreBelow": 65,
+      "level": "balanced"
+    },
+    {
+      "level": "quality"
+    }
+  ],
+  "notes": {},
+  "tips": {
+    "tr": "Grafik ön ayarını Orta yap, Gölgeler Düşük, Render ölçeği %100.",
+    "en": "Graphics preset Medium, shadows Low, render scale 100%."
+  },
+  "verifiedOn": "2026-11"
+}

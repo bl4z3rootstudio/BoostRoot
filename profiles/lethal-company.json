@@ -1,0 +1,72 @@
+{
+  "id": "lethal-company",
+  "name": "Lethal Company",
+  "schemaVersion": 1,
+  "antiCheat": "none",
+  "competitive": false,
+  "group": "B",
+  "detect": {
+    "steam": "1966720",
+    "process": "Lethal Company.exe"
+  },
+  "launch": {
+    "steam": "1966720"
+  },
+  "configs": [],
+  "neverTouch": [],
+  "levels": {
+    "quality": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false
+      }
+    },
+    "balanced": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true
+      }
+    },
+    "maxfps": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    },
+    "competitive": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "ifScoreBelow": 40,
+      "level": "maxfps"
+    },
+    {
+      "ifScoreBelow": 65,
+      "level": "balanced"
+    },
+    {
+      "level": "quality"
+    }
+  ],
+  "notes": {},
+  "tips": {
+    "tr": "Oyun zaten hafif; FPS sınırını 'Sınırsız' yerine monitör Hz'ine yakın tut.",
+    "en": "Already light; cap FPS near your monitor's Hz instead of unlimited."
+  },
+  "verifiedOn": "2026-11"
+}

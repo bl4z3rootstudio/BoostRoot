@@ -1,0 +1,60 @@
+{
+  "id": "rust",
+  "name": "Rust",
+  "schemaVersion": 1,
+  "antiCheat": "eac",
+  "competitive": true,
+  "group": "B",
+  "detect": {
+    "steam": "252490",
+    "process": "RustClient.exe"
+  },
+  "launch": {
+    "steam": "252490"
+  },
+  "configs": [],
+  "neverTouch": [],
+  "levels": {
+    "quality": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "balanced": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "maxfps": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "competitive": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false,
+        "upscaler": "off"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "level": "competitive"
+    }
+  ],
+  "notes": {},
+  "tips": {
+    "tr": "Seçenekler > Grafik: Kalite 2-3, Gölge kaskadı 1, Çimen gölgeleri kapalı, Ambient occlusion kapalı. F1 konsolu: 'gc.buffer 2048' (16 GB+ RAM).",
+    "en": "Options > Graphics: Quality 2-3, shadow cascades 1, grass shadows off, AO off."
+  },
+  "verifiedOn": "2026-11"
+}

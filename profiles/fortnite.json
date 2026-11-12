@@ -1,0 +1,187 @@
+{
+  "id": "fortnite",
+  "name": "Fortnite",
+  "schemaVersion": 1,
+  "antiCheat": "eac",
+  "competitive": true,
+  "group": "A",
+  "detect": {
+    "epic": "Fortnite",
+    "process": "FortniteClient-Win64-Shipping.exe"
+  },
+  "launch": {
+    "epic": "Fortnite"
+  },
+  "configs": [
+    {
+      "id": "gus",
+      "format": "ini",
+      "path": "%LOCALAPPDATA%/FortniteGame/Saved/Config/WindowsClient/GameUserSettings.ini"
+    }
+  ],
+  "neverTouch": [
+    "gus:*FrameRateLimit*",
+    "gus:*Monitor*",
+    "gus:*Gamma*",
+    "gus:*Brightness*",
+    "gus:*HDR*",
+    "gus:*Mouse*",
+    "gus:*Window*"
+  ],
+  "levels": {
+    "quality": {
+      "set": {
+        "gus:ScalabilityGroups/sg.ViewDistanceQuality": "3",
+        "gus:ScalabilityGroups/sg.AntiAliasingQuality": "2",
+        "gus:ScalabilityGroups/sg.ShadowQuality": "2",
+        "gus:ScalabilityGroups/sg.GlobalIlluminationQuality": "3",
+        "gus:ScalabilityGroups/sg.ReflectionQuality": "3",
+        "gus:ScalabilityGroups/sg.PostProcessQuality": "2",
+        "gus:ScalabilityGroups/sg.TextureQuality": "3",
+        "gus:ScalabilityGroups/sg.EffectsQuality": "2",
+        "gus:ScalabilityGroups/sg.FoliageQuality": "3",
+        "gus:ScalabilityGroups/sg.ShadingQuality": "3",
+        "gus:/Script/FortniteGame.FortGameUserSettings/bUseVSync": "False"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "balanced": {
+      "set": {
+        "gus:ScalabilityGroups/sg.ViewDistanceQuality": "2",
+        "gus:ScalabilityGroups/sg.AntiAliasingQuality": "2",
+        "gus:ScalabilityGroups/sg.ShadowQuality": "2",
+        "gus:ScalabilityGroups/sg.GlobalIlluminationQuality": "2",
+        "gus:ScalabilityGroups/sg.ReflectionQuality": "2",
+        "gus:ScalabilityGroups/sg.PostProcessQuality": "2",
+        "gus:ScalabilityGroups/sg.TextureQuality": "2",
+        "gus:ScalabilityGroups/sg.EffectsQuality": "2",
+        "gus:ScalabilityGroups/sg.FoliageQuality": "2",
+        "gus:ScalabilityGroups/sg.ShadingQuality": "2",
+        "gus:/Script/FortniteGame.FortGameUserSettings/bUseVSync": "False"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "maxfps": {
+      "set": {
+        "gus:ScalabilityGroups/sg.ViewDistanceQuality": "0",
+        "gus:ScalabilityGroups/sg.AntiAliasingQuality": "0",
+        "gus:ScalabilityGroups/sg.ShadowQuality": "0",
+        "gus:ScalabilityGroups/sg.GlobalIlluminationQuality": "0",
+        "gus:ScalabilityGroups/sg.ReflectionQuality": "0",
+        "gus:ScalabilityGroups/sg.PostProcessQuality": "0",
+        "gus:ScalabilityGroups/sg.TextureQuality": "0",
+        "gus:ScalabilityGroups/sg.EffectsQuality": "0",
+        "gus:ScalabilityGroups/sg.FoliageQuality": "0",
+        "gus:ScalabilityGroups/sg.ShadingQuality": "0",
+        "gus:/Script/FortniteGame.FortGameUserSettings/bUseVSync": "False"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "competitive": {
+      "set": {
+        "gus:ScalabilityGroups/sg.ViewDistanceQuality": "3",
+        "gus:ScalabilityGroups/sg.AntiAliasingQuality": "0",
+        "gus:ScalabilityGroups/sg.ShadowQuality": "0",
+        "gus:ScalabilityGroups/sg.GlobalIlluminationQuality": "0",
+        "gus:ScalabilityGroups/sg.ReflectionQuality": "0",
+        "gus:ScalabilityGroups/sg.PostProcessQuality": "0",
+        "gus:ScalabilityGroups/sg.TextureQuality": "1",
+        "gus:ScalabilityGroups/sg.EffectsQuality": "0",
+        "gus:ScalabilityGroups/sg.FoliageQuality": "0",
+        "gus:ScalabilityGroups/sg.ShadingQuality": "0",
+        "gus:/Script/FortniteGame.FortGameUserSettings/bUseVSync": "False"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false,
+        "upscaler": "off"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "level": "competitive"
+    }
+  ],
+  "notes": {
+    "gus:ScalabilityGroups/sg.ShadowQuality": {
+      "text": {
+        "tr": "Gölgeler",
+        "en": "Shadows"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "medium"
+    },
+    "gus:ScalabilityGroups/sg.PostProcessQuality": {
+      "text": {
+        "tr": "Son işleme efektleri",
+        "en": "Post-processing"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "low"
+    },
+    "gus:ScalabilityGroups/sg.EffectsQuality": {
+      "text": {
+        "tr": "Efektler (duman, patlama)",
+        "en": "Effects"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "low"
+    },
+    "gus:ScalabilityGroups/sg.ViewDistanceQuality": {
+      "text": {
+        "tr": "Görüş mesafesi (rekabette yüksek kalır)",
+        "en": "View distance (kept high for competitive)"
+      },
+      "fpsImpact": "low",
+      "visualImpact": "high"
+    },
+    "gus:ScalabilityGroups/sg.FoliageQuality": {
+      "text": {
+        "tr": "Bitki örtüsü",
+        "en": "Foliage"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "medium"
+    },
+    "gus:ScalabilityGroups/sg.TextureQuality": {
+      "text": {
+        "tr": "Doku kalitesi (VRAM)",
+        "en": "Textures (VRAM)"
+      },
+      "fpsImpact": "low",
+      "visualImpact": "medium"
+    },
+    "gus:/Script/FortniteGame.FortGameUserSettings/bUseVSync": {
+      "text": {
+        "tr": "Dikey eşitleme kapalı",
+        "en": "V-Sync off"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "low"
+    }
+  },
+  "tips": {
+    "tr": "En yüksek FPS için oyun içinde Görüntü > İşleme Modu: Performans'ı dene. Çözünürlük, tuşlar ve hassasiyete dokunulmadı.",
+    "en": "For max FPS try Display > Rendering Mode: Performance in game. Resolution, keybinds and sensitivity were not touched."
+  },
+  "verifiedOn": "2026-11",
+  "stretchKeys": [
+    "gus:/Script/FortniteGame.FortGameUserSettings/ResolutionSizeX",
+    "gus:/Script/FortniteGame.FortGameUserSettings/ResolutionSizeY",
+    "gus:/Script/FortniteGame.FortGameUserSettings/LastUserConfirmedResolutionSizeX",
+    "gus:/Script/FortniteGame.FortGameUserSettings/LastUserConfirmedResolutionSizeY",
+    "gus:/Script/FortniteGame.FortGameUserSettings/PreferredFullscreenMode",
+    "gus:/Script/FortniteGame.FortGameUserSettings/LastConfirmedFullscreenMode"
+  ]
+}

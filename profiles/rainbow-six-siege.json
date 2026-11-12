@@ -1,0 +1,60 @@
+{
+  "id": "rainbow-six-siege",
+  "name": "Rainbow Six Siege",
+  "schemaVersion": 1,
+  "antiCheat": "battleye",
+  "competitive": true,
+  "group": "B",
+  "detect": {
+    "steam": "359550",
+    "process": "RainbowSix.exe,RainbowSix_Vulkan.exe"
+  },
+  "launch": {
+    "steam": "359550"
+  },
+  "configs": [],
+  "neverTouch": [],
+  "levels": {
+    "quality": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "balanced": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "maxfps": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "competitive": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false,
+        "upscaler": "off"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "level": "competitive"
+    }
+  ],
+  "notes": {},
+  "tips": {
+    "tr": "Vulkan sürümünü dene (çoğu kartta daha fazla FPS). Doku Orta, Gölge Düşük (gölgeler rakibi gösterir, kapatma), Yansıma Düşük, Ambient occlusion kapalı.",
+    "en": "Try the Vulkan build. Textures Medium, Shadows Low (keep on), Reflections Low, AO off."
+  },
+  "verifiedOn": "2026-11"
+}

@@ -57,7 +57,7 @@ public sealed class WindowsAppServices : IAppServices
 
         _journal = new Journal(_fs, Path.Combine(shared, "journal"));
         var editor = new SafeFileEditor(_fs, _journal, Path.Combine(shared, "backup"));
-        var applier = _applier = new ProfileApplier(new PathResolver(_fs, WindowsEnvironment.Expand), editor);
+        var applier = _applier = new ProfileApplier(new PathResolver(_fs, p => WindowsEnvironment.Expand(ExpandGameVars(p))), editor);
         var registryChanger = _registryChanger = new RegistryChanger(_registry, _journal);
         var powerChanger = new PowerPlanChanger(new WindowsPowerPlans(), _journal);
         _undo = new UndoService(_journal, [new FileUndoHandler(_fs), registryChanger, powerChanger]);
@@ -78,8 +78,27 @@ public sealed class WindowsAppServices : IAppServices
     /// <summary>Neutral mid score until the hardware scanner (PC Karnesi) has run.</summary>
     public int PcScore { get; private set; } = 60;
 
+    /// <summary>Game being boosted: gives profiles {install}, {steam}, {gameDir}, {documents}.</summary>
+    private InstalledGame? _currentGame;
+
+    internal string ExpandGameVars(string path)
+    {
+        var docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace('\\', '/');
+        path = path.Replace("{documents}", docs, StringComparison.Ordinal);
+        if (_currentGame is { } g)
+        {
+            var install = g.InstallPath.Replace('\\', '/').TrimEnd('/');
+            path = path.Replace("{install}", install, StringComparison.Ordinal);
+            var i = install.IndexOf("/steamapps/", StringComparison.OrdinalIgnoreCase);
+            if (i > 0) path = path.Replace("{steam}", install[..i], StringComparison.Ordinal);
+            if (g.Extra.TryGetValue("gameDir", out var gd)) path = path.Replace("{gameDir}", gd.Replace('\\', '/'), StringComparison.Ordinal);
+        }
+        return path; // unresolved {vars} simply match nothing → "settings file not found"
+    }
+
     public BoostResult Boost(CatalogEntry entry, BoostLevel level, AppSettings settings)
     {
+        _currentGame = entry.Game;
         var profile = entry.Profile ?? throw new InvalidOperationException("No profile for this game.");
         var processNames = profile.Detect.TryGetValue("process", out var p) ? p.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) : [];
         string? exe = null;

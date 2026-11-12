@@ -1,0 +1,125 @@
+{
+  "id": "rocket-league",
+  "name": "Rocket League",
+  "schemaVersion": 1,
+  "antiCheat": "eac",
+  "competitive": true,
+  "group": "A",
+  "detect": {
+    "epic": "Sugar",
+    "steam": "252950",
+    "process": "RocketLeague.exe"
+  },
+  "launch": {
+    "epic": "Sugar"
+  },
+  "configs": [
+    {
+      "id": "sys",
+      "format": "ini",
+      "path": "{documents}/My Games/Rocket League/TAGame/Config/TASystemSettings.ini"
+    }
+  ],
+  "neverTouch": [
+    "sys:*Resolution*",
+    "sys:*ResX*",
+    "sys:*ResY*",
+    "sys:*Fullscreen*",
+    "sys:*Borderless*",
+    "sys:*Gamma*"
+  ],
+  "levels": {
+    "quality": {
+      "set": {
+        "sys:SystemSettings/UseVsync": "False",
+        "sys:SystemSettings/MotionBlur": "False"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "balanced": {
+      "set": {
+        "sys:SystemSettings/MotionBlur": "False",
+        "sys:SystemSettings/DepthOfField": "False",
+        "sys:SystemSettings/LensFlares": "False",
+        "sys:SystemSettings/UseVsync": "False"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "maxfps": {
+      "set": {
+        "sys:SystemSettings/DynamicShadows": "False",
+        "sys:SystemSettings/MotionBlur": "False",
+        "sys:SystemSettings/DepthOfField": "False",
+        "sys:SystemSettings/Bloom": "False",
+        "sys:SystemSettings/LensFlares": "False",
+        "sys:SystemSettings/LightShafts": "False",
+        "sys:SystemSettings/AmbientOcclusion": "False",
+        "sys:SystemSettings/UseVsync": "False"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "competitive": {
+      "set": {
+        "sys:SystemSettings/DynamicShadows": "False",
+        "sys:SystemSettings/MotionBlur": "False",
+        "sys:SystemSettings/DepthOfField": "False",
+        "sys:SystemSettings/Bloom": "False",
+        "sys:SystemSettings/LensFlares": "False",
+        "sys:SystemSettings/LightShafts": "False",
+        "sys:SystemSettings/AmbientOcclusion": "False",
+        "sys:SystemSettings/UseVsync": "False"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false,
+        "upscaler": "off"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "level": "competitive"
+    }
+  ],
+  "notes": {
+    "sys:SystemSettings/DynamicShadows": {
+      "text": {
+        "tr": "Dinamik gölgeler kapalı",
+        "en": "Dynamic shadows off"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "medium"
+    },
+    "sys:SystemSettings/MotionBlur": {
+      "text": {
+        "tr": "Hareket bulanıklığı kapalı",
+        "en": "Motion blur off"
+      },
+      "fpsImpact": "low",
+      "visualImpact": "low"
+    },
+    "sys:SystemSettings/UseVsync": {
+      "text": {
+        "tr": "Dikey eşitleme kapalı",
+        "en": "V-Sync off"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "low"
+    }
+  },
+  "tips": {
+    "tr": "Oyun içinde Kare Hızı sınırını monitörünün Hz değerinin üstüne al. Kamera ayarlarına dokunulmadı.",
+    "en": "In game set the frame rate cap above your monitor's Hz. Camera settings were not touched."
+  },
+  "verifiedOn": "2026-11"
+}

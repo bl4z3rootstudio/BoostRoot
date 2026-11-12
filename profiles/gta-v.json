@@ -1,0 +1,151 @@
+{
+  "id": "gta-v",
+  "name": "Grand Theft Auto V",
+  "schemaVersion": 1,
+  "antiCheat": "battleye",
+  "competitive": false,
+  "group": "A",
+  "detect": {
+    "steam": "271590",
+    "epic": "9d2d0eb64d5c44529cece33fe2a46482",
+    "process": "GTA5.exe,GTA5_Enhanced.exe"
+  },
+  "launch": {
+    "steam": "271590"
+  },
+  "configs": [
+    {
+      "id": "xml",
+      "format": "xml",
+      "path": "{documents}/Rockstar Games/GTA V/settings.xml"
+    }
+  ],
+  "neverTouch": [
+    "xml:Settings/video/*",
+    "xml:*Resolution*",
+    "xml:*Aspect*",
+    "xml:*Windowed*"
+  ],
+  "levels": {
+    "quality": {
+      "set": {
+        "xml:Settings/graphics/MotionBlurStrength@value": "0.000000"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false
+      }
+    },
+    "balanced": {
+      "set": {
+        "xml:Settings/graphics/Tessellation@value": "1",
+        "xml:Settings/graphics/ReflectionMSAA@value": "0",
+        "xml:Settings/graphics/GrassQuality@value": "1",
+        "xml:Settings/graphics/PostFX@value": "1",
+        "xml:Settings/graphics/DoF@value": "false",
+        "xml:Settings/graphics/MotionBlurStrength@value": "0.000000",
+        "xml:Settings/graphics/UltraShadows_Enabled@value": "false"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true
+      }
+    },
+    "maxfps": {
+      "set": {
+        "xml:Settings/graphics/Tessellation@value": "0",
+        "xml:Settings/graphics/ShadowQuality@value": "1",
+        "xml:Settings/graphics/ReflectionQuality@value": "0",
+        "xml:Settings/graphics/ReflectionMSAA@value": "0",
+        "xml:Settings/graphics/SSAO@value": "0",
+        "xml:Settings/graphics/MSAA@value": "0",
+        "xml:Settings/graphics/ParticleQuality@value": "0",
+        "xml:Settings/graphics/WaterQuality@value": "0",
+        "xml:Settings/graphics/GrassQuality@value": "0",
+        "xml:Settings/graphics/ShaderQuality@value": "0",
+        "xml:Settings/graphics/PostFX@value": "0",
+        "xml:Settings/graphics/Shadow_SoftShadows@value": "0",
+        "xml:Settings/graphics/UltraShadows_Enabled@value": "false",
+        "xml:Settings/graphics/DoF@value": "false",
+        "xml:Settings/graphics/MotionBlurStrength@value": "0.000000"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    },
+    "competitive": {
+      "set": {
+        "xml:Settings/graphics/Tessellation@value": "0",
+        "xml:Settings/graphics/ShadowQuality@value": "1",
+        "xml:Settings/graphics/ReflectionQuality@value": "0",
+        "xml:Settings/graphics/ReflectionMSAA@value": "0",
+        "xml:Settings/graphics/SSAO@value": "0",
+        "xml:Settings/graphics/MSAA@value": "0",
+        "xml:Settings/graphics/ParticleQuality@value": "0",
+        "xml:Settings/graphics/WaterQuality@value": "0",
+        "xml:Settings/graphics/GrassQuality@value": "0",
+        "xml:Settings/graphics/ShaderQuality@value": "0",
+        "xml:Settings/graphics/PostFX@value": "0",
+        "xml:Settings/graphics/Shadow_SoftShadows@value": "0",
+        "xml:Settings/graphics/UltraShadows_Enabled@value": "false",
+        "xml:Settings/graphics/DoF@value": "false",
+        "xml:Settings/graphics/MotionBlurStrength@value": "0.000000"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "ifScoreBelow": 40,
+      "level": "maxfps"
+    },
+    {
+      "ifScoreBelow": 65,
+      "level": "balanced"
+    },
+    {
+      "level": "quality"
+    }
+  ],
+  "notes": {
+    "xml:Settings/graphics/GrassQuality@value": {
+      "text": {
+        "tr": "Çimen kalitesi (en çok FPS yiyen)",
+        "en": "Grass quality (biggest FPS cost)"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "medium"
+    },
+    "xml:Settings/graphics/MSAA@value": {
+      "text": {
+        "tr": "MSAA kapalı",
+        "en": "MSAA off"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "medium"
+    },
+    "xml:Settings/graphics/PostFX@value": {
+      "text": {
+        "tr": "Son işleme efektleri",
+        "en": "Post FX"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "low"
+    }
+  },
+  "tips": {
+    "tr": "Dikey eşitlemeyi oyun içinden kapat. Enhanced sürümde ayar dosyası farklıysa ayarları oyun içinden yap.",
+    "en": "Turn V-Sync off in game. If the Enhanced edition uses a different file, change settings in game."
+  },
+  "verifiedOn": "2026-11"
+}

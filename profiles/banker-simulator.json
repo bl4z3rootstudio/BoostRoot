@@ -1,0 +1,72 @@
+{
+  "id": "banker-simulator",
+  "name": "Banker Simulator",
+  "schemaVersion": 1,
+  "antiCheat": "none",
+  "competitive": false,
+  "group": "B",
+  "detect": {
+    "name": "Banker Simulator",
+    "process": "BankerSimulator.exe"
+  },
+  "launch": {
+    "name": "Banker Simulator"
+  },
+  "configs": [],
+  "neverTouch": [],
+  "levels": {
+    "quality": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false
+      }
+    },
+    "balanced": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true
+      }
+    },
+    "maxfps": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    },
+    "competitive": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "ifScoreBelow": 40,
+      "level": "maxfps"
+    },
+    {
+      "ifScoreBelow": 65,
+      "level": "balanced"
+    },
+    {
+      "level": "quality"
+    }
+  ],
+  "notes": {},
+  "tips": {
+    "tr": "Hafif bir oyun; Gölgeleri Orta, V-Sync kapalı yap.",
+    "en": "Light game; shadows Medium, V-Sync off."
+  },
+  "verifiedOn": "2026-11"
+}

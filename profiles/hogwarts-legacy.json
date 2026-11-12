@@ -1,0 +1,179 @@
+{
+  "id": "hogwarts-legacy",
+  "name": "Hogwarts Legacy",
+  "schemaVersion": 1,
+  "antiCheat": "none",
+  "competitive": false,
+  "group": "A",
+  "detect": {
+    "steam": "990080",
+    "process": "HogwartsLegacy.exe"
+  },
+  "launch": {
+    "steam": "990080"
+  },
+  "configs": [
+    {
+      "id": "gus",
+      "format": "ini",
+      "path": "%LOCALAPPDATA%/Hogwarts Legacy/Saved/Config/WindowsNoEditor/GameUserSettings.ini"
+    }
+  ],
+  "neverTouch": [
+    "gus:*FrameRateLimit*",
+    "gus:*Monitor*",
+    "gus:*Gamma*",
+    "gus:*Brightness*",
+    "gus:*HDR*",
+    "gus:*Mouse*",
+    "gus:*Window*"
+  ],
+  "levels": {
+    "quality": {
+      "set": {
+        "gus:ScalabilityGroups/sg.ViewDistanceQuality": "3",
+        "gus:ScalabilityGroups/sg.AntiAliasingQuality": "2",
+        "gus:ScalabilityGroups/sg.ShadowQuality": "2",
+        "gus:ScalabilityGroups/sg.GlobalIlluminationQuality": "3",
+        "gus:ScalabilityGroups/sg.ReflectionQuality": "3",
+        "gus:ScalabilityGroups/sg.PostProcessQuality": "2",
+        "gus:ScalabilityGroups/sg.TextureQuality": "3",
+        "gus:ScalabilityGroups/sg.EffectsQuality": "2",
+        "gus:ScalabilityGroups/sg.FoliageQuality": "3",
+        "gus:ScalabilityGroups/sg.ShadingQuality": "3"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false
+      }
+    },
+    "balanced": {
+      "set": {
+        "gus:ScalabilityGroups/sg.ViewDistanceQuality": "2",
+        "gus:ScalabilityGroups/sg.AntiAliasingQuality": "2",
+        "gus:ScalabilityGroups/sg.ShadowQuality": "2",
+        "gus:ScalabilityGroups/sg.GlobalIlluminationQuality": "2",
+        "gus:ScalabilityGroups/sg.ReflectionQuality": "2",
+        "gus:ScalabilityGroups/sg.PostProcessQuality": "2",
+        "gus:ScalabilityGroups/sg.TextureQuality": "2",
+        "gus:ScalabilityGroups/sg.EffectsQuality": "2",
+        "gus:ScalabilityGroups/sg.FoliageQuality": "2",
+        "gus:ScalabilityGroups/sg.ShadingQuality": "2"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true
+      }
+    },
+    "maxfps": {
+      "set": {
+        "gus:ScalabilityGroups/sg.ViewDistanceQuality": "0",
+        "gus:ScalabilityGroups/sg.AntiAliasingQuality": "0",
+        "gus:ScalabilityGroups/sg.ShadowQuality": "0",
+        "gus:ScalabilityGroups/sg.GlobalIlluminationQuality": "0",
+        "gus:ScalabilityGroups/sg.ReflectionQuality": "0",
+        "gus:ScalabilityGroups/sg.PostProcessQuality": "0",
+        "gus:ScalabilityGroups/sg.TextureQuality": "0",
+        "gus:ScalabilityGroups/sg.EffectsQuality": "0",
+        "gus:ScalabilityGroups/sg.FoliageQuality": "0",
+        "gus:ScalabilityGroups/sg.ShadingQuality": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    },
+    "competitive": {
+      "set": {
+        "gus:ScalabilityGroups/sg.ViewDistanceQuality": "3",
+        "gus:ScalabilityGroups/sg.AntiAliasingQuality": "0",
+        "gus:ScalabilityGroups/sg.ShadowQuality": "0",
+        "gus:ScalabilityGroups/sg.GlobalIlluminationQuality": "0",
+        "gus:ScalabilityGroups/sg.ReflectionQuality": "0",
+        "gus:ScalabilityGroups/sg.PostProcessQuality": "0",
+        "gus:ScalabilityGroups/sg.TextureQuality": "1",
+        "gus:ScalabilityGroups/sg.EffectsQuality": "0",
+        "gus:ScalabilityGroups/sg.FoliageQuality": "0",
+        "gus:ScalabilityGroups/sg.ShadingQuality": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "ifScoreBelow": 40,
+      "level": "maxfps"
+    },
+    {
+      "ifScoreBelow": 65,
+      "level": "balanced"
+    },
+    {
+      "level": "quality"
+    }
+  ],
+  "notes": {
+    "gus:ScalabilityGroups/sg.ShadowQuality": {
+      "text": {
+        "tr": "Gölgeler",
+        "en": "Shadows"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "medium"
+    },
+    "gus:ScalabilityGroups/sg.PostProcessQuality": {
+      "text": {
+        "tr": "Son işleme efektleri",
+        "en": "Post-processing"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "low"
+    },
+    "gus:ScalabilityGroups/sg.EffectsQuality": {
+      "text": {
+        "tr": "Efektler (duman, patlama)",
+        "en": "Effects"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "low"
+    },
+    "gus:ScalabilityGroups/sg.ViewDistanceQuality": {
+      "text": {
+        "tr": "Görüş mesafesi (rekabette yüksek kalır)",
+        "en": "View distance (kept high for competitive)"
+      },
+      "fpsImpact": "low",
+      "visualImpact": "high"
+    },
+    "gus:ScalabilityGroups/sg.FoliageQuality": {
+      "text": {
+        "tr": "Bitki örtüsü",
+        "en": "Foliage"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "medium"
+    },
+    "gus:ScalabilityGroups/sg.TextureQuality": {
+      "text": {
+        "tr": "Doku kalitesi (VRAM)",
+        "en": "Textures (VRAM)"
+      },
+      "fpsImpact": "low",
+      "visualImpact": "medium"
+    }
+  },
+  "tips": {
+    "tr": "Işın izlemeyi kapat, FSR/DLSS Kalite aç. 6 GB altı VRAM'de doku kalitesini Orta tut.",
+    "en": "Turn ray tracing off, FSR/DLSS Quality on. Under 6 GB VRAM keep textures Medium."
+  },
+  "verifiedOn": "2026-11"
+}

@@ -1,0 +1,72 @@
+{
+  "id": "the-last-of-us-part-2",
+  "name": "The Last of Us Part II",
+  "schemaVersion": 1,
+  "antiCheat": "none",
+  "competitive": false,
+  "group": "B",
+  "detect": {
+    "steam": "2531310",
+    "process": "tlou-ii.exe"
+  },
+  "launch": {
+    "steam": "2531310"
+  },
+  "configs": [],
+  "neverTouch": [],
+  "levels": {
+    "quality": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false
+      }
+    },
+    "balanced": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true
+      }
+    },
+    "maxfps": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    },
+    "competitive": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "ifScoreBelow": 40,
+      "level": "maxfps"
+    },
+    {
+      "ifScoreBelow": 65,
+      "level": "balanced"
+    },
+    {
+      "level": "quality"
+    }
+  ],
+  "notes": {},
+  "tips": {
+    "tr": "FSR/DLSS Kalite, Hacimsel efektler Orta, Gölgeler Orta.",
+    "en": "FSR/DLSS Quality, volumetrics Medium, shadows Medium."
+  },
+  "verifiedOn": "2026-11"
+}

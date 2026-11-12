@@ -1,0 +1,123 @@
+{
+  "id": "league-of-legends",
+  "name": "League of Legends",
+  "schemaVersion": 1,
+  "antiCheat": "vanguard",
+  "competitive": true,
+  "group": "A",
+  "detect": {
+    "riot": "league_of_legends",
+    "process": "League of Legends.exe"
+  },
+  "launch": {
+    "riot": "league_of_legends"
+  },
+  "configs": [
+    {
+      "id": "cfg",
+      "format": "ini",
+      "path": "{install}/Config/game.cfg"
+    }
+  ],
+  "neverTouch": [
+    "cfg:*Width*",
+    "cfg:*Height*",
+    "cfg:*WindowMode*",
+    "cfg:*Cursor*",
+    "cfg:*Camera*",
+    "cfg:*Volume*",
+    "cfg:HUD/*",
+    "cfg:*Colorblind*",
+    "cfg:*FrameCap*"
+  ],
+  "levels": {
+    "quality": {
+      "set": {
+        "cfg:General/WaitForVerticalSync": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "balanced": {
+      "set": {
+        "cfg:General/WaitForVerticalSync": "0",
+        "cfg:Performance/ShadowQuality": "2",
+        "cfg:Performance/EffectsQuality": "2",
+        "cfg:Performance/EnvironmentQuality": "2"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "maxfps": {
+      "set": {
+        "cfg:General/WaitForVerticalSync": "0",
+        "cfg:Performance/ShadowQuality": "0",
+        "cfg:Performance/EffectsQuality": "1",
+        "cfg:Performance/EnvironmentQuality": "1",
+        "cfg:Performance/CharacterQuality": "2",
+        "cfg:Performance/EnableHUDAnimations": "0",
+        "cfg:Performance/CharacterInking": "0",
+        "cfg:Performance/EnableFXAA": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "competitive": {
+      "set": {
+        "cfg:General/WaitForVerticalSync": "0",
+        "cfg:Performance/ShadowQuality": "0",
+        "cfg:Performance/EnvironmentQuality": "1",
+        "cfg:Performance/EnableHUDAnimations": "0",
+        "cfg:Performance/CharacterInking": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false,
+        "upscaler": "off"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "level": "competitive"
+    }
+  ],
+  "notes": {
+    "cfg:General/WaitForVerticalSync": {
+      "text": {
+        "tr": "Dikey eşitleme kapalı",
+        "en": "V-Sync off"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "low"
+    },
+    "cfg:Performance/ShadowQuality": {
+      "text": {
+        "tr": "Gölgeler kapalı",
+        "en": "Shadows off"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "low"
+    },
+    "cfg:Performance/EnableHUDAnimations": {
+      "text": {
+        "tr": "Arayüz animasyonları kapalı",
+        "en": "HUD animations off"
+      },
+      "fpsImpact": "low",
+      "visualImpact": "low"
+    }
+  },
+  "tips": {
+    "tr": "League bazen ayarları buluttan geri yükler; değişmediyse oyunu kapatıp tekrar Boost'la. FPS sınırını oyun içinden 'Sınırsız' yapma, monitör Hz'inin biraz üstünde tut.",
+    "en": "League may restore settings from the cloud; if nothing changed, close the game and boost again. Cap FPS a bit above your monitor's Hz in game."
+  },
+  "verifiedOn": "2026-11"
+}

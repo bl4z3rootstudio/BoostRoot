@@ -1,0 +1,72 @@
+{
+  "id": "elden-ring",
+  "name": "Elden Ring",
+  "schemaVersion": 1,
+  "antiCheat": "eac",
+  "competitive": false,
+  "group": "B",
+  "detect": {
+    "steam": "1245620",
+    "process": "eldenring.exe"
+  },
+  "launch": {
+    "steam": "1245620"
+  },
+  "configs": [],
+  "neverTouch": [],
+  "levels": {
+    "quality": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false
+      }
+    },
+    "balanced": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true
+      }
+    },
+    "maxfps": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    },
+    "competitive": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "ifScoreBelow": 40,
+      "level": "maxfps"
+    },
+    {
+      "ifScoreBelow": 65,
+      "level": "balanced"
+    },
+    {
+      "level": "quality"
+    }
+  ],
+  "notes": {},
+  "tips": {
+    "tr": "Işın izleme kapalı, Gölge Orta, Ambient occlusion Orta, Hareket bulanıklığı kapalı. Oyun 60 FPS ile sınırlıdır.",
+    "en": "Ray tracing off, shadows Medium, AO Medium, motion blur off. The game is capped at 60 FPS."
+  },
+  "verifiedOn": "2026-11"
+}

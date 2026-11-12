@@ -1,0 +1,149 @@
+{
+  "id": "cs2",
+  "name": "Counter-Strike 2",
+  "schemaVersion": 1,
+  "antiCheat": "vac",
+  "competitive": true,
+  "group": "A",
+  "detect": {
+    "steam": "730",
+    "process": "cs2.exe"
+  },
+  "launch": {
+    "steam": "730"
+  },
+  "configs": [
+    {
+      "id": "video",
+      "format": "keyvalues",
+      "path": "{steam}/userdata/*/730/local/cfg/cs2_video.txt",
+      "pick": "all"
+    }
+  ],
+  "neverTouch": [
+    "video:*defaultres*",
+    "video:*fullscreen*",
+    "video:*aspectratio*",
+    "video:*monitor*",
+    "video:*refreshrate*",
+    "video:*nowindowborder*",
+    "video:*brightness*"
+  ],
+  "levels": {
+    "quality": {
+      "set": {
+        "video:video.cfg/setting.mat_vsync": "0",
+        "video:video.cfg/setting.msaa_samples": "4",
+        "video:video.cfg/setting.r_csgo_fsr_upsample": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "balanced": {
+      "set": {
+        "video:video.cfg/setting.mat_vsync": "0",
+        "video:video.cfg/setting.msaa_samples": "2",
+        "video:video.cfg/setting.videocfg_particle_detail": "1",
+        "video:video.cfg/setting.videocfg_ao_detail": "0",
+        "video:video.cfg/setting.r_csgo_fsr_upsample": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "maxfps": {
+      "set": {
+        "video:video.cfg/setting.mat_vsync": "0",
+        "video:video.cfg/setting.msaa_samples": "0",
+        "video:video.cfg/setting.r_csgo_cmaa_enable": "0",
+        "video:video.cfg/setting.videocfg_shadow_quality": "0",
+        "video:video.cfg/setting.videocfg_texture_detail": "0",
+        "video:video.cfg/setting.r_texturefilteringquality": "0",
+        "video:video.cfg/setting.shaderquality": "0",
+        "video:video.cfg/setting.videocfg_particle_detail": "0",
+        "video:video.cfg/setting.videocfg_ao_detail": "0",
+        "video:video.cfg/setting.videocfg_fsr_detail": "0",
+        "video:video.cfg/setting.r_csgo_fsr_upsample": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "competitive": {
+      "set": {
+        "video:video.cfg/setting.mat_vsync": "0",
+        "video:video.cfg/setting.msaa_samples": "2",
+        "video:video.cfg/setting.videocfg_texture_detail": "0",
+        "video:video.cfg/setting.r_texturefilteringquality": "0",
+        "video:video.cfg/setting.shaderquality": "0",
+        "video:video.cfg/setting.videocfg_particle_detail": "0",
+        "video:video.cfg/setting.videocfg_ao_detail": "0",
+        "video:video.cfg/setting.videocfg_fsr_detail": "0",
+        "video:video.cfg/setting.r_csgo_fsr_upsample": "0",
+        "video:video.cfg/setting.r_low_latency": "1"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false,
+        "upscaler": "off"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "level": "competitive"
+    }
+  ],
+  "notes": {
+    "video:video.cfg/setting.mat_vsync": {
+      "text": {
+        "tr": "Dikey eşitleme kapalı",
+        "en": "V-Sync off"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "low"
+    },
+    "video:video.cfg/setting.msaa_samples": {
+      "text": {
+        "tr": "Kenar yumuşatma (rekabette 2x: kenarlar net)",
+        "en": "MSAA (2x for competitive: clean edges)"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "medium"
+    },
+    "video:video.cfg/setting.shaderquality": {
+      "text": {
+        "tr": "Gölgelendirici kalitesi",
+        "en": "Shader detail"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "low"
+    },
+    "video:video.cfg/setting.videocfg_ao_detail": {
+      "text": {
+        "tr": "Ortam gölgeleme kapalı",
+        "en": "Ambient occlusion off"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "low"
+    },
+    "video:video.cfg/setting.r_low_latency": {
+      "text": {
+        "tr": "NVIDIA Reflex açık",
+        "en": "NVIDIA Reflex on"
+      },
+      "fpsImpact": "low",
+      "visualImpact": "low"
+    }
+  },
+  "tips": {
+    "tr": "Rekabet seviyesinde gölge kalitesine dokunulmaz: yüksek gölgeler rakibin gölgesini görmeni sağlar. Oyun kapalıyken uygula; CS2 açıkken dosyayı geri yazar.",
+    "en": "Competitive level leaves shadow quality alone: high shadows let you see enemy shadows. Apply while CS2 is closed; it rewrites the file on exit."
+  },
+  "verifiedOn": "2026-11"
+}

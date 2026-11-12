@@ -1,0 +1,72 @@
+{
+  "id": "forza-horizon-5",
+  "name": "Forza Horizon 5",
+  "schemaVersion": 1,
+  "antiCheat": "other",
+  "competitive": false,
+  "group": "B",
+  "detect": {
+    "steam": "1551360",
+    "process": "ForzaHorizon5.exe"
+  },
+  "launch": {
+    "steam": "1551360"
+  },
+  "configs": [],
+  "neverTouch": [],
+  "levels": {
+    "quality": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false
+      }
+    },
+    "balanced": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true
+      }
+    },
+    "maxfps": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    },
+    "competitive": {
+      "set": {},
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true,
+        "upscaler": "quality"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "ifScoreBelow": 40,
+      "level": "maxfps"
+    },
+    {
+      "ifScoreBelow": 65,
+      "level": "balanced"
+    },
+    {
+      "level": "quality"
+    }
+  ],
+  "notes": {},
+  "tips": {
+    "tr": "Oyunun kendi ön ayarını kullan, Çevre doku Yüksek, Ray tracing kapalı, FSR/DLSS Kalite, Dinamik çözünürlük kapalı.",
+    "en": "Use the game's preset, ray tracing off, FSR/DLSS Quality, dynamic resolution off."
+  },
+  "verifiedOn": "2026-11"
+}

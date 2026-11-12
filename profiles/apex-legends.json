@@ -1,0 +1,143 @@
+{
+  "id": "apex-legends",
+  "name": "Apex Legends",
+  "schemaVersion": 1,
+  "antiCheat": "eac",
+  "competitive": true,
+  "group": "A",
+  "detect": {
+    "steam": "1172470",
+    "process": "r5apex.exe,r5apex_dx12.exe"
+  },
+  "launch": {
+    "steam": "1172470"
+  },
+  "configs": [
+    {
+      "id": "vc",
+      "format": "keyvalues",
+      "path": "%USERPROFILE%/Saved Games/Respawn/Apex/local/videoconfig.txt"
+    }
+  ],
+  "neverTouch": [
+    "vc:*defaultres*",
+    "vc:*fullscreen*",
+    "vc:*nowindowborder*",
+    "vc:*gamma*",
+    "vc:*monitor*",
+    "vc:*letterbox*",
+    "vc:*fov*"
+  ],
+  "levels": {
+    "quality": {
+      "set": {
+        "vc:VideoConfig/setting.mat_vsync_mode": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "balanced": {
+      "set": {
+        "vc:VideoConfig/setting.mat_vsync_mode": "0",
+        "vc:VideoConfig/setting.ssao_enabled": "0",
+        "vc:VideoConfig/setting.r_decals": "0",
+        "vc:VideoConfig/setting.cl_ragdoll_maxcount": "0",
+        "vc:VideoConfig/setting.dvs_enable": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "maxfps": {
+      "set": {
+        "vc:VideoConfig/setting.mat_vsync_mode": "0",
+        "vc:VideoConfig/setting.mat_antialias_mode": "0",
+        "vc:VideoConfig/setting.ssao_enabled": "0",
+        "vc:VideoConfig/setting.shadow_enable": "0",
+        "vc:VideoConfig/setting.csm_enabled": "0",
+        "vc:VideoConfig/setting.r_decals": "0",
+        "vc:VideoConfig/setting.r_createmodeldecals": "0",
+        "vc:VideoConfig/setting.cl_ragdoll_maxcount": "0",
+        "vc:VideoConfig/setting.cl_gib_allow": "0",
+        "vc:VideoConfig/setting.particle_cpu_level": "0",
+        "vc:VideoConfig/setting.mat_forceaniso": "1",
+        "vc:VideoConfig/setting.r_lod_switch_scale": "0.5",
+        "vc:VideoConfig/setting.dvs_enable": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false
+      }
+    },
+    "competitive": {
+      "set": {
+        "vc:VideoConfig/setting.mat_vsync_mode": "0",
+        "vc:VideoConfig/setting.mat_antialias_mode": "0",
+        "vc:VideoConfig/setting.ssao_enabled": "0",
+        "vc:VideoConfig/setting.shadow_enable": "0",
+        "vc:VideoConfig/setting.csm_enabled": "0",
+        "vc:VideoConfig/setting.r_decals": "0",
+        "vc:VideoConfig/setting.r_createmodeldecals": "0",
+        "vc:VideoConfig/setting.cl_ragdoll_maxcount": "0",
+        "vc:VideoConfig/setting.cl_gib_allow": "0",
+        "vc:VideoConfig/setting.particle_cpu_level": "0",
+        "vc:VideoConfig/setting.mat_forceaniso": "1",
+        "vc:VideoConfig/setting.r_lod_switch_scale": "0.5",
+        "vc:VideoConfig/setting.dvs_enable": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false,
+        "upscaler": "off"
+      }
+    }
+  },
+  "recommend": [
+    {
+      "level": "competitive"
+    }
+  ],
+  "notes": {
+    "vc:VideoConfig/setting.mat_vsync_mode": {
+      "text": {
+        "tr": "Dikey eşitleme kapalı",
+        "en": "V-Sync off"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "low"
+    },
+    "vc:VideoConfig/setting.shadow_enable": {
+      "text": {
+        "tr": "Güneş/dinamik gölgeler kapalı",
+        "en": "Sun/dynamic shadows off"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "medium"
+    },
+    "vc:VideoConfig/setting.ssao_enabled": {
+      "text": {
+        "tr": "Ortam gölgeleme kapalı",
+        "en": "Ambient occlusion off"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "low"
+    },
+    "vc:VideoConfig/setting.dvs_enable": {
+      "text": {
+        "tr": "Uyarlanabilir çözünürlük kapalı (görüntü bulanıklaşmaz)",
+        "en": "Adaptive resolution off (no blur)"
+      },
+      "fpsImpact": "low",
+      "visualImpact": "medium"
+    }
+  },
+  "tips": {
+    "tr": "FPS limitini Steam başlatma seçeneklerinden (+fps_max) ayarlayabilirsin. Çözünürlük, FOV ve tuşlara dokunulmadı.",
+    "en": "Set an FPS cap via Steam launch options (+fps_max). Resolution, FOV and keys were not touched."
+  },
+  "verifiedOn": "2026-11"
+}

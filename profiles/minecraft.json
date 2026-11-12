@@ -1,0 +1,156 @@
+{
+  "id": "minecraft",
+  "name": "Minecraft",
+  "schemaVersion": 1,
+  "antiCheat": "none",
+  "competitive": false,
+  "group": "A",
+  "detect": {
+    "minecraft": "java",
+    "process": "javaw.exe"
+  },
+  "launch": {
+    "minecraft": "java"
+  },
+  "configs": [
+    {
+      "id": "mc",
+      "format": "keyvalue",
+      "path": "{gameDir}/options.txt",
+      "separator": ":"
+    }
+  ],
+  "neverTouch": [
+    "mc:key_*",
+    "mc:fov*",
+    "mc:gamma",
+    "mc:lang",
+    "mc:guiScale",
+    "mc:fullscreen*",
+    "mc:soundCategory*",
+    "mc:chat*",
+    "mc:skinCustomization*",
+    "mc:maxFps"
+  ],
+  "levels": {
+    "quality": {
+      "set": {
+        "mc:enableVsync": "false",
+        "mc:renderClouds": "\"fast\"",
+        "mc:entityShadows": "true",
+        "mc:renderDistance": "16",
+        "mc:simulationDistance": "10"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": false
+      }
+    },
+    "balanced": {
+      "set": {
+        "mc:enableVsync": "false",
+        "mc:renderDistance": "12",
+        "mc:simulationDistance": "8",
+        "mc:graphicsMode": "0",
+        "mc:renderClouds": "\"fast\"",
+        "mc:biomeBlendRadius": "1"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true
+      }
+    },
+    "maxfps": {
+      "set": {
+        "mc:enableVsync": "false",
+        "mc:renderDistance": "8",
+        "mc:simulationDistance": "6",
+        "mc:graphicsMode": "0",
+        "mc:renderClouds": "\"false\"",
+        "mc:entityShadows": "false",
+        "mc:particles": "2",
+        "mc:ao": "false",
+        "mc:biomeBlendRadius": "0",
+        "mc:mipmapLevels": "0",
+        "mc:entityDistanceScaling": "0.75"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true
+      }
+    },
+    "competitive": {
+      "set": {
+        "mc:enableVsync": "false",
+        "mc:renderDistance": "10",
+        "mc:simulationDistance": "6",
+        "mc:graphicsMode": "0",
+        "mc:renderClouds": "\"false\"",
+        "mc:entityShadows": "false",
+        "mc:particles": "2",
+        "mc:ao": "false",
+        "mc:biomeBlendRadius": "0"
+      },
+      "gpu": {
+        "lowLatency": true,
+        "vSync": false,
+        "radeonBoost": true
+      }
+    }
+  },
+  "recommend": [
+    {
+      "ifScoreBelow": 40,
+      "level": "maxfps"
+    },
+    {
+      "ifScoreBelow": 65,
+      "level": "balanced"
+    },
+    {
+      "level": "quality"
+    }
+  ],
+  "notes": {
+    "mc:renderDistance": {
+      "text": {
+        "tr": "Görüş mesafesi (yığın)",
+        "en": "Render distance (chunks)"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "high"
+    },
+    "mc:graphicsMode": {
+      "text": {
+        "tr": "Grafik: Hızlı",
+        "en": "Graphics: Fast"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "medium"
+    },
+    "mc:enableVsync": {
+      "text": {
+        "tr": "Dikey eşitleme kapalı",
+        "en": "V-Sync off"
+      },
+      "fpsImpact": "high",
+      "visualImpact": "low"
+    },
+    "mc:particles": {
+      "text": {
+        "tr": "Parçacıklar: en az",
+        "en": "Particles: minimal"
+      },
+      "fpsImpact": "medium",
+      "visualImpact": "low"
+    }
+  },
+  "tips": {
+    "tr": "En büyük FPS artışı için Sodium modunu kur (Fabric). BoostRoot isterse kurulum sayfasını açar. Tuşlar, FOV ve ses ayarlarına dokunulmadı.",
+    "en": "For the biggest FPS gain install the Sodium mod (Fabric). Keys, FOV and sound were not touched."
+  },
+  "verifiedOn": "2026-11"
+}
