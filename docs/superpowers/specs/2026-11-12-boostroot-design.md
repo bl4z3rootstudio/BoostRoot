@@ -1,6 +1,6 @@
-# BoostRoot 1.26.11 — Tasarım Belgesi
+# BoostRoot 26.11.1 — Tasarım Belgesi
 
-Tarih: 12 Kasım 2026 · Yapımcı: bl4z3root · Durum: Onay bekliyor
+Tarih: 12 Kasım 2026 · Yapımcı: bl4z3root · Durum: Onaylandı (12.11.2026)
 
 ---
 
@@ -32,7 +32,7 @@ BoostRoot, Windows oyuncuları için **ücretsiz, reklamsız, hesapsız** bir oy
 
 ## 2. Kapsam
 
-### 2.1 Sürüm 1.26.11 içinde
+### 2.1 Sürüm 26.11.1 içinde
 1. İlk açılış sihirbazı ve PC Karnesi
 2. PC analizi ve donanım sorun tespiti (XMP, monitör Hz, sürücü yaşı, ağ hızı vb.)
 3. Oyun bulucu (Steam, Epic, Riot, Xbox/Game Pass, Minecraft başlatıcıları, Roblox) + elle ekleme
@@ -111,7 +111,7 @@ BoostRoot.sln
 │  │    ├─ ConfigWriters       INI, JSON, XML, CFG, key=value, Unity Registry (soyut), Minecraft options.txt
 │  │    ├─ Safety              neverTouch denetimi, yedek/geri al günlüğü (journal)
 │  │    ├─ Scoring             PC Karnesi puanlama
-│  │    ├─ Versioning          1.YY.M(.n) karşılaştırma
+│  │    ├─ Versioning          YY.M.N karşılaştırma
 │  │    └─ Abstractions        IRegistry, IFileSystem, IProcessManager, IGpuVendor...
 │  ├─ BoostRoot.Platform.Windows   Kayıt defteri, güç planları, servisler, süreçler,
 │  │                                WMI donanım bilgisi, geri yükleme noktası, kısayollar
@@ -338,7 +338,7 @@ Onaylanan taslaklar: "BoostRoot – Logo ve Ekran Taslakları" tuvali.
 
 ## 8. Sürümleme ve güncelleme
 
-- **Biçim:** `ANA.YY.AY` + aynı ayda ek sürüm için `.N`. İlk sürüm **1.26.11**. Örnek sonraki: 1.26.11.1, 1.26.12, 1.27.1. Ana sayı yalnızca büyük değişikliklerde artar.
+- **Biçim:** `YY.AY.N` — yıl, ay ve o ay içindeki kaçıncı sürüm olduğu. İlk sürüm **26.11.1**; örnek devamı: 26.11.2, 26.12.1, 27.1.1. Sayısal karşılaştırma yıl → ay → N sırasıyla doğru sıralanır. Windows/Inno Setup için dosya sürümü `26.11.1.0` olarak yazılır.
 - **Uygulama güncellemesi:** Açılışta (günde en fazla bir kez) GitHub Releases API kontrol edilir; yeni sürümde bildirim → indir → SHA-256 doğrula → kurulumu sessiz çalıştır → yeniden başlat. Elle güncelleme: yeni kurulum dosyasına çift tıklamak yeterlidir (üzerine kurar, ayarları korur).
 - **Profil paketi:** Ayrı, imzalı; uygulama güncellemesi gerektirmez.
 
@@ -371,7 +371,7 @@ Türkçe ana dil, İngilizce tam çeviri. Tüm metinler kaynak dosyalarındadır
 - **Birim testleri (her derlemede):** Ayar yazıcıları (gidiş-dönüş, biçim koruma, yorum satırlarını bozmama), `neverTouch` reddi (her oyun profili için ayrı test), journal/geri al, profil şema doğrulama, imza doğrulama, sürüm karşılaştırma, puanlama, öneri motoru, oyun bulucu ayrıştırıcıları (örnek VDF/manifest dosyalarıyla).
 - **Entegrasyon testleri (Windows sunucusunda):** Kayıt defteri/güç planı uygulama-geri alma, sahte oyun klasörüyle uçtan uca boost, kurulum/kaldırma.
 - **Arayüz testleri:** Avalonia headless ile ana akışlar.
-- **Gerçek donanım testi:** bl4z3root'un PC'si (AMD RX 580, i5-9400F, Win11 Pro) + en az bir NVIDIA'lı ve bir Windows 10'lu arkadaş bilgisayarı. Her oyun için: boost → oyun içi ayarları kontrol (çözünürlük/tuş değişmedi) → FPS testi → geri al.
+- **Gerçek donanım testi:** bl4z3root'un PC'si (AMD RX 580, i5-9400F, Win11 Pro). NVIDIA'lı ve Windows 10'lu test bilgisayarı yok: Windows 10 uyumluluğu, Windows 11 Pro'daki ücretsiz Hyper-V ile kurulan Windows 10 sanal makinesinde (etkinleştirme gerekmez) ve GitHub'ın Windows sunucularında test edilir. NVIDIA modülü NVAPI'nin belgelenmiş işlevleriyle yazılır, sahte (mock) sürücü katmanıyla birim testlenir ve gerçek NVIDIA kartta denenene kadar uygulamada **"Beta"** etiketiyle çıkar; ilk geri bildirimlerle kararlıya alınır. Her oyun için: boost → oyun içi ayarları kontrol (çözünürlük/tuş değişmedi) → FPS testi → geri al.
 - **Hile koruması kontrolü:** Valorant, CS2, PUBG, Fortnite ve Apex'te boost + overlay + klip birlikte kullanılır ve uyarı/atılma olmadığı doğrulanır.
 
 ---
@@ -396,7 +396,7 @@ Türkçe ana dil, İngilizce tam çeviri. Tüm metinler kaynak dosyalarındadır
 | Overlay özel tam ekranda görünmez | Algılanır ve kullanıcıya açıkça söylenir |
 | Antivirüs yanlış alarmı (yeni, imzasız exe) | Açık kaynak, NativeAOT, VirusTotal'a gönderim, Microsoft'a yanlış pozitif bildirimi |
 | PawnIO/sürücü kurulumunun güvenlik algısı | İsteğe bağlı, açıklamalı, kaldırıcıyla kaldırılır |
-| NVIDIA tarafı geliştirici PC'sinde test edilemez | Arkadaş testi şart; NVIDIA modülü "beta" etiketiyle çıkabilir |
+| NVIDIA tarafı gerçek kartta test edilemez | Mock katmanla birim testleri; "Beta" etiketi; GitHub Issues üzerinden ilk kullanıcı geri bildirimi |
 | Kapsamın büyüklüğü | Modüler yapı; her modül bağımsız tamamlanıp test edilir |
 
 ---
@@ -404,4 +404,4 @@ Türkçe ana dil, İngilizce tam çeviri. Tüm metinler kaynak dosyalarındadır
 ## 14. Onay bekleyen bilgiler (bl4z3root'tan)
 - Kripto bağış adresleri (BTC, USDT ağı) ve GitHub Sponsors hesabı
 - GitHub kullanıcı adı / depo adı (öneri: `boostroot`)
-- NVIDIA ve Windows 10 testine yardım edecek arkadaşlar
+- Bütçe: 0 TL. Tüm araçlar ve hizmetler ücretsiz; ücretli kod imzalama sertifikası alınmayacak.
