@@ -153,4 +153,13 @@ public sealed partial class HomeViewModel : ObservableObject
     }
 
     public void ApplySettings(AppSettings settings) => _settings = settings;
+
+    /// <summary>Re-evaluates the recommended level after the PC score changes.</summary>
+    public void RefreshRecommendation()
+    {
+        if (Selected?.Entry.Profile is not { } p) return;
+        var rec = Recommended(p);
+        foreach (var l in Levels) l.IsRecommended = l.Level == rec;
+        OnPropertyChanged(nameof(RecommendedText));
+    }
 }

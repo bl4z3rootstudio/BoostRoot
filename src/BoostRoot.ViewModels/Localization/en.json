@@ -50,5 +50,6 @@
   "settings.support": "Support",
   "settings.report": "Report a problem",
   "settings.about": "About",
-  "settings.version": "Version {0} · by bl4z3root"
+  "settings.version": "Version {0} · by bl4z3root",
+  "scan.run": "Run scan"
 }

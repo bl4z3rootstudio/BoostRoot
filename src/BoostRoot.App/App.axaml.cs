@@ -12,7 +12,11 @@ public sealed partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            desktop.MainWindow = new MainWindow { DataContext = new MainViewModel(WindowsAppServices.Create()) };
+        {
+            var vm = new MainViewModel(WindowsAppServices.Create());
+            desktop.MainWindow = new MainWindow { DataContext = vm };
+            _ = vm.Scan.ScanCommand.ExecuteAsync(null); // score drives level recommendations
+        }
         base.OnFrameworkInitializationCompleted();
     }
 }

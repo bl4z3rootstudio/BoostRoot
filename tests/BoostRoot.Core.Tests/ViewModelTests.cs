@@ -1,4 +1,6 @@
 using BoostRoot.Core.Boost;
+using BoostRoot.Core.Hardware;
+using BoostRoot.Core.Scoring;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Games;
 using BoostRoot.ViewModels;
@@ -25,6 +27,15 @@ internal sealed class FakeAppServices : IAppServices
     public void SaveSettings(AppSettings settings) => Saved = settings;
     public string? LastBoostOperation(string profileId) => LastOp;
     public string? CoverPath(CatalogEntry entry) => null;
+    public HardwareReport ScanHardware()
+    {
+        var hw = new HardwareInfo("Intel(R) Core(TM) i5-9400F", 6, [new GpuInfo("Radeon RX 580 Series", GpuVendor.Amd, 4096, "32", new DateOnly(2026, 5, 20))], 32,
+            [new RamModule(16384, 2666, 2133)], [new DisplayInfo("Legion", 1440, 1080, 240, 240)], 13, null, [new NetInfo("Realtek", false, 1000)], 26300);
+        var issues = HealthChecks.Evaluate(hw, new DateOnly(2026, 11, 12));
+        var score = HealthChecks.Score(hw, issues);
+        PcScore = score.Total;
+        return new HardwareReport(hw, issues, score);
+    }
 }
 
 public class ViewModelTests
@@ -127,6 +138,18 @@ public class ViewModelTests
         vm.CloseList = "chrome, spotify";
         Assert.Equal(["chrome", "spotify"], notified!.CloseList);
         vm.Language = "tr";
+    }
+
+    [Fact]
+    public async Task Scan_ShowsScore_Parts_AndIssues()
+    {
+        var vm = new ScanViewModel(Services());
+        await vm.ScanCommand.ExecuteAsync(null);
+        Assert.True(vm.HasResult);
+        Assert.Equal(56, vm.Score);
+        Assert.Equal(6, vm.Parts.Count);
+        Assert.False(vm.Parts.Single(p => p.Label == "RAM").Ok);
+        Assert.Single(vm.Issues);
     }
 
     [Fact]

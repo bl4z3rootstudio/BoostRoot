@@ -1,4 +1,6 @@
 using BoostRoot.Core.Boost;
+using BoostRoot.Core.Hardware;
+using BoostRoot.Core.Scoring;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Games;
 
@@ -29,4 +31,8 @@ public interface IAppServices
     /// <summary>Most recent un-reverted boost operation for the profile, if any.</summary>
     string? LastBoostOperation(string profileId);
     string? CoverPath(CatalogEntry entry);
+    /// <summary>Scans hardware; also updates <see cref="PcScore"/>.</summary>
+    HardwareReport ScanHardware();
 }
+
+public sealed record HardwareReport(HardwareInfo Info, IReadOnlyList<HealthIssue> Issues, PcScore Score);

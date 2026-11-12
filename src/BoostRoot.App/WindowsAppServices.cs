@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using BoostRoot.Core.Boost;
+using BoostRoot.Core.Hardware;
 using BoostRoot.Core.IO;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Core.Safety;
@@ -105,6 +106,15 @@ public sealed class WindowsAppServices : IAppServices
     public string? LastBoostOperation(string profileId) =>
         _journal.ReadAll().Where(e => !e.Reverted && e.OperationId.StartsWith($"boost-{profileId}-", StringComparison.Ordinal))
             .OrderByDescending(e => e.At).Select(e => e.OperationId).FirstOrDefault();
+
+    public HardwareReport ScanHardware()
+    {
+        var info = HardwareScanner.Scan(_registry);
+        var issues = HealthChecks.Evaluate(info, DateOnly.FromDateTime(DateTime.Now));
+        var score = HealthChecks.Score(info, issues);
+        PcScore = score.Total;
+        return new HardwareReport(info, issues, score);
+    }
 
     public string? CoverPath(CatalogEntry entry)
     {

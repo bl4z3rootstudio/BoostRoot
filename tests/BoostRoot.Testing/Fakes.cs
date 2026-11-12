@@ -9,7 +9,12 @@ public sealed class FakeRegistry : IRegistry
     public RegistryValue? GetValue(RegistryHive hive, string key, string name) => _values.GetValueOrDefault(K(hive, key, name));
     public void SetValue(RegistryHive hive, string key, string name, RegistryValue value) => _values[K(hive, key, name)] = value;
     public void DeleteValue(RegistryHive hive, string key, string name) => _values.Remove(K(hive, key, name));
-    public IReadOnlyList<string> GetSubKeyNames(RegistryHive hive, string key) => [];
+    public IReadOnlyList<string> GetSubKeyNames(RegistryHive hive, string key)
+    {
+        var prefix = $"{hive}\\{key}\\";
+        return [.. _values.Keys.Where(k => k.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            .Select(k => k[prefix.Length..]).Where(r => !r.StartsWith('\\')).Select(r => r[..r.IndexOf('\\')]).Distinct(StringComparer.OrdinalIgnoreCase)];
+    }
     public int Count => _values.Count;
 }
 

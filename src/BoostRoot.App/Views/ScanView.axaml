@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BoostRoot.ViewModels"
+             xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             x:Class="BoostRoot.App.Views.ScanView"
+             x:DataType="vm:ScanViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="48,24" Spacing="20">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Classes="h1" FontSize="32" Text="{Binding [nav.scan], Source={x:Static loc:Loc.I}}" />
+        <Button Grid.Column="1" Classes="primary" Command="{Binding ScanCommand}" Content="{Binding [scan.run], Source={x:Static loc:Loc.I}}" />
+      </Grid>
+      <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsScanning}" Foreground="{StaticResource Accent}" />
+      <TextBlock Foreground="{StaticResource Bad}" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <Grid ColumnDefinitions="280,*" IsVisible="{Binding HasResult}">
+        <Border Classes="card" Padding="24" Margin="0,0,24,0">
+          <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock HorizontalAlignment="Center" FontFamily="{StaticResource HeadFont}" FontSize="72" FontWeight="Bold" Text="{Binding Score}" />
+            <TextBlock HorizontalAlignment="Center" Classes="muted" Text="/ 100" />
+            <TextBlock HorizontalAlignment="Center" FontSize="17" FontWeight="SemiBold" Text="{Binding ScoreLabel}" />
+          </StackPanel>
+        </Border>
+        <ItemsControl Grid.Column="1" ItemsSource="{Binding Parts}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:PartRow">
+              <Border Classes="card" Margin="0,0,12,12">
+                <StackPanel Spacing="4">
+                  <TextBlock Classes="muted" FontSize="12" Text="{Binding Label}" />
+                  <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding Value}" />
+                  <TextBlock FontSize="12" TextWrapping="Wrap" Text="{Binding Note}" Foreground="{StaticResource Good}" IsVisible="{Binding Ok}" />
+                  <TextBlock FontSize="12" TextWrapping="Wrap" Text="{Binding Note}" Foreground="{StaticResource Warn}" IsVisible="{Binding !Ok}" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Grid>
+      <ItemsControl ItemsSource="{Binding Issues}" IsVisible="{Binding HasResult}">
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="10" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:IssueRow">
+            <Border Background="#17122A" BorderBrush="#4C2F7A" BorderThickness="1" CornerRadius="12" Padding="16,12">
+              <Grid ColumnDefinitions="Auto,*">
+                <Border Background="{StaticResource AccentLight}" CornerRadius="6" Padding="8,3" VerticalAlignment="Top" Margin="0,0,14,0">
+                  <TextBlock Text="{Binding Tag}" Foreground="#0B0A12" FontWeight="Bold" FontSize="12" />
+                </Border>
+                <StackPanel Grid.Column="1" Spacing="4">
+                  <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding Title}" />
+                  <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding Fix}" />
+                </StackPanel>
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

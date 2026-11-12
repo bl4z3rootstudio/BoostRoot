@@ -72,6 +72,7 @@ public sealed partial class MainViewModel : ObservableObject
     public IReadOnlyList<NavItemViewModel> Nav { get; }
     public HomeViewModel Home { get; }
     public SettingsViewModel Settings { get; }
+    public ScanViewModel Scan { get; }
 
     [ObservableProperty] public partial ObservableObject CurrentPage { get; set; }
 
@@ -79,10 +80,11 @@ public sealed partial class MainViewModel : ObservableObject
     {
         Home = new HomeViewModel(services);
         Settings = new SettingsViewModel(services, s => Home.ApplySettings(s));
+        Scan = new ScanViewModel(services, _ => Home.RefreshRecommendation());
         Nav =
         [
             new("boost", "M13 2 4 14h7l-1 8 9-12h-7z", Home),
-            new("scan", "M3 3h18v14H3zM8 21h8M12 17v4", new PlaceholderViewModel("scan")),
+            new("scan", "M3 3h18v14H3zM8 21h8M12 17v4", Scan),
             new("fps", "M3 12h4l3 8 4-16 3 8h4", new PlaceholderViewModel("fps")),
             new("stress", "M12 2a7 7 0 0 0-4 12.7V18h8v-3.3A7 7 0 0 0 12 2zM9 22h6", new PlaceholderViewModel("stress")),
             new("net", "M2 9a15 15 0 0 1 20 0M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M12 20h.01", new PlaceholderViewModel("net")),
