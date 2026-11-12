@@ -50,6 +50,7 @@ BoostRoot, Windows oyuncuları için **ücretsiz, reklamsız, hesapsız** bir oy
 15. Oynama süresi ve FPS geçmişi
 16. Discord'a tek tıkla gönderme
 17. Yedekleme, geri alma, geri yükleme noktası
+17b. Oyun bazında 4:3 Stretched modu (6.19)
 18. Otomatik güncelleme (uygulama) + ayrı imzalı profil paketi güncellemesi
 19. Türkçe (ana) + İngilizce
 20. Kurulum dosyası, GitHub deposu, tanıtım sitesi, bağış (GitHub Sponsors + kripto)
@@ -67,7 +68,7 @@ BoostRoot, Windows oyuncuları için **ücretsiz, reklamsız, hesapsız** bir oy
 
 ## 3. Temel ilkeler (her özellikte geçerli)
 
-1. **Dokunulmazlar:** Çözünürlük, pencere modu, tuş atamaları, fare hassasiyeti, nişangah, oyun içi ses/dil ayarları. Her profil bu anahtarları `neverTouch` listesinde tutar. Yazma motoru bu listedeki bir anahtara yazmayı **kod seviyesinde reddeder**; bu kural her oyun için ayrı otomatik testle doğrulanır.
+1. **Dokunulmazlar:** Çözünürlük, pencere modu, tuş atamaları, fare hassasiyeti, nişangah, oyun içi ses/dil ayarları. **Tek istisna:** Kullanıcının bir oyun için kendisi açtığı "4:3 Stretched" modu (6.19); bu mod yalnızca çözünürlük/ölçekleme anahtarlarına, yalnızca o oyun için ve geri alınabilir şekilde dokunur. Her profil bu anahtarları `neverTouch` listesinde tutar. Yazma motoru bu listedeki bir anahtara yazmayı **kod seviyesinde reddeder**; bu kural her oyun için ayrı otomatik testle doğrulanır.
 2. **Hile koruması güvenliği:** Korumalı bir oyunun (Vanguard, EAC, BattlEye, VAC, Ricochet, Javelin) işlemine, belleğine, DLL'lerine veya kurulum dosyalarına dokunulmaz. Yalnızca oyunun kullanıcı ayar dosyaları (oyun kapalıyken) ve işletim sistemi/sürücü seviyesindeki ayarlar değişir. Korumalı oyunlarda süreç önceliği ve CPU çekirdek ataması da yapılmaz.
 3. **Önce yedek, sonra değişiklik, sonra doğrulama.** Hata olursa otomatik geri alma.
 4. **Dürüstlük:** Rakamlar ya ölçülür ya "tahmini" diye etiketlenir. Bir ayarın etkisi bilinmiyorsa uygulanmaz.
@@ -319,6 +320,13 @@ Dil, tema vurgu rengi (mor varsayılan), sesler (aç/kapa), animasyon seviyesi, 
 - "Hata bildir": günlükten kişisel yollar temizlenerek hazırlanmış bir GitHub Issue sayfası açar; kullanıcı görmeden hiçbir şey gönderilmez.
 - Çökme: bir sonraki açılışta "BoostRoot beklenmedik şekilde kapandı, rapor göndermek ister misin?" sorusu.
 - Her dış bileşen (NVAPI, ADLX, PresentMon, PawnIO, ağ) yoksa veya hata verirse ilgili özellik kibarca devre dışı kalır; uygulama çökmez.
+
+### 6.19 4:3 Stretched modu (oyun bazında, isteğe bağlı)
+- Oyun ekranında "4:3 Stretched" anahtarı; varsayılan **kapalı**. Çözünürlük seçenekleri monitöre göre listelenir (1440×1080, 1280×960, 1024×768 ve özel).
+- Açıkken Boost/başlatma sırasında: (1) masaüstü çözünürlüğü seçilen 4:3 değere alınır, monitörde yoksa GPU sürücüsüyle özel çözünürlük oluşturulur (NVIDIA: NVAPI özel ekran modu; AMD: ADLX/sürücü desteği yoksa kullanıcıya adım adım Adrenalin "Özel Çözünürlük" rehberi), (2) GPU ölçekleme açılır ve ölçekleme modu "Tam panel" yapılır, (3) oyun profili bu oyun için çözünürlük ve tam ekran anahtarlarını içeriyorsa onlar seçilen değere yazılır (koruyucu, yalnızca bu mod için ve yalnızca profilin `stretch` bölümünde listelenen anahtarlara izin verir).
+- Oyun kapanınca (Agent ile) masaüstü çözünürlüğü ve GPU ölçekleme eski haline döner; oyun içi değer kalır (bir sonraki girişte tekrar kullanılır). "Geri al" her şeyi döndürür.
+- Agent çalışmıyorsa (kullanıcı "bekle"yi kapattıysa) çözünürlük, oyun bitince değil BoostRoot tekrar açıldığında ya da "Masaüstünü eski haline getir" düğmesiyle döner; bu durum kullanıcıya söylenir.
+- Uyarı metni: "Stretched mod bazı turnuvalarda yasak olabilir; oyuna girmez, ban riski yoktur."
 
 ---
 
