@@ -42,6 +42,9 @@ public sealed class WindowsAppServices : IAppServices
     private readonly RegistryChanger _registryChanger;
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(30) };
     private HardwareInfo? _lastHardware;
+    private readonly ProfileApplier _applier;
+    /// <summary>Set by the app: starts the in-game session (overlay, hotkeys, clips, 4:3) after a boost.</summary>
+    public Action<CatalogEntry, AppSettings>? SessionStarter { get; set; }
 
     private WindowsAppServices()
     {
@@ -53,7 +56,7 @@ public sealed class WindowsAppServices : IAppServices
 
         _journal = new Journal(_fs, Path.Combine(shared, "journal"));
         var editor = new SafeFileEditor(_fs, _journal, Path.Combine(shared, "backup"));
-        var applier = new ProfileApplier(new PathResolver(_fs, WindowsEnvironment.Expand), editor);
+        var applier = _applier = new ProfileApplier(new PathResolver(_fs, WindowsEnvironment.Expand), editor);
         var registryChanger = _registryChanger = new RegistryChanger(_registry, _journal);
         var powerChanger = new PowerPlanChanger(new WindowsPowerPlans(), _journal);
         _undo = new UndoService(_journal, [new FileUndoHandler(_fs), registryChanger, powerChanger]);
@@ -82,7 +85,23 @@ public sealed class WindowsAppServices : IAppServices
         if (entry.Game is { } g && profile.Detect.TryGetValue("exe", out var exeName))
             exe = FindExe(g.InstallPath, exeName);
         var request = new BoostRequest(profile, level, settings.CloseList, SafeTweaks, exe, processNames);
-        return _orchestrator.Run(request);
+        var result = _orchestrator.Run(request);
+        if (!result.Success) return result;
+        if (settings.IsStretched(profile.Id) && DisplayChanger.Current() is { } cur && profile.StretchKeys is { Count: > 0 } keys)
+        {
+            var (w, h) = Core.Session.StretchPlan.For(cur.Height);
+            var guard = new NeverTouchGuard(profile.NeverTouch).WithExemptions(keys);
+            StepResult step;
+            try
+            {
+                var rep = _applier.Apply(profile, level, result.OperationId, Core.Session.StretchPlan.Values(profile, w, h), guard);
+                step = new StepResult("stretch", rep.Targets.All(t => t.Status != TargetStatus.Failed) ? StepStatus.Done : StepStatus.Failed, $"{w}x{h}", rep.Targets.Sum(t => t.ChangedKeys));
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ProtectedSettingException) { step = new StepResult("stretch", StepStatus.Failed, ex.Message); }
+            result = result with { Steps = [.. result.Steps, step] };
+        }
+        SessionStarter?.Invoke(entry, settings);
+        return result;
     }
 
     private string? FindExe(string root, string exeName)
@@ -192,4 +211,12 @@ public sealed class WindowsAppServices : IAppServices
         try { return ShareCardRenderer.Save(card, story); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return null; }
     }
+
+    public bool IsGameRunning(IReadOnlyList<string> processNames)
+    {
+        var wanted = processNames.Select(n => Path.GetFileNameWithoutExtension(n)).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return _processes.List().Any(p => wanted.Contains(Path.GetFileNameWithoutExtension(p.Name)));
+    }
+
+    public IClipRecorder? CreateClipRecorder(AppSettings settings) => null; // Plan 09
 }

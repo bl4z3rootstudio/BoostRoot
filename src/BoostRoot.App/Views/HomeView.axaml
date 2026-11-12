@@ -33,6 +33,10 @@
           <Border Classes="card" IsVisible="{Binding Status, Converter={x:Static ObjectConverters.IsNotNull}}" Padding="14,10" MaxWidth="620" HorizontalAlignment="Left">
             <StackPanel Spacing="10">
               <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="{StaticResource Text}" />
+              <StackPanel Spacing="2" IsVisible="{Binding CanStretch}">
+                <CheckBox IsChecked="{Binding IsStretched}" Content="{Binding [home.stretch], Source={x:Static loc:Loc.I}}" />
+                <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [home.stretchNote], Source={x:Static loc:Loc.I}}" />
+              </StackPanel>
               <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding AskLaunch}">
                 <TextBlock VerticalAlignment="Center" Classes="muted" Text="{Binding [boost.launchAsk], Source={x:Static loc:Loc.I}}" />
                 <Button Classes="primary" Command="{Binding LaunchCommand}" Content="{Binding [boost.launchYes], Source={x:Static loc:Loc.I}}" />

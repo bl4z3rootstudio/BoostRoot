@@ -40,7 +40,7 @@ public sealed partial class HomeViewModel : ObservableObject
     public ObservableCollection<GameCardViewModel> Games { get; } = [];
     public ObservableCollection<LevelOptionViewModel> Levels { get; } = [.. Enum.GetValues<BoostLevel>().Select(l => new LevelOptionViewModel(l))];
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasSelection), nameof(RecommendedText))] [NotifyCanExecuteChangedFor(nameof(BoostCommand), nameof(UndoCommand))]
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasSelection), nameof(RecommendedText), nameof(CanStretch))] [NotifyCanExecuteChangedFor(nameof(BoostCommand), nameof(UndoCommand))]
     public partial GameCardViewModel? Selected { get; set; }
 
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(BoostCommand))] public partial bool IsBusy { get; set; }
@@ -51,6 +51,12 @@ public sealed partial class HomeViewModel : ObservableObject
     [ObservableProperty] public partial BoostResult? LastResult { get; set; }
 
     public bool HasSelection => Selected is not null;
+    public bool CanStretch => Selected?.Entry.Profile?.StretchKeys is { Count: > 0 };
+    [ObservableProperty] public partial bool IsStretched { get; set; }
+    private bool _loadingStretch;
+    /// <summary>(profileId, enabled) — the shell stores it in settings.</summary>
+    public Action<string, bool>? StretchChanged { get; set; }
+    partial void OnIsStretchedChanged(bool value) { if (!_loadingStretch && Selected?.Entry.Profile is { } p) StretchChanged?.Invoke(p.Id, value); }
     public string GamesTitle => Loc.I.Format("home.games", Games.Count(g => g.IsInstalled));
     public string RecommendedText => Selected?.Entry.Profile is { } p ? Loc.I.Format("home.recommended", Loc.I["level." + Levels.First(l => l.Level == Recommended(p)).Key]) : "";
 
@@ -86,6 +92,9 @@ public sealed partial class HomeViewModel : ObservableObject
             var rec = Recommended(p);
             foreach (var l in Levels) { l.IsRecommended = l.Level == rec; l.IsSelected = l.Level == rec; }
             LastOperation = _services.LastBoostOperation(p.Id);
+            _loadingStretch = true;
+            IsStretched = _settings.IsStretched(p.Id);
+            _loadingStretch = false;
         }
     }
 

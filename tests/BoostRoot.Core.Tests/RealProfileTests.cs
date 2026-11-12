@@ -32,7 +32,7 @@ public class RealProfileTests
         return (fs, applier, rus, gus);
     }
 
-    private static GameProfile Valorant => ProfileLoader.LoadDirectory(PhysicalFileSystem.Instance, Data("profiles")).Single(p => p.Id == "valorant");
+    internal static GameProfile Valorant => ProfileLoader.LoadDirectory(PhysicalFileSystem.Instance, Data("profiles")).Single(p => p.Id == "valorant");
 
     [Theory]
     [InlineData(BoostLevel.Quality)]

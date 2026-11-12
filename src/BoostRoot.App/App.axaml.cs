@@ -13,8 +13,17 @@ public sealed partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var vm = new MainViewModel(WindowsAppServices.Create());
-            desktop.MainWindow = new MainWindow { DataContext = vm };
+            var services = WindowsAppServices.Create();
+            var vm = new MainViewModel(services);
+            var window = new MainWindow { DataContext = vm };
+            desktop.MainWindow = window;
+            services.SessionStarter = (entry, settings) => Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                var session = new GameSession(entry, settings, services.Sensors, services.IsGameRunning,
+                    names => new BoostRoot.Platform.Windows.PresentMonSource(names), services.CreateClipRecorder(settings));
+                session.Ended += () => { window.WindowState = Avalonia.Controls.WindowState.Normal; window.Activate(); };
+            });
+            desktop.Exit += (_, _) => GameSession.Current?.Dispose();
             _ = vm.Scan.ScanCommand.ExecuteAsync(null); // score drives level recommendations
         }
         base.OnFrameworkInitializationCompleted();

@@ -17,10 +17,25 @@ public sealed record AppSettings(
     bool Animations,
     bool Offline,
     IReadOnlyList<string> CloseList,
-    bool WaitForGame)
+    bool WaitForGame,
+    IReadOnlyList<string>? OverlayMetrics = null,
+    string OverlayCorner = "tl",
+    CrosshairSettings? Crosshair = null,
+    IReadOnlyList<string>? StretchGames = null,
+    ClipSettings? Clips = null)
 {
     public static AppSettings Default { get; } = new("tr", true, true, false, ["chrome", "msedge", "opera", "firefox", "spotify", "steamwebhelper", "epicgameslauncher"], false);
+    public static IReadOnlyList<string> AllMetrics { get; } = ["fps", "low1", "cpu", "cputemp", "gpu", "gputemp", "vram", "ram", "clock"];
+    public IReadOnlyList<string> Metrics => OverlayMetrics ?? ["fps", "low1", "cpu", "gpu", "gputemp", "ram"];
+    public CrosshairSettings CrosshairOrDefault => Crosshair ?? new();
+    public ClipSettings ClipsOrDefault => Clips ?? new();
+    public bool IsStretched(string profileId) => StretchGames?.Contains(profileId) == true;
 }
+
+public sealed record CrosshairSettings(bool Enabled = false, string Color = "#00FF66", int Size = 8, int Thickness = 2, int Gap = 3, bool Dot = false, bool Outline = true);
+
+/// <param name="Audio">none | system | system+mic</param>
+public sealed record ClipSettings(bool ReplayEnabled = false, int ReplaySeconds = 30, int Height = 1080, int Fps = 60, string? Folder = null, string Audio = "system", string? DiscordWebhook = null);
 
 /// <summary>Everything the UI needs from the machine. Windows implementation lives in the app; tests use fakes.</summary>
 public interface IAppServices

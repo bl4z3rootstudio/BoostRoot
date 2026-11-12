@@ -22,46 +22,96 @@ public sealed class PlaceholderViewModel(string key) : ObservableObject
     public string Message => Loc.I["common.soon"];
 }
 
+public sealed partial class MetricToggleViewModel(string key, bool on, Action changed) : ObservableObject
+{
+    public string Key { get; } = key;
+    public string Title => Loc.I["metric." + Key];
+    [ObservableProperty] public partial bool IsOn { get; set; } = on;
+    partial void OnIsOnChanged(bool value) => changed();
+}
+
 public sealed partial class SettingsViewModel : ObservableObject
 {
     private readonly IAppServices _services;
     private readonly Action<AppSettings> _onChanged;
+    private AppSettings _base;
+    private readonly bool _ready;
 
     public IReadOnlyList<string> Languages => Loc.Languages;
+    public IReadOnlyList<string> Corners { get; } = ["tl", "tr", "bl", "br"];
+    public IReadOnlyList<string> AudioModes { get; } = ["none", "system", "system+mic"];
+    public IReadOnlyList<int> ClipHeights { get; } = [720, 1080, 1440];
+    public IReadOnlyList<int> ClipFpsOptions { get; } = [30, 60];
+    public IReadOnlyList<int> ReplayLengths { get; } = [15, 30, 60, 120];
     public string VersionText => Loc.I.Format("settings.version", AppVersion.Current);
+    public IReadOnlyList<MetricToggleViewModel> Metrics { get; }
 
     [ObservableProperty] public partial string Language { get; set; }
     [ObservableProperty] public partial bool Sounds { get; set; }
     [ObservableProperty] public partial bool Animations { get; set; }
     [ObservableProperty] public partial bool Offline { get; set; }
     [ObservableProperty] public partial string CloseList { get; set; }
+    [ObservableProperty] public partial string OverlayCorner { get; set; }
+    [ObservableProperty] public partial bool CrosshairEnabled { get; set; }
+    [ObservableProperty] public partial string CrosshairColor { get; set; }
+    [ObservableProperty] public partial int CrosshairSize { get; set; }
+    [ObservableProperty] public partial int CrosshairThickness { get; set; }
+    [ObservableProperty] public partial int CrosshairGap { get; set; }
+    [ObservableProperty] public partial bool CrosshairDot { get; set; }
+    [ObservableProperty] public partial bool CrosshairOutline { get; set; }
+    [ObservableProperty] public partial bool ReplayEnabled { get; set; }
+    [ObservableProperty] public partial int ReplaySeconds { get; set; }
+    [ObservableProperty] public partial int ClipHeight { get; set; }
+    [ObservableProperty] public partial int ClipFps { get; set; }
+    [ObservableProperty] public partial string ClipAudio { get; set; }
+    [ObservableProperty] public partial string ClipFolder { get; set; }
+    [ObservableProperty] public partial string DiscordWebhook { get; set; }
 
     public SettingsViewModel(IAppServices services, Action<AppSettings> onChanged)
     {
         _services = services;
         _onChanged = onChanged;
-        var s = services.LoadSettings();
+        var s = _base = services.LoadSettings();
         Language = s.Language;
         Sounds = s.Sounds;
         Animations = s.Animations;
         Offline = s.Offline;
         CloseList = string.Join(", ", s.CloseList);
+        OverlayCorner = s.OverlayCorner;
+        var c = s.CrosshairOrDefault;
+        (CrosshairEnabled, CrosshairColor, CrosshairSize, CrosshairThickness, CrosshairGap, CrosshairDot, CrosshairOutline) = (c.Enabled, c.Color, c.Size, c.Thickness, c.Gap, c.Dot, c.Outline);
+        var k = s.ClipsOrDefault;
+        (ReplayEnabled, ReplaySeconds, ClipHeight, ClipFps, ClipAudio, ClipFolder, DiscordWebhook) = (k.ReplayEnabled, k.ReplaySeconds, k.Height, k.Fps, k.Audio, k.Folder ?? "", k.DiscordWebhook ?? "");
+        Metrics = [.. AppSettings.AllMetrics.Select(m => new MetricToggleViewModel(m, s.Metrics.Contains(m), Save))];
         Loc.I.SetLanguage(s.Language);
+        _ready = true;
     }
 
     partial void OnLanguageChanged(string value) { Loc.I.SetLanguage(value); Save(); }
-    partial void OnSoundsChanged(bool value) => Save();
-    partial void OnAnimationsChanged(bool value) => Save();
-    partial void OnOfflineChanged(bool value) => Save();
-    partial void OnCloseListChanged(string value) => Save();
 
-    public AppSettings Current => new(Language ?? "tr", Sounds, Animations, Offline,
-        [.. (CloseList ?? "").Split([',', ';', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)], false);
+    protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        if (e.PropertyName is not nameof(Language)) Save();
+    }
+
+    public AppSettings Current => _base with
+    {
+        Language = Language ?? "tr", Sounds = Sounds, Animations = Animations, Offline = Offline,
+        CloseList = [.. (CloseList ?? "").Split([',', ';', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],
+        OverlayMetrics = [.. Metrics.Where(m => m.IsOn).Select(m => m.Key)],
+        OverlayCorner = OverlayCorner ?? "tl",
+        Crosshair = new CrosshairSettings(CrosshairEnabled, CrosshairColor ?? "#00FF66", Math.Clamp(CrosshairSize, 0, 40), Math.Clamp(CrosshairThickness, 1, 10), Math.Clamp(CrosshairGap, 0, 30), CrosshairDot, CrosshairOutline),
+        Clips = new ClipSettings(ReplayEnabled, ReplaySeconds, ClipHeight, ClipFps, string.IsNullOrWhiteSpace(ClipFolder) ? null : ClipFolder, ClipAudio ?? "system", string.IsNullOrWhiteSpace(DiscordWebhook) ? null : DiscordWebhook.Trim()),
+    };
+
+    /// <summary>Called by other screens (e.g. 4:3 toggle on Home) so all settings stay in one place.</summary>
+    public void Update(Func<AppSettings, AppSettings> change) { _base = change(Current); Save(); }
 
     private void Save()
     {
-        if (CloseList is null) return; // still constructing
-        var s = Current;
+        if (!_ready) return;
+        var s = _base = Current;
         _services.SaveSettings(s);
         _onChanged(s);
     }
@@ -84,6 +134,10 @@ public sealed partial class MainViewModel : ObservableObject
     {
         Home = new HomeViewModel(services);
         Settings = new SettingsViewModel(services, s => Home.ApplySettings(s));
+        Home.StretchChanged = (id, on) => Settings.Update(s => s with
+        {
+            StretchGames = on ? [.. (s.StretchGames ?? []).Append(id).Distinct()] : [.. (s.StretchGames ?? []).Where(x => x != id)],
+        });
         Scan = new ScanViewModel(services, r => { Home.RefreshRecommendation(); Fps!.Cpu = r.Info.CpuName; Fps.Gpu = r.Info.Gpus.FirstOrDefault()?.Name ?? ""; });
         Net = new NetViewModel(services);
         Tools = new ToolsViewModel(services);

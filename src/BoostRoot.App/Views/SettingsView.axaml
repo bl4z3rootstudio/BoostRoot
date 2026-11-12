@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:BoostRoot.ViewModels"
              xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             xmlns:v="using:BoostRoot.App.Views"
              x:Class="BoostRoot.App.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
   <ScrollViewer>
@@ -24,6 +25,65 @@
         <StackPanel Spacing="8">
           <TextBlock Text="{Binding [settings.closeList], Source={x:Static loc:Loc.I}}" />
           <TextBox Text="{Binding CloseList}" AcceptsReturn="False" />
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h2" Text="{Binding [settings.overlay], Source={x:Static loc:Loc.I}}" />
+          <ItemsControl ItemsSource="{Binding Metrics}">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:MetricToggleViewModel"><CheckBox Margin="0,0,16,4" IsChecked="{Binding IsOn}" Content="{Binding Title}" /></DataTemplate></ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock VerticalAlignment="Center" Text="{Binding [settings.overlayCorner], Source={x:Static loc:Loc.I}}" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Corners}" SelectedItem="{Binding OverlayCorner}" MinWidth="140">
+              <ComboBox.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding Converter={x:Static v:LocKeyConverter.Corner}}" /></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
+          </Grid>
+          <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [settings.overlayNote], Source={x:Static loc:Loc.I}}" />
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h2" Text="{Binding [settings.crosshair], Source={x:Static loc:Loc.I}}" />
+          <ToggleSwitch IsChecked="{Binding CrosshairEnabled}" Content="{Binding [settings.chEnabled], Source={x:Static loc:Loc.I}}" />
+          <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
+            <TextBlock VerticalAlignment="Center" Text="{Binding [settings.chColor], Source={x:Static loc:Loc.I}}" />
+            <TextBox Grid.Column="1" Width="140" Text="{Binding CrosshairColor}" />
+            <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="{Binding [settings.chSize], Source={x:Static loc:Loc.I}}" />
+            <NumericUpDown Grid.Row="1" Grid.Column="1" Width="140" Minimum="0" Maximum="40" FormatString="0" Value="{Binding CrosshairSize}" />
+            <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{Binding [settings.chThickness], Source={x:Static loc:Loc.I}}" />
+            <NumericUpDown Grid.Row="2" Grid.Column="1" Width="140" Minimum="1" Maximum="10" FormatString="0" Value="{Binding CrosshairThickness}" />
+            <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{Binding [settings.chGap], Source={x:Static loc:Loc.I}}" />
+            <NumericUpDown Grid.Row="3" Grid.Column="1" Width="140" Minimum="0" Maximum="30" FormatString="0" Value="{Binding CrosshairGap}" />
+          </Grid>
+          <StackPanel Orientation="Horizontal" Spacing="16">
+            <CheckBox IsChecked="{Binding CrosshairDot}" Content="{Binding [settings.chDot], Source={x:Static loc:Loc.I}}" />
+            <CheckBox IsChecked="{Binding CrosshairOutline}" Content="{Binding [settings.chOutline], Source={x:Static loc:Loc.I}}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h2" Text="{Binding [settings.clips], Source={x:Static loc:Loc.I}}" />
+          <ToggleSwitch IsChecked="{Binding ReplayEnabled}" Content="{Binding [settings.replay], Source={x:Static loc:Loc.I}}" />
+          <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
+            <TextBlock VerticalAlignment="Center" Text="{Binding [settings.replaySeconds], Source={x:Static loc:Loc.I}}" />
+            <ComboBox Grid.Column="1" MinWidth="140" ItemsSource="{Binding ReplayLengths}" SelectedItem="{Binding ReplaySeconds}" />
+            <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="{Binding [settings.clipHeight], Source={x:Static loc:Loc.I}}" />
+            <ComboBox Grid.Row="1" Grid.Column="1" MinWidth="140" ItemsSource="{Binding ClipHeights}" SelectedItem="{Binding ClipHeight}" />
+            <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{Binding [settings.clipFps], Source={x:Static loc:Loc.I}}" />
+            <ComboBox Grid.Row="2" Grid.Column="1" MinWidth="140" ItemsSource="{Binding ClipFpsOptions}" SelectedItem="{Binding ClipFps}" />
+            <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{Binding [settings.clipAudio], Source={x:Static loc:Loc.I}}" />
+            <ComboBox Grid.Row="3" Grid.Column="1" MinWidth="180" ItemsSource="{Binding AudioModes}" SelectedItem="{Binding ClipAudio}">
+              <ComboBox.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding Converter={x:Static v:LocKeyConverter.Audio}}" /></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
+          </Grid>
+          <TextBlock Text="{Binding [settings.clipFolder], Source={x:Static loc:Loc.I}}" />
+          <TextBox Text="{Binding ClipFolder}" />
+          <TextBlock Text="{Binding [settings.discord], Source={x:Static loc:Loc.I}}" />
+          <TextBox Text="{Binding DiscordWebhook}" PasswordChar="•" />
+          <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [settings.hotkeys], Source={x:Static loc:Loc.I}}" />
         </StackPanel>
       </Border>
       <Border Classes="card">
