@@ -1,6 +1,8 @@
 using BoostRoot.Core.Boost;
 using BoostRoot.Core.Hardware;
 using BoostRoot.Core.Scoring;
+using BoostRoot.Core.Net;
+using BoostRoot.Core.Tools;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Games;
 
@@ -33,6 +35,19 @@ public interface IAppServices
     string? CoverPath(CatalogEntry entry);
     /// <summary>Scans hardware; also updates <see cref="PcScore"/>.</summary>
     HardwareReport ScanHardware();
+
+    // Internet (measurement only)
+    IReadOnlyList<NetInfo> NetworkAdapters();
+    Task<PingStats> PingAsync(string host, CancellationToken ct);
+    Task<SpeedResult> SpeedTestAsync(IProgress<double>? progress, CancellationToken ct);
+
+    // Tools
+    IReadOnlyList<JunkScan> ScanJunk();
+    long CleanJunk(IEnumerable<JunkScan> scans);
+    IReadOnlyList<StartupItem> StartupItems();
+    void SetStartupEnabled(StartupItem item, bool enabled);
+    DriverStatus? CheckDriver();
+    void OpenUrl(string url);
 }
 
 public sealed record HardwareReport(HardwareInfo Info, IReadOnlyList<HealthIssue> Issues, PcScore Score);

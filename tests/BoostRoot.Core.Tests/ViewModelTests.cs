@@ -1,6 +1,8 @@
 using BoostRoot.Core.Boost;
 using BoostRoot.Core.Hardware;
 using BoostRoot.Core.Scoring;
+using BoostRoot.Core.Net;
+using BoostRoot.Core.Tools;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Games;
 using BoostRoot.ViewModels;
@@ -36,6 +38,18 @@ internal sealed class FakeAppServices : IAppServices
         PcScore = score.Total;
         return new HardwareReport(hw, issues, score);
     }
+    public IReadOnlyList<NetInfo> NetworkAdapters() => [new NetInfo("eth", false, 1000)];
+    public Task<PingStats> PingAsync(string host, CancellationToken ct) => Task.FromResult(NetAnalysis.Summarize(host, 4, [12, 13, 12, 14]));
+    public Task<SpeedResult> SpeedTestAsync(IProgress<double>? progress, CancellationToken ct) { progress?.Report(1); return Task.FromResult(new SpeedResult(95.5, 19.2, 12, 25)); }
+    public long Cleaned { get; private set; }
+    public IReadOnlyList<JunkScan> ScanJunk() => [new JunkScan(new JunkCategory("user-temp", new("Geçici", "Temp"), ["C:/T"], "*"), ["C:/T/a"], 5 << 20)];
+    public long CleanJunk(IEnumerable<JunkScan> scans) => Cleaned = scans.Sum(s => s.Bytes);
+    public List<(string, bool)> StartupChanges { get; } = [];
+    public IReadOnlyList<StartupItem> StartupItems() => [new StartupItem("Spotify", "spotify.exe", BoostRoot.Core.Platform.RegistryHive.CurrentUser, "Run", true)];
+    public void SetStartupEnabled(StartupItem item, bool enabled) => StartupChanges.Add((item.Name, enabled));
+    public DriverStatus? CheckDriver() => null;
+    public List<string> Opened { get; } = [];
+    public void OpenUrl(string url) => Opened.Add(url);
 }
 
 public class ViewModelTests
@@ -150,6 +164,29 @@ public class ViewModelTests
         Assert.Equal(6, vm.Parts.Count);
         Assert.False(vm.Parts.Single(p => p.Label == "RAM").Ok);
         Assert.Single(vm.Issues);
+    }
+
+    [Fact]
+    public async Task Net_Run_FillsPingsSpeedAndAdvice()
+    {
+        var vm = new NetViewModel(Services());
+        await vm.RunCommand.ExecuteAsync(null);
+        Assert.Equal(NetAnalysis.DefaultServers.Count, vm.Pings.Count);
+        Assert.Equal("95.5 Mbps", vm.Download.Replace(',', '.'));
+        Assert.Single(vm.Advice);
+    }
+
+    [Fact]
+    public async Task Tools_Load_Clean_ToggleStartup()
+    {
+        var s = Services();
+        var vm = new ToolsViewModel(s);
+        await vm.LoadCommand.ExecuteAsync(null);
+        Assert.Equal("5 MB", vm.Junk.Single().Size.Replace(',', '.'));
+        await vm.CleanCommand.ExecuteAsync(null);
+        Assert.Equal(5 << 20, s.Cleaned);
+        vm.Startup.Single().Enabled = false;
+        Assert.Equal([("Spotify", false)], s.StartupChanges);
     }
 
     [Fact]

@@ -51,5 +51,18 @@
   "settings.report": "Report a problem",
   "settings.about": "About",
   "settings.version": "Version {0} · by bl4z3root",
-  "scan.run": "Run scan"
+  "scan.run": "Run scan",
+  "net.run": "Run test",
+  "net.download": "Download",
+  "net.upload": "Upload",
+  "net.latency": "Latency (idle → loaded)",
+  "net.servers": "Servers",
+  "net.advice": "Advice",
+  "net.note": "BoostRoot never changes network settings; it only measures.",
+  "tools.junk": "Junk cleaner",
+  "tools.clean": "Clean selected",
+  "tools.startup": "Startup apps",
+  "tools.driver": "Graphics driver",
+  "tools.openDriver": "Official download page",
+  "tools.refresh": "Refresh"
 }

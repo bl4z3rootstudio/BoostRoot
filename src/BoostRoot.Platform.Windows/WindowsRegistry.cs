@@ -53,4 +53,11 @@ public sealed class WindowsRegistry : IRegistry
         using var k = root.OpenSubKey(key, false);
         return k?.GetSubKeyNames() ?? [];
     }
+
+    public IReadOnlyList<string> GetValueNames(RegistryHive hive, string key)
+    {
+        using var root = Root(hive);
+        using var k = root.OpenSubKey(key, false);
+        return k?.GetValueNames() ?? [];
+    }
 }

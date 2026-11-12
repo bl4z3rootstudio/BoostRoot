@@ -51,5 +51,18 @@
   "settings.report": "Hata bildir",
   "settings.about": "Hakkında",
   "settings.version": "Sürüm {0} · by bl4z3root",
-  "scan.run": "Taramayı başlat"
+  "scan.run": "Taramayı başlat",
+  "net.run": "Testi başlat",
+  "net.download": "İndirme",
+  "net.upload": "Yükleme",
+  "net.latency": "Gecikme (boşta → yükte)",
+  "net.servers": "Sunucular",
+  "net.advice": "Tavsiyeler",
+  "net.note": "BoostRoot internet ayarlarına asla dokunmaz; sadece ölçer.",
+  "tools.junk": "Çöp temizleyici",
+  "tools.clean": "Seçilenleri temizle",
+  "tools.startup": "Windows ile başlayanlar",
+  "tools.driver": "Ekran kartı sürücüsü",
+  "tools.openDriver": "Resmi indirme sayfası",
+  "tools.refresh": "Yenile"
 }

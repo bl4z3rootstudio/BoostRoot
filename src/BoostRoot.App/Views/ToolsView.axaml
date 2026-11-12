@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BoostRoot.ViewModels" xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             x:Class="BoostRoot.App.Views.ToolsView" x:DataType="vm:ToolsViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="48,24" Spacing="18" MaxWidth="900" HorizontalAlignment="Left">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Classes="h1" FontSize="32" Text="{Binding [nav.tools], Source={x:Static loc:Loc.I}}" />
+        <Button Grid.Column="1" Classes="ghost" Command="{Binding LoadCommand}" Content="{Binding [tools.refresh], Source={x:Static loc:Loc.I}}" />
+      </Grid>
+      <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" Foreground="{StaticResource Accent}" />
+      <Border Classes="card">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="h2" Text="{Binding [tools.driver], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Text="{Binding DriverText}" Foreground="{StaticResource Warn}" IsVisible="{Binding DriverIsOld}" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding DriverText}" Foreground="{StaticResource Good}" IsVisible="{Binding !DriverIsOld}" TextWrapping="Wrap" />
+          </StackPanel>
+          <Button Grid.Column="1" Classes="ghost" VerticalAlignment="Center" Command="{Binding OpenDriverPageCommand}" Content="{Binding [tools.openDriver], Source={x:Static loc:Loc.I}}" />
+        </Grid>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="h2" Text="{Binding [tools.junk], Source={x:Static loc:Loc.I}}" />
+          <ItemsControl ItemsSource="{Binding Junk}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:JunkRowViewModel">
+                <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                  <CheckBox IsChecked="{Binding IsChecked}" Content="{Binding Name}" />
+                  <TextBlock Grid.Column="1" Classes="muted" VerticalAlignment="Center" Text="{Binding Size}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <Button Classes="primary" Command="{Binding CleanCommand}" Content="{Binding [tools.clean], Source={x:Static loc:Loc.I}}" />
+            <TextBlock VerticalAlignment="Center" Text="{Binding JunkResult}" Foreground="{StaticResource Good}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h2" Text="{Binding [tools.startup], Source={x:Static loc:Loc.I}}" />
+          <ItemsControl ItemsSource="{Binding Startup}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:StartupRowViewModel">
+                <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                  <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Text="{Binding Name}" />
+                    <TextBlock Classes="muted" FontSize="11" Text="{Binding Command}" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                  <ToggleSwitch Grid.Column="1" IsChecked="{Binding Enabled}" OnContent="" OffContent="" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

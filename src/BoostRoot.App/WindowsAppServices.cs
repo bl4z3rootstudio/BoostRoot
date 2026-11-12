@@ -2,6 +2,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using BoostRoot.Core.Boost;
 using BoostRoot.Core.Hardware;
+using BoostRoot.Core.Net;
+using BoostRoot.Core.Tools;
 using BoostRoot.Core.IO;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Core.Safety;
@@ -31,6 +33,9 @@ public sealed class WindowsAppServices : IAppServices
     private readonly string _profilesDir;
     private readonly string _coversDir;
     private IReadOnlyList<GameProfile>? _profiles;
+    private readonly RegistryChanger _registryChanger;
+    private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(30) };
+    private HardwareInfo? _lastHardware;
 
     private WindowsAppServices()
     {
@@ -43,7 +48,7 @@ public sealed class WindowsAppServices : IAppServices
         _journal = new Journal(_fs, Path.Combine(shared, "journal"));
         var editor = new SafeFileEditor(_fs, _journal, Path.Combine(shared, "backup"));
         var applier = new ProfileApplier(new PathResolver(_fs, WindowsEnvironment.Expand), editor);
-        var registryChanger = new RegistryChanger(_registry, _journal);
+        var registryChanger = _registryChanger = new RegistryChanger(_registry, _journal);
         var powerChanger = new PowerPlanChanger(new WindowsPowerPlans(), _journal);
         _undo = new UndoService(_journal, [new FileUndoHandler(_fs), registryChanger, powerChanger]);
         _orchestrator = new BoostOrchestrator(applier, _processes, _registry, registryChanger, powerChanger, _undo, []);
@@ -109,7 +114,7 @@ public sealed class WindowsAppServices : IAppServices
 
     public HardwareReport ScanHardware()
     {
-        var info = HardwareScanner.Scan(_registry);
+        var info = _lastHardware = HardwareScanner.Scan(_registry);
         var issues = HealthChecks.Evaluate(info, DateOnly.FromDateTime(DateTime.Now));
         var score = HealthChecks.Score(info, issues);
         PcScore = score.Total;
@@ -123,4 +128,40 @@ public sealed class WindowsAppServices : IAppServices
         var path = Path.Combine(_coversDir, id + ".jpg");
         return File.Exists(path) ? path : null;
     }
+
+    public IReadOnlyList<NetInfo> NetworkAdapters() => _lastHardware?.Networks ?? HardwareScanner.Scan(_registry).Networks;
+
+    public Task<PingStats> PingAsync(string host, CancellationToken ct) => NetAnalysis.MeasureAsync(new IcmpPinger(), host, 10, ct);
+
+    public Task<SpeedResult> SpeedTestAsync(IProgress<double>? progress, CancellationToken ct)
+    {
+        if (LoadSettings().Offline) throw new HttpRequestException("Offline mode");
+        return new CloudflareSpeedTest(_http).RunAsync(new IcmpPinger(), progress, ct);
+    }
+
+    private static JunkCleaner Cleaner() => new(PhysicalFileSystem.Instance, f => new FileInfo(f).Length);
+
+    public IReadOnlyList<JunkScan> ScanJunk()
+    {
+        var windir = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+        var cats = JunkCleaner.Categories(Path.GetTempPath(), Path.Combine(windir, "Temp"),
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), windir);
+        var c = Cleaner();
+        return [.. cats.Select(x => c.Scan(x, DateTime.UtcNow))];
+    }
+
+    public long CleanJunk(IEnumerable<JunkScan> scans) { var c = Cleaner(); return scans.Sum(c.Clean); }
+
+    private StartupManager Startup() => new(_registry, _registryChanger);
+
+    public IReadOnlyList<StartupItem> StartupItems() =>
+        Startup().List(h => _registry.GetValueNames(h, @"Software\Microsoft\Windows\CurrentVersion\Run"));
+
+    public void SetStartupEnabled(StartupItem item, bool enabled) =>
+        Startup().SetEnabled($"startup-{DateTime.UtcNow:yyyyMMddHHmmss}", item, enabled);
+
+    public DriverStatus? CheckDriver() => DriverCheck.Check(_lastHardware ?? HardwareScanner.Scan(_registry), DateOnly.FromDateTime(DateTime.Now));
+
+    public void OpenUrl(string url) => _processes.Start(url, null, true);
 }

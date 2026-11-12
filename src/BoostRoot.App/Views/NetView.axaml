@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BoostRoot.ViewModels" xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             x:Class="BoostRoot.App.Views.NetView" x:DataType="vm:NetViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="48,24" Spacing="18">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Spacing="4">
+          <TextBlock Classes="h1" FontSize="32" Text="{Binding [nav.net], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" Text="{Binding [net.note], Source={x:Static loc:Loc.I}}" />
+        </StackPanel>
+        <Button Grid.Column="1" Classes="primary" Command="{Binding RunCommand}" Content="{Binding [net.run], Source={x:Static loc:Loc.I}}" />
+      </Grid>
+      <ProgressBar Value="{Binding Progress}" Maximum="1" IsVisible="{Binding IsRunning}" Foreground="{StaticResource Accent}" />
+      <TextBlock Foreground="{StaticResource Bad}" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <UniformGrid Columns="3">
+        <Border Classes="card" Margin="0,0,12,0"><StackPanel><TextBlock Classes="muted" Text="{Binding [net.download], Source={x:Static loc:Loc.I}}" /><TextBlock FontSize="26" FontWeight="Bold" Text="{Binding Download}" /></StackPanel></Border>
+        <Border Classes="card" Margin="0,0,12,0"><StackPanel><TextBlock Classes="muted" Text="{Binding [net.upload], Source={x:Static loc:Loc.I}}" /><TextBlock FontSize="26" FontWeight="Bold" Text="{Binding Upload}" /></StackPanel></Border>
+        <Border Classes="card"><StackPanel><TextBlock Classes="muted" Text="{Binding [net.latency], Source={x:Static loc:Loc.I}}" /><TextBlock FontSize="26" FontWeight="Bold" Text="{Binding Latency}" /></StackPanel></Border>
+      </UniformGrid>
+      <TextBlock Classes="h2" Text="{Binding [net.servers], Source={x:Static loc:Loc.I}}" />
+      <ItemsControl ItemsSource="{Binding Pings}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:PingRow">
+            <Border Classes="card" Margin="0,0,0,8" Padding="14,10">
+              <Grid ColumnDefinitions="*,120,120,90">
+                <TextBlock><Run Text="{Binding Name}" FontWeight="SemiBold" /><Run Text=" · " /><Run Text="{Binding Region}" Foreground="{StaticResource Muted}" /></TextBlock>
+                <TextBlock Grid.Column="1" Text="{Binding Avg}" />
+                <TextBlock Grid.Column="2" Classes="muted" Text="{Binding Jitter}" />
+                <TextBlock Grid.Column="3" Text="{Binding Loss}" Foreground="{StaticResource Good}" IsVisible="{Binding Ok}" />
+                <TextBlock Grid.Column="3" Text="{Binding Loss}" Foreground="{StaticResource Warn}" IsVisible="{Binding !Ok}" />
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <TextBlock Classes="h2" Text="{Binding [net.advice], Source={x:Static loc:Loc.I}}" />
+      <ItemsControl ItemsSource="{Binding Advice}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="x:String">
+            <Border Background="#17122A" BorderBrush="#4C2F7A" BorderThickness="1" CornerRadius="12" Padding="14,10" Margin="0,0,0,8">
+              <TextBlock TextWrapping="Wrap" Text="{Binding}" />
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
