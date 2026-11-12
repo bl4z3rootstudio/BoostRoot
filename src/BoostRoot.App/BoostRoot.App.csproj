@@ -10,6 +10,7 @@
     <ApplicationIcon>Assets\boostroot.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release' And '$(OS)' == 'Windows_NT'">
     <PublishAot>true</PublishAot>

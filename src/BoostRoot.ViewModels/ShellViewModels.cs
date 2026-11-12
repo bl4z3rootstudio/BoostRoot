@@ -75,6 +75,7 @@ public sealed partial class MainViewModel : ObservableObject
     public ScanViewModel Scan { get; }
     public NetViewModel Net { get; }
     public ToolsViewModel Tools { get; }
+    public StressViewModel Stress { get; }
 
     [ObservableProperty] public partial ObservableObject CurrentPage { get; set; }
 
@@ -85,12 +86,13 @@ public sealed partial class MainViewModel : ObservableObject
         Scan = new ScanViewModel(services, _ => Home.RefreshRecommendation());
         Net = new NetViewModel(services);
         Tools = new ToolsViewModel(services);
+        Stress = new StressViewModel(services);
         Nav =
         [
             new("boost", "M13 2 4 14h7l-1 8 9-12h-7z", Home),
             new("scan", "M3 3h18v14H3zM8 21h8M12 17v4", Scan),
             new("fps", "M3 12h4l3 8 4-16 3 8h4", new PlaceholderViewModel("fps")),
-            new("stress", "M12 2a7 7 0 0 0-4 12.7V18h8v-3.3A7 7 0 0 0 12 2zM9 22h6", new PlaceholderViewModel("stress")),
+            new("stress", "M12 2a7 7 0 0 0-4 12.7V18h8v-3.3A7 7 0 0 0 12 2zM9 22h6", Stress),
             new("net", "M2 9a15 15 0 0 1 20 0M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M12 20h.01", Net),
             new("clips", "M4 6h12v12H4zM16 10l5-3v10l-5-3", new PlaceholderViewModel("clips")),
             new("tools", "M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z", Tools),

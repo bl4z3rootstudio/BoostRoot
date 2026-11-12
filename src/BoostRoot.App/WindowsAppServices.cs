@@ -4,6 +4,10 @@ using BoostRoot.Core.Boost;
 using BoostRoot.Core.Hardware;
 using BoostRoot.Core.Net;
 using BoostRoot.Core.Tools;
+using BoostRoot.Core.Monitoring;
+using BoostRoot.Core.Stress;
+using BoostRoot.Platform.Windows.Sensors;
+using BoostRoot.ViewModels.Localization;
 using BoostRoot.Core.IO;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Core.Safety;
@@ -164,4 +168,11 @@ public sealed class WindowsAppServices : IAppServices
     public DriverStatus? CheckDriver() => DriverCheck.Check(_lastHardware ?? HardwareScanner.Scan(_registry), DateOnly.FromDateTime(DateTime.Now));
 
     public void OpenUrl(string url) => _processes.Start(url, null, true);
+
+    private WindowsSensors? _sensors;
+    public ISensors Sensors => _sensors ??= new WindowsSensors();
+
+    public IStressWorkload? CreateGpuStress() => new BoostRoot.App.Stress.GpuStressWorkload(Loc.I["stress.gpuWindow"]);
+
+    public long RamStressBytes() => RamStress.Recommended(HardwareScanner.AvailableRamBytes());
 }

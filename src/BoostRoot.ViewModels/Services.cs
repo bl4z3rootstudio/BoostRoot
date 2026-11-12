@@ -3,6 +3,8 @@ using BoostRoot.Core.Hardware;
 using BoostRoot.Core.Scoring;
 using BoostRoot.Core.Net;
 using BoostRoot.Core.Tools;
+using BoostRoot.Core.Monitoring;
+using BoostRoot.Core.Stress;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Games;
 
@@ -48,6 +50,12 @@ public interface IAppServices
     void SetStartupEnabled(StartupItem item, bool enabled);
     DriverStatus? CheckDriver();
     void OpenUrl(string url);
+
+    // Monitoring + stress
+    ISensors Sensors { get; }
+    /// <summary>Opens the GPU load window; null if the GPU can't be stressed here.</summary>
+    IStressWorkload? CreateGpuStress();
+    long RamStressBytes();
 }
 
 public sealed record HardwareReport(HardwareInfo Info, IReadOnlyList<HealthIssue> Issues, PcScore Score);

@@ -3,6 +3,8 @@ using BoostRoot.Core.Hardware;
 using BoostRoot.Core.Scoring;
 using BoostRoot.Core.Net;
 using BoostRoot.Core.Tools;
+using BoostRoot.Core.Monitoring;
+using BoostRoot.Core.Stress;
 using BoostRoot.Core.Profiles;
 using BoostRoot.Games;
 using BoostRoot.ViewModels;
@@ -50,6 +52,16 @@ internal sealed class FakeAppServices : IAppServices
     public DriverStatus? CheckDriver() => null;
     public List<string> Opened { get; } = [];
     public void OpenUrl(string url) => Opened.Add(url);
+    public ISensors Sensors { get; set; } = new FakeSensors();
+    public IStressWorkload? CreateGpuStress() => null;
+    public long RamStressBytes() => 4 << 20;
+}
+
+public sealed class FakeSensors : ISensors
+{
+    public double GpuTemp { get; set; } = 60;
+    public SensorSnapshot Read() => new(DateTime.UtcNow, CpuLoad: 100, CpuMhz: 4000, GpuTempC: GpuTemp, RamUsedPct: 50);
+    public void Dispose() { }
 }
 
 public class ViewModelTests

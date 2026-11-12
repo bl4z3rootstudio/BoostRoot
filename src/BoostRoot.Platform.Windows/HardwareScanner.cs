@@ -26,7 +26,7 @@ public static partial class HardwareScanner
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct MEMORYSTATUSEX
+    internal struct MEMORYSTATUSEX
     {
         public uint dwLength, dwMemoryLoad;
         public ulong ullTotalPhys, ullAvailPhys, ullTotalPageFile, ullAvailPageFile, ullTotalVirtual, ullAvailVirtual, ullAvailExtendedVirtual;
@@ -34,7 +34,7 @@ public static partial class HardwareScanner
 
     [LibraryImport("kernel32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool GlobalMemoryStatusEx(ref MEMORYSTATUSEX buffer);
+    internal static partial bool GlobalMemoryStatusEx(ref MEMORYSTATUSEX buffer);
 
     [LibraryImport("kernel32.dll")]
     private static partial uint GetSystemFirmwareTable(uint provider, uint tableId, Span<byte> buffer, uint size);
@@ -109,4 +109,10 @@ public static partial class HardwareScanner
             .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType is NetworkInterfaceType.Ethernet or NetworkInterfaceType.Wireless80211 or NetworkInterfaceType.GigabitEthernet)
             .Where(n => !n.Description.Contains("Virtual", StringComparison.OrdinalIgnoreCase) && !n.Description.Contains("Hyper-V", StringComparison.OrdinalIgnoreCase))
             .Select(n => new NetInfo(n.Description, n.NetworkInterfaceType == NetworkInterfaceType.Wireless80211, n.Speed / 1_000_000))];
+
+    public static ulong AvailableRamBytes()
+    {
+        var m = new MEMORYSTATUSEX { dwLength = (uint)Marshal.SizeOf<MEMORYSTATUSEX>() };
+        return GlobalMemoryStatusEx(ref m) ? m.ullAvailPhys : 0;
+    }
 }

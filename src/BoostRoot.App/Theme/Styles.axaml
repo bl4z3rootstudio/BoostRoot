@@ -135,4 +135,16 @@
     <Setter Property="CornerRadius" Value="14" />
     <Setter Property="Padding" Value="16" />
   </Style>
+  <Style Selector="ToggleButton.chip">
+    <Setter Property="Background" Value="#17122A" />
+    <Setter Property="BorderBrush" Value="#2E2647" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="18" />
+    <Setter Property="Padding" Value="16,8" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <Style Selector="ToggleButton.chip:checked /template/ ContentPresenter">
+    <Setter Property="Background" Value="#3B1F66" />
+    <Setter Property="BorderBrush" Value="{StaticResource Accent}" />
+  </Style>
 </Styles>
