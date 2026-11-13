@@ -4,6 +4,11 @@ name: Release
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g. 26.11.1)'
+        required: true
 permissions:
   contents: write
 jobs:
@@ -20,7 +25,7 @@ jobs:
         id: v
         shell: pwsh
         run: |
-          $v = "${{ github.ref_name }}".TrimStart('v')
+          $v = if ("${{ github.event_name }}" -eq "workflow_dispatch") { "${{ inputs.version }}" } else { "${{ github.ref_name }}".TrimStart('v') }
           if ($v -notmatch '^\d{2}\.\d{1,2}\.\d+$') { throw "Tag must look like v26.11.1" }
           "version=$v" >> $env:GITHUB_OUTPUT
       - run: dotnet test -c Release
@@ -55,6 +60,6 @@ jobs:
         run: |
           $v = "${{ steps.v.outputs.version }}"
           $notes = if (Test-Path "docs/release-notes/$v.md") { "docs/release-notes/$v.md" } else { $null }
-          $args = @("${{ github.ref_name }}", "publish/BoostRoot-Setup-$v.exe", "publish/BoostRoot-Portable-$v.zip", "publish/SHA256SUMS.txt", "--title", "BoostRoot $v")
+          $args = @("v$v", "--target", "${{ github.sha }}", "publish/BoostRoot-Setup-$v.exe", "publish/BoostRoot-Portable-$v.zip", "publish/SHA256SUMS.txt", "--title", "BoostRoot $v")
           if ($notes) { $args += @("--notes-file", $notes) } else { $args += @("--generate-notes") }
           gh release create @args
