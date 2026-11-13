@@ -429,5 +429,8 @@
  "mon.pingInfo": "Dalgalanma {0} ms · paket kaybı %{1}",
  "settings.autoBoost": "Otomatik Boost",
  "settings.autoBoostNote": "Bir oyunu Steam'den/kısayoldan açsan bile BoostRoot fark eder: arka plan uygulamalarını kapatır, oyuna öncelik verir, FPS'i kaydeder ve Alt+O/Alt+C kısayollarını açar. Oyun ayar dosyalarına dokunmaz.",
- "pf.days": "{0} gün"
+ "pf.days": "{0} gün",
+ "settings.startup": "Windows ile başlat (tepside)",
+ "settings.startupNote": "Bilgisayar açılınca BoostRoot saatin yanında sessizce başlar; Otomatik Boost ile birlikte kullanınca oyunları kendiliğinden yakalar.",
+ "home.lastSession": "Son oturum · {0}: ort. {1} FPS, %1 low {2}"
 }

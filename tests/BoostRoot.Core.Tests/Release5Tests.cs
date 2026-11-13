@@ -74,3 +74,21 @@ public class AutoBoostTests
         Assert.Null(auto.Check(all, ["cs2"]));
     }
 }
+
+public class AutoBoostPathTests
+{
+    [Fact]
+    public void LibraryGameWithoutExeName_IsFoundByInstallFolder()
+    {
+        var prof = BoostRoot.Core.Profiles.ProfileLoader.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "TestData", "_example.json")))
+            with { Id = "lib-gtfo", Name = "GTFO", Detect = new Dictionary<string, string>() };
+        var game = new BoostRoot.Games.InstalledGame("steam", "493520", "GTFO", @"D:\SteamLibrary\steamapps\common\GTFO", new Dictionary<string, string>());
+        var e = new BoostRoot.Games.CatalogEntry(prof, game);
+        var auto = new ViewModels.AutoBoost();
+        Assert.Null(auto.Check([e], ["GTFO"], [@"C:\Windows\explorer.exe"]));
+        Assert.Same(e, auto.Check([e], ["GTFO"], [@"d:\steamlibrary\steamapps\common\gtfo\GTFO.exe"]));
+        Assert.False(ViewModels.AutoBoost.RunsFrom(@"C:\", [@"C:\Windows\explorer.exe"]));
+        Assert.False(ViewModels.AutoBoost.RunsFrom(@"D:\Games", [@"D:\Games\x\a.exe"]));
+        Assert.False(ViewModels.AutoBoost.RunsFrom(@"D:\Games\X", [@"D:\Games\X\CrashReporter.exe"]));
+    }
+}

@@ -19,6 +19,9 @@ public sealed partial class App : Application
             var vm = new MainViewModel(services);
             var window = new MainWindow { DataContext = vm };
             desktop.MainWindow = window;
+            // Started by the logon task: stay in the tray (Auto Boost keeps watching) instead of popping up.
+            if (desktop.Args?.Contains("--tray") == true && services.LoadSettings().TrayIcon)
+                window.Opened += (_, _) => Avalonia.Threading.Dispatcher.UIThread.Post(window.Hide);
             services.SessionStarter = (entry, settings) => Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
                 var session = new GameSession(entry, settings, services.Sensors, services.IsGameRunning,
@@ -88,10 +91,13 @@ public sealed partial class App : Application
                 var hit = await Task.Run(() =>
                 {
                     installed ??= [.. services.LoadCatalog().Where(e => e.IsInstalled)];
-                    return _auto.Check(installed, services.RunningApps());
+                    return _auto.Check(installed, services.RunningApps(), services.RunningProcessPaths());
                 });
                 if (hit is null) return;
-                foreach (var p in services.TopProcesses(200).Where(p => settings.CloseList.Contains(p.Name, StringComparer.OrdinalIgnoreCase)))
+                // Game launchers stay open: the game was just started from one and may need it (online/DRM).
+                string[] launchers = ["steamwebhelper", "steam", "epicgameslauncher", "eadesktop", "battle.net", "riotclientservices", "upc", "ubisoftconnect", "galaxyclient", "xboxpcapp"];
+                foreach (var p in services.TopProcesses(200).Where(p => settings.CloseList.Contains(p.Name, StringComparer.OrdinalIgnoreCase)
+                                                                      && !launchers.Contains(p.Name, StringComparer.OrdinalIgnoreCase)))
                     try { services.KillProcess(p.Pid); } catch (Exception) { }
                 services.SessionStarter?.Invoke(hit, settings);
             }

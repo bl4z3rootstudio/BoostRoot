@@ -18,19 +18,31 @@ public sealed class AutoBoost
             : [];
 
     /// <summary>The newly started game, if any. A game is reported once per run; it is re-armed after it closes.</summary>
-    public CatalogEntry? Check(IEnumerable<CatalogEntry> installed, IReadOnlyCollection<string> running)
+    public CatalogEntry? Check(IEnumerable<CatalogEntry> installed, IReadOnlyCollection<string> running, IReadOnlyCollection<string>? runningPaths = null)
     {
         var set = running.Select(r => Path.GetFileNameWithoutExtension(r)).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var paths = runningPaths ?? [];
         CatalogEntry? hit = null;
         foreach (var e in installed)
         {
             if (!e.IsInstalled || e.Profile is not { } p) continue;
             var names = ProcessNames(e);
-            var isRunning = names.Count > 0 && names.Any(set.Contains);
+            // Known exe names first; otherwise any running program inside the game's install folder (covers the
+            // hundreds of library games whose exe name we don't list).
+            var isRunning = names.Count > 0 ? names.Any(set.Contains) : RunsFrom(e.Game?.InstallPath, paths);
             if (!isRunning) { _handled.Remove(p.Id); continue; }
             if (_handled.Add(p.Id)) hit ??= e;
         }
         return hit;
+    }
+
+    internal static bool RunsFrom(string? installPath, IReadOnlyCollection<string> paths)
+    {
+        if (string.IsNullOrWhiteSpace(installPath)) return false;
+        var dir = installPath.Replace('/', '\\').TrimEnd('\\') + "\\";
+        if (dir.Count(c => c == '\\') < 3) return false; // never match a drive root or a top-level folder
+        return paths.Any(p => p.Replace('/', '\\').StartsWith(dir, StringComparison.OrdinalIgnoreCase)
+                              && !Path.GetFileName(p).Contains("crash", StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>Marks a game as already handled (e.g. it was started with the Boost button).</summary>

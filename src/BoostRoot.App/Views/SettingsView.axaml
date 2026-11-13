@@ -50,6 +50,8 @@
       </Border>
       <Border Classes="card">
         <StackPanel Spacing="8">
+          <ToggleSwitch IsChecked="{Binding StartWithWindows}" Content="{Binding [settings.startup], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" Text="{Binding [settings.startupNote], Source={x:Static loc:Loc.I}}" />
           <ToggleSwitch IsChecked="{Binding AutoBoost}" Content="{Binding [settings.autoBoost], Source={x:Static loc:Loc.I}}" />
           <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" Text="{Binding [settings.autoBoostNote], Source={x:Static loc:Loc.I}}" />
           <ToggleSwitch IsChecked="{Binding AutoUndo}" Content="{Binding [settings.autoUndo], Source={x:Static loc:Loc.I}}" />

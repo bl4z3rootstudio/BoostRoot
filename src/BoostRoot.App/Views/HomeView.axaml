@@ -38,7 +38,7 @@
             <StackPanel Spacing="8">
               <Button Classes="ghost" HorizontalAlignment="Left" Command="{Binding ShareCommand}" Content="{Binding [share.copy], Source={x:Static loc:Loc.I}}" />
               <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                <TextBox Text="{Binding ShareInput}" Watermark="{Binding [share.paste], Source={x:Static loc:Loc.I}}" />
+                <TextBox Text="{Binding ShareInput}" PlaceholderText="{Binding [share.paste], Source={x:Static loc:Loc.I}}" />
                 <Button Grid.Column="1" Classes="primary" Command="{Binding ImportShareCommand}" Content="{Binding [share.apply], Source={x:Static loc:Loc.I}}" />
               </Grid>
               <TextBlock Classes="pop" Foreground="{StaticResource Good}" Text="{Binding ShareStatus}" />
@@ -140,8 +140,9 @@
         <StackPanel VerticalAlignment="Center">
           <TextBlock Classes="h2" Text="{Binding GamesTitle}" />
           <TextBlock Classes="muted" FontSize="11" Text="{Binding LibraryText}" />
+          <TextBlock FontSize="11" Foreground="{StaticResource AccentLight}" Text="{Binding LastSession}" IsVisible="{Binding LastSession, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
         </StackPanel>
-        <TextBox Grid.Column="2" Width="240" Margin="0,0,12,0" Text="{Binding SearchText}" Watermark="{Binding [home.search], Source={x:Static loc:Loc.I}}" />
+        <TextBox Grid.Column="2" Width="240" Margin="0,0,12,0" Text="{Binding SearchText}" PlaceholderText="{Binding [home.search], Source={x:Static loc:Loc.I}}" />
         <ToggleSwitch Grid.Column="3" IsChecked="{Binding ShowAll}" OnContent="{Binding [home.showAll], Source={x:Static loc:Loc.I}}" OffContent="{Binding [home.showAll], Source={x:Static loc:Loc.I}}" />
       </Grid>
       <ScrollViewer>

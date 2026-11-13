@@ -62,6 +62,9 @@ Name: "{autodesktop}\BoostRoot"; Filename: "{app}\BoostRoot.exe"; Tasks: desktop
 [Run]
 Filename: "{app}\BoostRoot.exe"; Description: "{cm:LaunchNow}"; Flags: nowait postinstall skipifsilent shellexec
 
+[UninstallRun]
+Filename: "schtasks.exe"; Parameters: "/Delete /TN ""BoostRoot"" /F"; Flags: runhidden; RunOnceId: "RemoveStartupTask"
+
 [UninstallDelete]
 Type: filesandordirs; Name: "{localappdata}\BoostRoot\tools"
 Type: filesandordirs; Name: "{localappdata}\BoostRoot\covers"

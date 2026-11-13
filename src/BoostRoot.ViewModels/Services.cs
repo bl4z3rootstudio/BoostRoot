@@ -32,7 +32,8 @@ public sealed record AppSettings(
     BoostRoot.Core.Crosshair.CrosshairDesign? CrosshairDesign = null,
     string Accent = "purple",
     bool TrayIcon = true,
-    bool AutoBoost = false)
+    bool AutoBoost = false,
+    bool StartWithWindows = false)
 {
     /// <summary>What the overlay draws: the Studio design if one was chosen, else the simple settings.</summary>
     public BoostRoot.Core.Crosshair.CrosshairDesign OverlayCrosshair => CrosshairDesign ?? new(Color: CrosshairOrDefault.Color, Outline: CrosshairOrDefault.Outline, Dot: CrosshairOrDefault.Dot,
@@ -130,6 +131,10 @@ public interface IAppServices
     long CleanRam();
     /// <summary>Visible apps running right now (process names), for the "close before playing" picker.</summary>
     IReadOnlyList<string> RunningApps();
+    /// <summary>Full exe paths of running programs (Auto Boost matches them against game install folders).</summary>
+    IReadOnlyList<string> RunningProcessPaths() => [];
+    /// <summary>Start BoostRoot (hidden in the tray) when the user signs in. Returns false if it could not be set.</summary>
+    bool SetStartWithWindows(bool on) => false;
     /// <summary>Install size of each installed game (slow: walks folders).</summary>
     Task<IReadOnlyList<(string Name, string Path, long Bytes)>> GameSizesAsync(IReadOnlyList<CatalogEntry> entries, CancellationToken ct);
     /// <summary>Best/last benchmark score (null when never run).</summary>

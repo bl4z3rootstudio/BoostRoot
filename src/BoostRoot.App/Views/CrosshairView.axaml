@@ -41,7 +41,7 @@
           <Border Classes="card">
             <StackPanel Spacing="8">
               <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                <TextBox Text="{Binding Name}" Watermark="{Binding [ch.name], Source={x:Static loc:Loc.I}}" />
+                <TextBox Text="{Binding Name}" PlaceholderText="{Binding [ch.name], Source={x:Static loc:Loc.I}}" />
                 <Button Grid.Column="1" Classes="primary" Command="{Binding SaveCommand}" Content="{Binding [ch.save], Source={x:Static loc:Loc.I}}" />
               </Grid>
               <TextBlock Text="{Binding [ch.color], Source={x:Static loc:Loc.I}}" />
@@ -126,7 +126,7 @@
               <SelectableTextBlock Classes="muted" FontFamily="Consolas" FontSize="11" TextWrapping="Wrap" Text="{Binding LastExport}" />
               <TextBlock Text="{Binding [ch.import], Source={x:Static loc:Loc.I}}" Margin="0,8,0,0" />
               <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                <TextBox Text="{Binding ImportCode}" Watermark="0;P;c;5;h;0;..." />
+                <TextBox Text="{Binding ImportCode}" PlaceholderText="0;P;c;5;h;0;..." />
                 <Button Grid.Column="1" Classes="ghost" Command="{Binding ImportCommand}" Content="{Binding [ch.importBtn], Source={x:Static loc:Loc.I}}" />
               </Grid>
             </StackPanel>

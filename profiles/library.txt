@@ -797,3 +797,18 @@ Dofus;mmo
 Ragnarok Online;mmo;;;215100
 Silkroad Online;mmo
 
+Clair Obscur: Expedition 33;rpg;SandFall-Win64-Shipping.exe;;1903340
+Grand Theft Auto V Enhanced;openworld;GTA5_Enhanced.exe;;3240220
+Ghost of Tsushima DIRECTOR'S CUT;openworld;GhostOfTsushima.exe;;2215430
+Sid Meier's Civilization VII;strategy;CivilizationVII.exe;;1295660
+Horizon Forbidden West Complete Edition;openworld;HorizonForbiddenWest.exe;;2420110
+The First Descendant;action;M1-Win64-Shipping.exe;;2074920
+Atomfall;action;;;801800
+Killing Floor 3;coop;;;1430190
+GTFO;coop;GTFO.exe;;493520
+Witchfire;fps;;;3156770
+The Outlast Trials;horror;;;1304930
+Torchlight: Infinite;rpg;;;1974050
+Microsoft Flight Simulator (2020);sim;FlightSimulator.exe;;1250410
+Goose Goose Duck;indie;Goose Goose Duck.exe;;1568590
+ROUNDS;indie;Rounds.exe;;1557740

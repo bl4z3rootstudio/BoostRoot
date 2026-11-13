@@ -131,6 +131,7 @@ public sealed partial class TestsView : UserControl
     private void OnKeyDown(object? s, KeyEventArgs e)
     {
         var key = e.Key == Key.System ? Key.LeftAlt : e.Key;
+        if (key == Key.F4 && e.KeyModifiers.HasFlag(KeyModifiers.Alt)) return; // let Alt+F4 close the window
         e.Handled = true; // Tab/arrows/Space must not move focus or click buttons while testing
         _down.Add(key);
         _maxDown = Math.Max(_maxDown, _down.Count);

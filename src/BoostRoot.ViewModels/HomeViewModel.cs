@@ -85,6 +85,19 @@ public sealed partial class HomeViewModel : ObservableObject
     [ObservableProperty] public partial bool NoFileChanges { get; set; }
 
     /// <summary>"What will change?" list for the selected game + level (from the profile's notes).</summary>
+    /// <summary>Latest automatically logged session ("auto" FPS run), shown under the game list.</summary>
+    [ObservableProperty] public partial string? LastSession { get; set; }
+
+    private void RefreshLastSession()
+    {
+        try
+        {
+            var r = _services.FpsHistory.All().Where(x => x.Label == "auto").OrderBy(x => x.At).LastOrDefault();
+            LastSession = r is null ? null : Loc.I.Format("home.lastSession", r.GameName, $"{r.Stats.AvgFps:0}", $"{r.Stats.Low1:0}");
+        }
+        catch (Exception) { LastSession = null; }
+    }
+
     private void RefreshChanges()
     {
         Changes.Clear();
@@ -221,8 +234,9 @@ public sealed partial class HomeViewModel : ObservableObject
     {
         _services = services;
         _settings = services.LoadSettings();
-        Loc.I.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(Loc.Language)) { RefreshChanges(); OnPropertyChanged(nameof(GamesTitle)); } };
+        Loc.I.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(Loc.Language)) { RefreshChanges(); RefreshLastSession(); OnPropertyChanged(nameof(GamesTitle)); } };
         Reload();
+        RefreshLastSession();
     }
 
     public BoostLevel SelectedLevel => Levels.FirstOrDefault(l => l.IsSelected)?.Level ?? BoostLevel.Balanced;

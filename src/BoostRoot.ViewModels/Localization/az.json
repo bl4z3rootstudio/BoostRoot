@@ -585,5 +585,8 @@
  "@Good gaming PC": "Yaxşı oyun kompüteri",
  "@Mid-range gaming PC": "Orta səviyyəli oyun kompüteri",
  "@Entry level": "Giriş səviyyəsi",
- "pf.days": "{0} gün"
+ "pf.days": "{0} gün",
+ "settings.startup": "Windows ilə başlat (nimçədə)",
+ "settings.startupNote": "Kompüter açılanda BoostRoot saatın yanında səssizcə başlayır; Avtomatik Boost ilə birlikdə oyunlarını özü tutur.",
+ "home.lastSession": "Son sessiya · {0}: orta {1} FPS, 1% low {2}"
 }

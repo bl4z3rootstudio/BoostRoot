@@ -585,5 +585,8 @@
  "@Good gaming PC": "Buen PC gamer",
  "@Mid-range gaming PC": "PC gamer de gama media",
  "@Entry level": "Gama de entrada",
- "pf.days": "{0} días"
+ "pf.days": "{0} días",
+ "settings.startup": "Iniciar con Windows (en la bandeja)",
+ "settings.startupNote": "BoostRoot se inicia en silencio junto al reloj al iniciar sesión; junto con el Boost automático detecta tus juegos por sí solo.",
+ "home.lastSession": "Última sesión · {0}: media {1} FPS, 1% Low {2}"
 }

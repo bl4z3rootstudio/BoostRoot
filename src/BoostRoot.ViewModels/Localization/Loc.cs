@@ -51,6 +51,13 @@ public sealed class Loc : INotifyPropertyChanged
     /// <summary>Right-to-left script (Arabic): the window mirrors its layout.</summary>
     public bool IsRtl => Language == "ar";
 
+    /// <summary>First-run language: Windows' display language when we have it, otherwise English.</summary>
+    public static string SystemLanguage()
+    {
+        var two = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+        return Languages.Contains(two) ? two : "en";
+    }
+
     public string Pick(Localized text) => Text(text.Tr, text.En);
 
     /// <summary>

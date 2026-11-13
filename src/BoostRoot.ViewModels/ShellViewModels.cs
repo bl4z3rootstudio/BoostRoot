@@ -110,6 +110,13 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty] public partial string Accent { get; set; }
     [ObservableProperty] public partial bool TrayIcon { get; set; }
     [ObservableProperty] public partial bool AutoBoost { get; set; }
+    [ObservableProperty] public partial bool StartWithWindows { get; set; }
+    private bool _loading = true;
+
+    partial void OnStartWithWindowsChanged(bool value)
+    {
+        if (!_loading && !_services.SetStartWithWindows(value) && value) StartWithWindows = false; // could not register → show off
+    }
     public IReadOnlyList<AccentChoiceViewModel> Accents { get; }
 
     [RelayCommand]
@@ -171,8 +178,10 @@ public sealed partial class SettingsViewModel : ObservableObject
         Accent = AccentPalette.Get(s.Accent).Key;
         TrayIcon = s.TrayIcon;
         AutoBoost = s.AutoBoost;
+        StartWithWindows = s.StartWithWindows;
         Accents = [.. AccentPalette.All.Select(a => new AccentChoiceViewModel(a.Key, a.Hex, a.Key == Accent))];
         _appsLoadPending = true;
+        _loading = false;
         Metrics = [.. AppSettings.AllMetrics.Select(m => new MetricToggleViewModel(m, s.Metrics.Contains(m), Save))];
         Loc.I.SetLanguage(s.Language);
         _ready = true;
@@ -188,7 +197,7 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     public AppSettings Current => _base with
     {
-        AutoUndo = AutoUndo, Accent = Accent ?? "purple", TrayIcon = TrayIcon, AutoBoost = AutoBoost,
+        AutoUndo = AutoUndo, Accent = Accent ?? "purple", TrayIcon = TrayIcon, AutoBoost = AutoBoost, StartWithWindows = StartWithWindows,
         Language = Language ?? "tr", Sounds = Sounds, Animations = Animations, Offline = Offline,
         CloseList = [.. (CloseList ?? "").Split([',', ';', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],
         OverlayMetrics = [.. Metrics.Where(m => m.IsOn).Select(m => m.Key)],

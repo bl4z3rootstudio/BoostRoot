@@ -429,5 +429,8 @@
  "mon.pingInfo": "Jitter {0} ms · packet loss {1}%",
  "settings.autoBoost": "Auto Boost",
  "settings.autoBoostNote": "Even if you start a game from Steam or a shortcut, BoostRoot notices: closes background apps, gives the game priority, logs FPS and enables Alt+O/Alt+C. Game settings files are not touched.",
- "pf.days": "{0} days"
+ "pf.days": "{0} days",
+ "settings.startup": "Start with Windows (in the tray)",
+ "settings.startupNote": "BoostRoot starts quietly next to the clock when you sign in; together with Auto Boost it catches your games by itself.",
+ "home.lastSession": "Last session · {0}: avg {1} FPS, 1% low {2}"
 }

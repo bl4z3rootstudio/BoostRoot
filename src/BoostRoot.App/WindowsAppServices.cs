@@ -194,7 +194,7 @@ public sealed class WindowsAppServices : IAppServices
                 return JsonSerializer.Deserialize(TextFile.Decode(_fs.ReadAllBytes(_settingsPath)).Text, AppJsonContext.Default.AppSettings) ?? AppSettings.Default;
         }
         catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException) { }
-        return AppSettings.Default;
+        return AppSettings.Default with { Language = Loc.SystemLanguage() };
     }
 
     public event Action<AppSettings>? SettingsChanged;
@@ -583,6 +583,33 @@ public sealed class WindowsAppServices : IAppServices
 
     private static readonly HashSet<string> SystemProcs = new(StringComparer.OrdinalIgnoreCase)
     { "explorer", "BoostRoot", "ApplicationFrameHost", "SystemSettings", "TextInputHost", "ShellExperienceHost", "SearchHost", "StartMenuExperienceHost", "LockApp", "dwm", "csrss", "winlogon" };
+
+    /// <summary>A logon task with highest privileges: BoostRoot needs admin, and a Run-key entry would be blocked by UAC.</summary>
+    public bool SetStartWithWindows(bool on)
+    {
+        try
+        {
+            var exe = Environment.ProcessPath ?? "";
+            if (on && !File.Exists(exe)) return false;
+            var args = on
+                ? $"/Create /TN \"BoostRoot\" /TR \"\\\"{exe}\\\" --tray\" /SC ONLOGON /RL HIGHEST /F"
+                : "/Delete /TN \"BoostRoot\" /F";
+            using var p = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("schtasks.exe", args) { UseShellExecute = false, CreateNoWindow = true });
+            if (p is null) return false;
+            p.WaitForExit(10_000);
+            return p.ExitCode == 0 || !on; // deleting a task that doesn't exist is fine
+        }
+        catch (Exception) { return false; }
+    }
+
+    public IReadOnlyList<string> RunningProcessPaths()
+    {
+        var list = new List<string>();
+        foreach (var p in System.Diagnostics.Process.GetProcesses())
+            using (p)
+                try { if (p.SessionId != 0 && BoostRoot.Platform.Windows.PowerAndSound.ProcessPath(p.Id) is { } f) list.Add(f); } catch (Exception) { }
+        return list;
+    }
 
     public IReadOnlyList<string> RunningApps()
     {
