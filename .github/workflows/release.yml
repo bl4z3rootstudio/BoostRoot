@@ -60,6 +60,6 @@ jobs:
         run: |
           $v = "${{ steps.v.outputs.version }}"
           $notes = if (Test-Path "docs/release-notes/$v.md") { "docs/release-notes/$v.md" } else { $null }
-          $args = @("v$v", "--target", "${{ github.sha }}", "publish/BoostRoot-Setup-$v.exe", "publish/BoostRoot-Portable-$v.zip", "publish/SHA256SUMS.txt", "--title", "BoostRoot $v")
-          if ($notes) { $args += @("--notes-file", $notes) } else { $args += @("--generate-notes") }
-          gh release create @args
+          $ghArgs = @("v$v", "--target", "${{ github.sha }}", "publish/BoostRoot-Setup-$v.exe", "publish/BoostRoot-Portable-$v.zip", "publish/SHA256SUMS.txt", "--title", "BoostRoot $v")
+          if ($notes) { $ghArgs += @("--notes-file", $notes) } else { $ghArgs += @("--generate-notes") }
+          gh release create @ghArgs
