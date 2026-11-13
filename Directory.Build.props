@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Version>26.11.3</Version>
+    <Version>26.11.4</Version>
     <FileVersion>26.11.1.0</FileVersion>
     <AssemblyVersion>26.11.1.0</AssemblyVersion>
     <Company>bl4z3root</Company>
