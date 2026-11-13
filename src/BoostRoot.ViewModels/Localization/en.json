@@ -261,5 +261,8 @@
   "ch.useOverlay": "Use as BoostRoot crosshair",
   "ch.copied": "Copied for {0} — paste it in game ✓",
   "ch.overlaySet": "Set as the BoostRoot crosshair. Alt+C in game ✓",
-  "ch.preview": "Preview"
+  "ch.preview": "Preview",
+  "home.library": "{0} games in the library",
+  "home.search": "Search games…",
+  "home.showAll": "Show the whole library"
 }

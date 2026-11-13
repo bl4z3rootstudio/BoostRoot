@@ -80,7 +80,29 @@ public sealed partial class HomeViewModel : ObservableObject
     /// <summary>(profileId, enabled) — the shell stores it in settings.</summary>
     public Action<string, bool>? StretchChanged { get; set; }
     partial void OnIsStretchedChanged(bool value) { if (!_loadingStretch && Selected?.Entry.Profile is { } p) StretchChanged?.Invoke(p.Id, value); }
-    public string GamesTitle => Loc.I.Format("home.games", Games.Count(g => g.IsInstalled));
+    public string GamesTitle => Loc.I.Format("home.games", _all.Count(g => g.IsInstalled));
+    public string LibraryText => Loc.I.Format("home.library", _all.Count);
+    private List<GameCardViewModel> _all = [];
+    [ObservableProperty] public partial string? SearchText { get; set; }
+    [ObservableProperty] public partial bool ShowAll { get; set; }
+    partial void OnSearchTextChanged(string? value) => ApplyFilter();
+    partial void OnShowAllChanged(bool value) => ApplyFilter();
+
+    /// <summary>Installed games + hand-tuned profiles by default; the full library (hundreds) via search or "show all".</summary>
+    private void ApplyFilter()
+    {
+        var q = BoostRoot.Core.Profiles.GameLibrary.Normalize(SearchText ?? "");
+        Games.Clear();
+        foreach (var g in _all)
+        {
+            var id = g.Entry.Profile?.Id ?? "";
+            var visible = q.Length > 0 ? BoostRoot.Core.Profiles.GameLibrary.Normalize(g.Name).Contains(q, StringComparison.Ordinal)
+                : ShowAll || g.IsInstalled || !(id.StartsWith("lib-", StringComparison.Ordinal) || id.StartsWith("auto-", StringComparison.Ordinal));
+            if (visible) Games.Add(g);
+        }
+        OnPropertyChanged(nameof(GamesTitle));
+        OnPropertyChanged(nameof(LibraryText));
+    }
     public string RecommendedText => Selected?.Entry.Profile is { } p ? Loc.I.Format("home.recommended", Loc.I["level." + Levels.First(l => l.Level == Recommended(p)).Key]) : "";
 
     public HomeViewModel(IAppServices services)
@@ -96,9 +118,8 @@ public sealed partial class HomeViewModel : ObservableObject
 
     public void Reload()
     {
-        Games.Clear();
-        foreach (var e in _services.LoadCatalog()) Games.Add(new GameCardViewModel(e, _services.CoverPath(e)));
-        OnPropertyChanged(nameof(GamesTitle));
+        _all = [.. _services.LoadCatalog().Select(e => new GameCardViewModel(e, _services.CoverPath(e)))];
+        ApplyFilter();
         Select(Games.FirstOrDefault(g => g.IsInstalled));
     }
 

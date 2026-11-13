@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\src\BoostRoot.ViewModels\BoostRoot.ViewModels.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\profiles\library.txt" LinkBase="TestData\profiles" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\profiles\*.json" LinkBase="TestData\profiles" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\profiles\_example.json" Link="TestData\_example.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="TestData\valorant\*" CopyToOutputDirectory="PreserveNewest" />

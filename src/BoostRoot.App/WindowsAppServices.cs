@@ -73,7 +73,28 @@ public sealed class WindowsAppServices : IAppServices
 
     public static WindowsAppServices Create() => new();
 
-    private IReadOnlyList<GameProfile> Profiles => _profiles ??= _fs.DirectoryExists(_profilesDir) ? ProfileLoader.LoadDirectory(_fs, _profilesDir) : [];
+    private IReadOnlyList<GameProfile> Profiles => _profiles ??= LoadProfiles();
+
+    private IReadOnlyList<GameProfile> LoadProfiles()
+    {
+        if (!_fs.DirectoryExists(_profilesDir)) return [];
+        var json = ProfileLoader.LoadDirectory(_fs, _profilesDir);
+        var lib = Path.Combine(_profilesDir, "library.txt");
+        return _fs.FileExists(lib) ? [.. json, .. GameLibrary.Parse(TextFile.Decode(_fs.ReadAllBytes(lib)).Text, json)] : json;
+    }
+
+    /// <summary>Process names for a profile; "dir:&lt;folder&gt;" resolves to whatever runs from the game's folder.</summary>
+    private string[] ResolveProcesses(IEnumerable<string> names)
+    {
+        var list = new List<string>();
+        foreach (var n in names)
+        {
+            if (!n.StartsWith("dir:", StringComparison.Ordinal)) { list.Add(n); continue; }
+            var dir = n[4..].Replace('/', '\\').TrimEnd('\\') + "\\";
+            list.AddRange(_processes.List().Where(p => p.Path?.StartsWith(dir, StringComparison.OrdinalIgnoreCase) == true).Select(p => Path.GetFileName(p.Path!)));
+        }
+        return [.. list.Distinct(StringComparer.OrdinalIgnoreCase)];
+    }
 
     public IReadOnlyList<CatalogEntry> LoadCatalog()
     {
@@ -108,7 +129,8 @@ public sealed class WindowsAppServices : IAppServices
         _currentGame = entry.Game;
         EnsureRestorePoint();
         var profile = entry.Profile ?? throw new InvalidOperationException("No profile for this game.");
-        var processNames = profile.Detect.TryGetValue("process", out var p) ? p.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) : [];
+        var rawNames = profile.Detect.TryGetValue("process", out var p) ? p.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) : [];
+        var processNames = ResolveProcesses(rawNames);
         string? exe = null;
         if (entry.Game is { } g && profile.Detect.TryGetValue("exe", out var exeName))
             exe = FindExe(g.InstallPath, exeName);
@@ -128,11 +150,12 @@ public sealed class WindowsAppServices : IAppServices
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ProtectedSettingException) { step = new StepResult("stretch", StepStatus.Failed, ex.Message); }
             result = result with { Steps = [.. result.Steps, step] };
         }
-        if (profile.Levels[level].Gpu is { } prefs && processNames.Length > 0)
+        var exeNames = rawNames.Where(n => !n.StartsWith("dir:", StringComparison.Ordinal)).ToArray();
+        if (profile.Levels[level].Gpu is { } prefs && exeNames.Length > 0)
         {
             try
             {
-                var n = processNames.Sum(exeName => _gpu.Apply(result.OperationId, exeName, prefs));
+                var n = exeNames.Sum(exeName => _gpu.Apply(result.OperationId, exeName, prefs));
                 if (n > 0) result = result with { Steps = [.. result.Steps, new StepResult("gpu-profile", StepStatus.Done, "NVIDIA", n)] };
             }
             catch (Exception ex) when (ex is InvalidOperationException or EntryPointNotFoundException or SEHException or AccessViolationException)
@@ -240,7 +263,7 @@ public sealed class WindowsAppServices : IAppServices
     public IFrameSource StartFrames(CatalogEntry entry)
     {
         var names = entry.Profile?.Detect.TryGetValue("process", out var p) == true ? p.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) : [];
-        return new PresentMonSource(names);
+        return new PresentMonSource(ResolveProcesses(names));
     }
 
     private FpsHistory? _fpsHistory;
@@ -254,6 +277,7 @@ public sealed class WindowsAppServices : IAppServices
 
     public bool IsGameRunning(IReadOnlyList<string> processNames)
     {
+        processNames = ResolveProcesses(processNames);
         var wanted = processNames.Select(n => Path.GetFileNameWithoutExtension(n)).ToHashSet(StringComparer.OrdinalIgnoreCase);
         return _processes.List().Any(p => wanted.Contains(Path.GetFileNameWithoutExtension(p.Name)));
     }

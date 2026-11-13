@@ -69,3 +69,43 @@ public class CrosshairTests
         Assert.Equal("#00FFFF", vm.Color);
     }
 }
+
+public class LibraryTests
+{
+    private static string LibraryText => File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "TestData", "profiles", "library.txt"));
+
+    [Fact]
+    public void Library_ParsesHundredsOfValidProfiles()
+    {
+        var json = new[] { RealProfileTests.Valorant };
+        var lib = BoostRoot.Core.Profiles.GameLibrary.Parse(LibraryText, json);
+        Assert.True(lib.Count >= 450, $"only {lib.Count}");
+        Assert.Equal(lib.Count, lib.Select(p => p.Id).Distinct().Count());
+        foreach (var p in lib) Assert.Empty(BoostRoot.Core.Profiles.ProfileValidator.Validate(p));
+        Assert.Contains(lib, p => p.Name == "Overwatch 2" && p.Competitive && p.Detect["process"] == "Overwatch.exe");
+        Assert.DoesNotContain(lib, p => p.Name == "VALORANT");
+    }
+
+    [Fact]
+    public void Names_MatchAcrossStores()
+    {
+        Assert.Equal(BoostRoot.Core.Profiles.GameLibrary.Normalize("Tom Clancy's Rainbow Six® Siege"), BoostRoot.Core.Profiles.GameLibrary.Normalize("Tom Clancys Rainbow Six Siege"));
+        var p = BoostRoot.Core.Profiles.GameLibrary.Parse("Baldur's Gate 3;rpg;bg3.exe", [])[0];
+        Assert.True(BoostRoot.Games.GameCatalog.Matches(p, new BoostRoot.Games.InstalledGame("steam", "1086940", "Baldur’s Gate 3", "C:/g", new Dictionary<string, string>())) ||
+                    BoostRoot.Games.GameCatalog.Matches(p, new BoostRoot.Games.InstalledGame("steam", "1086940", "Baldurs Gate 3", "C:/g", new Dictionary<string, string>())));
+    }
+
+    [Fact]
+    public void Catalog_GivesUnknownInstalledGamesAGenericProfile()
+    {
+        var games = new[]
+        {
+            new BoostRoot.Games.InstalledGame("steam", "999", "Some New Indie", "C:/Steam/steamapps/common/SNI", new Dictionary<string, string>()),
+            new BoostRoot.Games.InstalledGame("steam", "228980", "Steamworks Common Redistributables", "C:/x", new Dictionary<string, string>()),
+        };
+        var cat = BoostRoot.Games.GameCatalog.Match([RealProfileTests.Valorant], games);
+        var auto = Assert.Single(cat, e => e.Profile?.Id.StartsWith("auto-", StringComparison.Ordinal) == true);
+        Assert.Equal("dir:C:/Steam/steamapps/common/SNI", auto.Profile!.Detect["process"]);
+        Assert.Empty(BoostRoot.Core.Profiles.ProfileValidator.Validate(auto.Profile));
+    }
+}

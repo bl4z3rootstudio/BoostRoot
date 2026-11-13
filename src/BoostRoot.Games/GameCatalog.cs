@@ -16,6 +16,9 @@ public static class GameCatalog
             if (g is not null) used.Add(g);
             entries.Add(new CatalogEntry(p, g));
         }
+        // Every other installed game still gets a (generic) boost.
+        foreach (var g in games.Where(g => !used.Contains(g) && GameLibrary.LooksLikeGame(g.Name)))
+            entries.Add(new CatalogEntry(GameLibrary.Generic(g.Name, g.Source, g.SourceId, g.InstallPath), g));
         return [.. entries.OrderByDescending(e => e.IsInstalled).ThenBy(e => e.DisplayName, StringComparer.CurrentCultureIgnoreCase)];
     }
 
@@ -24,7 +27,7 @@ public static class GameCatalog
         if (p.Detect.TryGetValue(g.Source, out var id) && string.Equals(id, g.SourceId, StringComparison.OrdinalIgnoreCase)) return true;
         if (p.Detect.TryGetValue("exe", out var exe) && g.Extra.TryGetValue("exe", out var gexe) &&
             string.Equals(Path.GetFileName(gexe.Replace('\\', '/')), exe, StringComparison.OrdinalIgnoreCase)) return true;
-        return p.Detect.TryGetValue("name", out var name) && string.Equals(name, g.Name, StringComparison.OrdinalIgnoreCase);
+        return p.Detect.TryGetValue("name", out var name) && GameLibrary.Normalize(name) == GameLibrary.Normalize(g.Name);
     }
 }
 

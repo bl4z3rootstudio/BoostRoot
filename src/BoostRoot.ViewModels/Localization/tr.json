@@ -261,5 +261,8 @@
   "ch.useOverlay": "BoostRoot nişangâhı yap",
   "ch.copied": "{0} için kopyalandı — oyunda yapıştır ✓",
   "ch.overlaySet": "BoostRoot nişangâhı olarak ayarlandı. Oyunda Alt+C ✓",
-  "ch.preview": "Önizleme"
+  "ch.preview": "Önizleme",
+  "home.library": "Kütüphanede {0} oyun",
+  "home.search": "Oyun ara…",
+  "home.showAll": "Tüm kütüphaneyi göster"
 }

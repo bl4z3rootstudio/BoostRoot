@@ -76,7 +76,14 @@
     </Border>
     <!-- Game grid -->
     <DockPanel Margin="48,24,48,24">
-      <TextBlock DockPanel.Dock="Top" Classes="h2" Margin="0,0,0,14" Text="{Binding GamesTitle}" />
+      <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,0,0,14">
+        <StackPanel VerticalAlignment="Center">
+          <TextBlock Classes="h2" Text="{Binding GamesTitle}" />
+          <TextBlock Classes="muted" FontSize="11" Text="{Binding LibraryText}" />
+        </StackPanel>
+        <TextBox Grid.Column="2" Width="240" Margin="0,0,12,0" Text="{Binding SearchText}" Watermark="{Binding [home.search], Source={x:Static loc:Loc.I}}" />
+        <ToggleSwitch Grid.Column="3" IsChecked="{Binding ShowAll}" OnContent="{Binding [home.showAll], Source={x:Static loc:Loc.I}}" OffContent="{Binding [home.showAll], Source={x:Static loc:Loc.I}}" />
+      </Grid>
       <ScrollViewer>
         <ItemsControl ItemsSource="{Binding Games}">
           <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>

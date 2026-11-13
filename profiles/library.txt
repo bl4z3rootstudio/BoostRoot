@@ -1,0 +1,538 @@
+# BoostRoot game library — one game per line: Name;genre;process.exe(optional);anticheat(optional)
+# genre: fps · br · tactical · moba · racing · sports · fighting · openworld · action · rpg · mmo · survival · horror · strategy · sim · building · indie · platformer · coop · puzzle
+# These get driver + Windows optimization and a genre guide. Games with a JSON profile get deeper, file-level tuning.
+Overwatch 2;fps;Overwatch.exe;other
+Call of Duty;fps;cod.exe;ricochet
+Call of Duty: Black Ops 6;fps;cod.exe;ricochet
+Call of Duty: Modern Warfare III;fps;cod.exe;ricochet
+Call of Duty: Warzone;br;cod.exe;ricochet
+Call of Duty: Black Ops 7;fps;cod.exe;ricochet
+Battlefield 6;fps;bf6.exe;other
+Battlefield 2042;fps;BF2042.exe;eac
+Battlefield V;fps;bfv.exe;other
+Battlefield 1;fps;bf1.exe;other
+Halo Infinite;fps;HaloInfinite.exe;eac
+Halo: The Master Chief Collection;fps;MCC-Win64-Shipping.exe;eac
+Gears 5;action;Gears5.exe
+Gears of War: Reloaded;action
+Gears Tactics;strategy
+DOOM: The Dark Ages;fps
+DOOM Eternal;fps;DOOMEternalx64vk.exe
+DOOM (2016);fps
+Wolfenstein II: The New Colossus;fps
+Destiny 2;fps;destiny2.exe;battleye
+The Finals;fps;Discovery.exe;eac
+XDefiant;fps
+Splitgate 2;fps
+Escape from Tarkov;tactical;EscapeFromTarkov.exe;battleye
+Arena Breakout: Infinite;tactical
+Hunt: Showdown 1896;tactical;HuntGame.exe;eac
+Ready or Not;tactical;ReadyOrNot-Win64-Shipping.exe
+Insurgency: Sandstorm;tactical
+Squad;tactical;SquadGame.exe;eac
+Hell Let Loose;tactical;HLL-Win64-Shipping.exe;eac
+Arma 3;tactical;arma3_x64.exe;battleye
+Arma Reforger;tactical;ArmaReforgerSteam.exe;battleye
+Delta Force;tactical
+Marvel Rivals;fps;Marvel-Win64-Shipping.exe;other
+Deadlock;moba;deadlock.exe;vac
+Team Fortress 2;fps;tf_win64.exe;vac
+Paladins;fps
+Warframe;action;Warframe.x64.exe
+Payday 3;coop
+Payday 2;coop;payday2_win32_release.exe
+Left 4 Dead 2;coop;left4dead2.exe;vac
+Back 4 Blood;coop
+Deep Rock Galactic;coop;FSD-Win64-Shipping.exe
+Helldivers 2;coop;helldivers2.exe;other
+Warhammer 40,000: Space Marine 2;action
+Warhammer 40,000: Darktide;coop
+Warhammer: Vermintide 2;coop
+Titanfall 2;fps;Titanfall2.exe
+Borderlands 4;fps
+Borderlands 3;fps
+Tiny Tina's Wonderlands;fps
+Far Cry 6;fps
+Far Cry 5;fps
+Far Cry New Dawn;fps
+Atomic Heart;fps
+S.T.A.L.K.E.R. 2: Heart of Chornobyl;fps
+Metro Exodus;fps
+Ghostrunner 2;action
+Severed Steel;fps
+High on Life;fps
+Prey;action
+Dishonored 2;action
+Deathloop;fps
+Rainbow Six Extraction;tactical
+Valorant Mobile;fps
+Naraka: Bladepoint;br
+Super People;br
+Spectre Divide;fps
+Fragpunk;fps
+Battlebit Remastered;fps
+War Thunder;sim;aces.exe;eac
+World of Tanks;mmo;WorldOfTanks.exe
+World of Warships;mmo
+Enlisted;fps
+Crossfire;fps
+Point Blank;fps
+Zula;fps
+Wolfteam;fps
+Knight Online;mmo
+Metin2;mmo
+Dota 2;moba;dota2.exe;vac
+Smite 2;moba
+Heroes of the Storm;moba
+Pokémon Unite;moba
+Teamfight Tactics;strategy
+Hearthstone;strategy
+Legends of Runeterra;strategy
+Marvel Snap;strategy
+Rocket League Sideswipe;racing
+Forza Motorsport;racing;forza_gaming.desktop.x64_release_final.exe
+Forza Horizon 4;racing;ForzaHorizon4.exe
+Forza Horizon 6;racing
+F1 25;racing
+F1 24;racing;F1_24.exe;eac
+EA SPORTS WRC;racing
+Assetto Corsa;racing;acs.exe
+Assetto Corsa Competizione;racing;AC2-Win64-Shipping.exe
+Assetto Corsa EVO;racing
+iRacing;racing
+Gran Turismo;racing
+Need for Speed Unbound;racing
+Need for Speed Heat;racing
+The Crew Motorfest;racing
+BeamNG.drive;racing;BeamNG.drive.x64.exe
+Wreckfest;racing
+Wreckfest 2;racing
+CarX Drift Racing Online;racing
+Trackmania;racing;Trackmania.exe
+Hot Wheels Unleashed 2;racing
+Mario Kart;racing
+Car Mechanic Simulator 2021;sim
+Car Mechanic Simulator 2026;sim
+American Truck Simulator;sim;amtrucks.exe
+Snowrunner;sim;SnowRunner.exe
+Expeditions: A MudRunner Game;sim
+Farming Simulator 25;sim;FarmingSimulator2025.exe
+Farming Simulator 22;sim;FarmingSimulator2022.exe
+Microsoft Flight Simulator 2024;sim;FlightSimulator2024.exe
+Microsoft Flight Simulator;sim;FlightSimulator.exe
+Cities: Skylines II;building;Cities2.exe
+Cities: Skylines;building;Cities.exe
+Planet Zoo;building
+Planet Coaster 2;building
+Jurassic World Evolution 3;building
+Two Point Hospital;building
+Two Point Campus;building
+Two Point Museum;building
+House Flipper 2;sim
+PowerWash Simulator;sim;PowerWashSimulator.exe
+PowerWash Simulator 2;sim
+Supermarket Simulator;sim
+Supermarket Together;coop
+Gas Station Simulator;sim
+Drug Dealer Simulator 2;sim
+TCG Card Shop Simulator;sim
+Internet Cafe Simulator 2;sim
+Bus Simulator 21;sim
+Train Sim World 5;sim
+Construction Simulator;sim
+Euro Truck Simulator;sim
+Kebab Chefs! - Restaurant Simulator;coop
+Cooking Simulator;sim
+Thief Simulator 2;sim
+Hardspace: Shipbreaker;sim
+Schedule I;sim
+Contraband Police;sim
+Motor Town: Behind The Wheel;sim
+Car For Sale Simulator 2023;sim
+My Summer Car;sim
+My Winter Car;sim
+Pacific Drive;survival
+The Long Drive;sim
+Mon Bazou;sim
+Gas Station Simulator 2;sim
+EA SPORTS FC 26;sports;FC26.exe;eac
+EA SPORTS FC 25;sports;FC25.exe;eac
+eFootball;sports;eFootball.exe
+NBA 2K26;sports
+NBA 2K25;sports
+Madden NFL 26;sports
+NHL 25;sports
+Football Manager 26;strategy
+Football Manager 2024;strategy;fm.exe
+Rematch;sports
+Golf With Your Friends;sports
+PGA TOUR 2K25;sports
+Tony Hawk's Pro Skater 3 + 4;sports
+Skate.;sports
+Session: Skate Sim;sports
+Riders Republic;sports
+Steep;sports
+Tekken 8;fighting;Polaris-Win64-Shipping.exe;eac
+Street Fighter 6;fighting;StreetFighter6.exe
+Mortal Kombat 1;fighting
+Guilty Gear -Strive-;fighting
+Dragon Ball: Sparking! ZERO;fighting
+Dragon Ball FighterZ;fighting
+Brawlhalla;fighting;Brawlhalla.exe
+MultiVersus;fighting
+Fatal Fury: City of the Wolves;fighting
+For Honor;fighting;ForHonor.exe;eac
+Mordhau;fighting;Mordhau-Win64-Shipping.exe;eac
+Chivalry 2;fighting
+Assassin's Creed Shadows;openworld
+Assassin's Creed Mirage;openworld
+Assassin's Creed Valhalla;openworld
+Assassin's Creed Odyssey;openworld
+Assassin's Creed Origins;openworld
+Watch Dogs: Legion;openworld
+Watch Dogs 2;openworld
+Grand Theft Auto IV;openworld
+Grand Theft Auto VI;openworld
+Mafia: The Old Country;openworld
+Mafia: Definitive Edition;openworld
+Mafia III;openworld
+Sleeping Dogs;openworld
+Saints Row;openworld
+Just Cause 4;openworld
+Starfield;rpg;Starfield.exe
+Fallout 4;rpg;Fallout4.exe
+Fallout 76;rpg;Fallout76.exe
+Fallout: New Vegas;rpg
+The Elder Scrolls V: Skyrim Special Edition;rpg;SkyrimSE.exe
+The Elder Scrolls IV: Oblivion Remastered;rpg
+The Elder Scrolls Online;mmo;eso64.exe
+Indiana Jones and the Great Circle;action
+The Outer Worlds 2;rpg
+The Outer Worlds;rpg
+Avowed;rpg
+South of Midnight;action
+Ninja Gaiden 2 Black;action
+Ninja Gaiden 4;action
+Hellblade II: Senua's Saga;action
+Hi-Fi Rush;action
+Grounded;survival
+Grounded 2;survival
+Sea of Thieves;survival;SoTGame.exe;eac
+State of Decay 2;survival
+Age of Empires IV;strategy;RelicCardinal.exe
+Age of Empires II: Definitive Edition;strategy;AoE2DE_s.exe
+Age of Empires III: Definitive Edition;strategy
+Age of Mythology: Retold;strategy
+Microsoft Flight Simulator 40th Anniversary;sim
+Ara: History Untold;strategy
+Clockwork Revolution;rpg
+Fable;rpg
+Perfect Dark;fps
+State of Decay 3;survival
+Towerborne;action
+Ark: Survival Ascended;survival;ArkAscended.exe;battleye
+Ark: Survival Evolved;survival;ShooterGame.exe;battleye
+DayZ;survival;DayZ_x64.exe;battleye
+Conan Exiles;survival
+V Rising;survival
+Enshrouded;survival;enshrouded.exe
+Once Human;survival
+Dune: Awakening;survival
+The Forest;survival;TheForest.exe
+Raft;survival;Raft.exe
+Subnautica;survival;Subnautica.exe
+Subnautica: Below Zero;survival
+Subnautica 2;survival
+The Planet Crafter;survival
+Satisfactory;building;FactoryGame-Win64-Shipping.exe
+Factorio;building;factorio.exe
+Dyson Sphere Program;building
+Astroneer;survival
+No Man's Sky;survival;NMS.exe
+Green Hell;survival
+The Long Dark;survival
+Project Zomboid;survival;ProjectZomboid64.exe
+Don't Starve Together;survival
+Core Keeper;survival
+Terraria;survival;Terraria.exe
+Starbound;survival
+Abiotic Factor;coop
+Icarus;survival
+Night of the Dead;survival
+Medieval Dynasty;survival
+Smalland: Survive the Wilds;survival
+Bellwright;survival
+Myth of Empires;survival
+Soulmask;survival
+Nightingale;survival
+Light No Fire;survival
+Manor Lords;strategy;ManorLords-Win64-Shipping.exe
+Frostpunk 2;strategy
+Frostpunk;strategy
+RimWorld;strategy;RimWorldWin64.exe
+Stellaris;strategy;stellaris.exe
+Europa Universalis IV;strategy
+Europa Universalis V;strategy
+Hearts of Iron IV;strategy;hoi4.exe
+Crusader Kings III;strategy;ck3.exe
+Victoria 3;strategy
+Total War: WARHAMMER III;strategy
+Total War: Rome II;strategy
+Total War: Three Kingdoms;strategy
+Total War: PHARAOH;strategy
+Mount & Blade II: Bannerlord;strategy;Bannerlord.exe
+Civilization VII;strategy
+Sid Meier's Civilization VI;strategy;CivilizationVI.exe
+Company of Heroes 3;strategy
+StarCraft II;strategy;SC2_x64.exe
+Warcraft III: Reforged;strategy
+Command & Conquer Remastered Collection;strategy
+Anno 117: Pax Romana;building
+Anno 1800;building
+Tropico 6;building
+Against the Storm;building
+Timberborn;building
+Workers & Resources: Soviet Republic;building
+Foundation;building
+Kingdom Come: Deliverance II;rpg;KingdomCome.exe
+Kingdom Come: Deliverance;rpg
+The Witcher 3: Wild Hunt;rpg;witcher3.exe
+Baldur's Gate 3;rpg;bg3.exe
+Divinity: Original Sin 2;rpg
+Dragon Age: The Veilguard;rpg
+Mass Effect Legendary Edition;rpg
+Starfield: Shattered Space;rpg
+Diablo IV;rpg;Diablo IV.exe
+Diablo II: Resurrected;rpg
+Diablo III;rpg
+Path of Exile 2;rpg;PathOfExile.exe
+Path of Exile;rpg;PathOfExile_x64.exe
+Last Epoch;rpg
+Lost Ark;mmo;LOSTARK.exe;eac
+Grim Dawn;rpg
+Monster Hunter Wilds;action;MonsterHunterWilds.exe
+Monster Hunter: World;action;MonsterHunterWorld.exe
+Monster Hunter Rise;action
+Black Myth: Wukong;action;b1-Win64-Shipping.exe
+Lies of P;action
+Lords of the Fallen;action
+Sekiro: Shadows Die Twice;action;sekiro.exe
+Dark Souls III;action;DarkSoulsIII.exe
+Dark Souls: Remastered;action
+Elden Ring Nightreign;action;nightreign.exe;eac
+Armored Core VI: Fires of Rubicon;action
+Stellar Blade;action
+God of War Ragnarök;action;GoWR.exe
+God of War;action;GoW.exe
+Ghost of Tsushima;action;GhostOfTsushima.exe
+Horizon Forbidden West;action;HorizonForbiddenWest.exe
+Horizon Zero Dawn Remastered;action
+Marvel's Spider-Man 2;action
+Marvel's Spider-Man Remastered;action;Spider-Man.exe
+Marvel's Spider-Man: Miles Morales;action
+Days Gone;action;DaysGone.exe
+Death Stranding;action
+Death Stranding 2;action
+Uncharted: Legacy of Thieves Collection;action
+Ratchet & Clank: Rift Apart;action
+Returnal;action
+Final Fantasy VII Rebirth;rpg
+Final Fantasy VII Remake Intergrade;rpg
+Final Fantasy XVI;rpg
+Final Fantasy XIV Online;mmo;ffxiv_dx11.exe
+Persona 5 Royal;rpg
+Metaphor: ReFantazio;rpg
+Like a Dragon: Infinite Wealth;rpg
+Yakuza 0;action
+Devil May Cry 5;action
+Resident Evil 4;horror;re4.exe
+Resident Evil Village;horror;re8.exe
+Resident Evil 2;horror;re2.exe
+Resident Evil Requiem;horror
+Silent Hill 2;horror
+Silent Hill f;horror
+Alan Wake 2;horror
+Dead Space;horror
+Dead Island 2;action
+Dying Light 2 Stay Human;action;DyingLightGame_x64_rwdi.exe
+Dying Light: The Beast;action
+Dying Light;action
+Dead by Daylight;horror;DeadByDaylight-Win64-Shipping.exe;eac
+Texas Chain Saw Massacre;horror
+Outlast Trials;horror
+Content Warning;horror
+R.E.P.O.;horror;REPO.exe
+Lockdown Protocol;coop
+Devour;horror
+The Dark Pictures: House of Ashes;horror
+Until Dawn;horror
+Amnesia: The Bunker;horror
+Five Nights at Freddy's: Security Breach;horror
+Poppy Playtime;horror
+Escape the Backrooms;horror
+Granny;horror
+Ghost Watchers;horror
+Demonologist;horror
+Pacify;horror
+Labyrinthine;horror
+Sons of the Forest: Co-op;survival
+World of Warcraft;mmo;Wow.exe
+Guild Wars 2;mmo;Gw2-64.exe
+Black Desert;mmo;BlackDesert64.exe
+Throne and Liberty;mmo
+New World: Aeternum;mmo
+RuneScape;mmo
+Old School RuneScape;mmo
+Albion Online;mmo
+Star Wars: The Old Republic;mmo
+Blue Protocol: Star Resonance;mmo
+Wuthering Waves;rpg
+Genshin Impact;rpg;GenshinImpact.exe
+Honkai: Star Rail;rpg;StarRail.exe
+Zenless Zone Zero;action;ZenlessZoneZero.exe
+Tower of Fantasy;rpg
+Fortnite LEGO;survival
+LEGO Fortnite;survival
+Fall Guys;indie;FallGuys_client_game.exe;eac
+Stumble Guys;indie
+Among Us;indie;Among Us.exe
+Lethal Company 2;horror
+It Takes Two;coop;ItTakesTwo.exe
+Split Fiction;coop
+A Way Out;coop
+Overcooked! 2;coop
+Moving Out 2;coop
+Unrailed 2;coop
+Pummel Party;coop
+Human: Fall Flat;coop;Human.exe
+Gang Beasts;coop
+Party Animals;coop
+Chained Together;coop
+Only Up!;platformer
+Getting Over It;platformer
+Hollow Knight;platformer
+Hollow Knight: Silksong;platformer
+Celeste;platformer
+Ori and the Will of the Wisps;platformer
+Ori and the Blind Forest;platformer
+Cuphead;platformer
+Hades II;indie
+Hades;indie
+Dead Cells;indie
+Vampire Survivors;indie
+Balatro;indie;Balatro.exe
+Slay the Spire 2;indie
+Slay the Spire;indie
+Risk of Rain 2;indie
+Risk of Rain Returns;indie
+Brotato;indie
+Enter the Gungeon;indie
+The Binding of Isaac: Rebirth;indie
+Stardew Valley;indie;Stardew Valley.exe
+Fields of Mistria;indie
+Coral Island;indie
+Palia;indie
+Disney Dreamlight Valley;indie
+Sims 4;sim;TS4_x64.exe
+The Sims 4;sim;TS4_x64.exe
+inZOI;sim
+Paralives;sim
+Undertale;indie
+Deltarune;indie
+Cult of the Lamb;indie
+Dave the Diver;indie
+Sea of Stars;rpg
+Pizza Tower;platformer
+Tunic;indie
+Outer Wilds;puzzle
+Portal 2;puzzle;portal2.exe
+The Talos Principle 2;puzzle
+Viewfinder;puzzle
+Superliminal;puzzle
+Firewatch;indie
+Inside;puzzle
+Little Nightmares III;horror
+Little Nightmares II;horror
+Limbo;puzzle
+Unpacking;puzzle
+Minecraft Dungeons;action
+Minecraft Legends;strategy
+Minecraft Bedrock;survival;Minecraft.Windows.exe
+Starcraft Remastered;strategy
+Halo Wars 2;strategy
+Grounded: Fully Yoked;survival
+Psychonauts 2;platformer
+Pentiment;indie
+As Dusk Falls;indie
+Ara Fell;rpg
+Lies Beneath;horror
+Planet of Lana;platformer
+Cocoon;puzzle
+Chants of Sennaar;puzzle
+Jusant;platformer
+Dredge;indie
+Venba;indie
+Lies of P: Overture;action
+Hollow Cocoon;horror
+Dragon Quest XI S;rpg
+Octopath Traveler II;rpg
+Star Wars Jedi: Survivor;action
+Star Wars Outlaws;openworld
+Star Wars Battlefront II;fps
+Hogwarts Legacy 2;openworld
+Marvel's Guardians of the Galaxy;action
+Marvel's Midnight Suns;strategy
+The Callisto Protocol;horror
+Avatar: Frontiers of Pandora;openworld
+Prince of Persia: The Lost Crown;platformer
+Immortals of Aveum;fps
+Rise of the Tomb Raider;action
+Shadow of the Tomb Raider;action
+Control;action;Control_DX12.exe
+Quantum Break;action
+Sniper Elite 5;tactical
+Sniper Ghost Warrior Contracts 2;tactical
+Ghost Recon Breakpoint;tactical
+Ghost Recon Wildlands;tactical
+The Division 2;tactical;TheDivision2.exe;eac
+Skull and Bones;action
+Palworld: Feybreak;survival
+Schedule 1;sim
+Bodycam;tactical
+Unrecord;tactical
+Gray Zone Warfare;tactical;GZW.exe;eac
+SCUM;survival;SCUM.exe;battleye
+Miscreated;survival
+Unturned;survival;Unturned.exe;battleye
+Garry's Mod;indie;gmod.exe;vac
+Rust Console;survival
+Valheim Ashlands;survival
+Kenshi;rpg
+Mount & Blade: Warband;strategy
+Rimworld Odyssey;strategy
+Dwarf Fortress;strategy
+Oxygen Not Included;building
+Prison Architect;building
+Planet Crafter 2;survival
+Captain of Industry;building
+Shapez 2;building
+Mindustry;building
+Teardown;indie;teardown.exe
+Totally Accurate Battle Simulator;indie
+Goat Simulator 3;indie
+Untitled Goose Game;indie
+Phasmophobia VR;horror
+Beat Saber;indie
+Half-Life: Alyx;fps
+Half-Life 2;fps;hl2.exe
+Counter-Strike: Source;fps;cstrike.exe;vac
+Counter-Strike 1.6;fps;hl.exe;vac
+Black Squad;fps
+Combat Arms;fps
+Apex Legends Mobile;br
+PUBG Lite;br
+Super Animal Royale;br
+Realm Royale;br
+Spellbreak;br
+Farlight 84;br
+Fortnite Ballistic;tactical

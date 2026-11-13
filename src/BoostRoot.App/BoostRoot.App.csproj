@@ -28,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <None Include="..\..\profiles\library.txt" LinkBase="profiles" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\profiles\*.json" Exclude="..\..\profiles\_*.json" LinkBase="profiles" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
