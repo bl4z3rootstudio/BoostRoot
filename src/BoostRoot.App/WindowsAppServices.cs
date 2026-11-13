@@ -54,6 +54,7 @@ public sealed class WindowsAppServices : IAppServices
     private readonly Core.Gpu.GpuProfileChanger _gpu;
     /// <summary>Set by the app: starts the in-game session (overlay, hotkeys, clips, 4:3) after a boost.</summary>
     public Action<CatalogEntry, AppSettings>? SessionStarter { get; set; }
+    public Action<string>? SessionStartedFor { get; set; }
 
     private WindowsAppServices()
     {
@@ -166,6 +167,7 @@ public sealed class WindowsAppServices : IAppServices
             }
         }
         SessionStarter?.Invoke(entry, settings);
+        if (entry.Profile is { } sp) SessionStartedFor?.Invoke(sp.Id);
         return result;
     }
 

@@ -24,6 +24,7 @@ public sealed partial class App : Application
                     names => new BoostRoot.Platform.Windows.PresentMonSource(names), services.CreateClipRecorder(settings));
                 session.RecordPlaytime = (id, name, a, b) => services.Playtime.Add(new BoostRoot.Core.Fps.PlaySession(id, name, a, b));
                 session.RaisePriority = services.SetGameHighPriority;
+                session.RecordFps = run => services.FpsHistory.Add(run);
                 session.Ended += () =>
                 {
                     if (!services.LoadSettings().AutoUndo || entry.Profile is null || services.LastBoostOperation(entry.Profile.Id) is not { } op) return;
@@ -40,6 +41,7 @@ public sealed partial class App : Application
             ApplyAccent(AccentPalette.Get(services.LoadSettings().Accent));
             AccentPalette.Changed += a => Avalonia.Threading.Dispatcher.UIThread.Post(() => ApplyAccent(a));
             SetupTray(desktop, window, services);
+            SetupAutoBoost(services);
         }
         base.OnFrameworkInitializationCompleted();
     }
@@ -59,6 +61,37 @@ public sealed partial class App : Application
         if (Styles.OfType<Avalonia.Themes.Fluent.FluentTheme>().FirstOrDefault() is { } fluent
             && fluent.Palettes.TryGetValue(Avalonia.Styling.ThemeVariant.Dark, out var pal) && Avalonia.Media.Color.TryParse(a.Hex, out var ac))
             pal.Accent = ac;
+    }
+
+    private readonly AutoBoost _auto = new();
+
+    /// <summary>Every 5 s (only when the setting is on): attach a session to games started outside BoostRoot.</summary>
+    private void SetupAutoBoost(WindowsAppServices services)
+    {
+        IReadOnlyList<BoostRoot.Games.CatalogEntry>? installed = null;
+        var busy = false;
+        var timer = new Avalonia.Threading.DispatcherTimer(TimeSpan.FromSeconds(5), Avalonia.Threading.DispatcherPriority.Background, async (_, _) =>
+        {
+            var settings = services.LoadSettings();
+            if (busy || !settings.AutoBoost || GameSession.Current is not null) return;
+            busy = true;
+            try
+            {
+                var hit = await Task.Run(() =>
+                {
+                    installed ??= [.. services.LoadCatalog().Where(e => e.IsInstalled)];
+                    return _auto.Check(installed, services.RunningApps());
+                });
+                if (hit is null) return;
+                foreach (var p in services.TopProcesses(200).Where(p => settings.CloseList.Contains(p.Name, StringComparer.OrdinalIgnoreCase)))
+                    try { services.KillProcess(p.Pid); } catch (Exception) { }
+                services.SessionStarter?.Invoke(hit, settings);
+            }
+            catch (Exception) { }
+            finally { busy = false; }
+        });
+        timer.Start();
+        services.SessionStartedFor = id => _auto.MarkHandled(id);
     }
 
     private bool _exiting;

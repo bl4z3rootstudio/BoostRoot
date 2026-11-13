@@ -12,7 +12,7 @@ public sealed partial class MonitorView : UserControl
     public MonitorView()
     {
         InitializeComponent();
-        _timer = new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Background, (_, _) => (DataContext as MonitorViewModel)?.Tick());
+        _timer = new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Background, (_, _) => { if (DataContext is MonitorViewModel m) { m.Tick(); _ = m.PingTickAsync(); } });
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e) { base.OnAttachedToVisualTree(e); _timer.Start(); }

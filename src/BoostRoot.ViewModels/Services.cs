@@ -31,7 +31,8 @@ public sealed record AppSettings(
     bool AutoUndo = false,
     BoostRoot.Core.Crosshair.CrosshairDesign? CrosshairDesign = null,
     string Accent = "purple",
-    bool TrayIcon = true)
+    bool TrayIcon = true,
+    bool AutoBoost = false)
 {
     /// <summary>What the overlay draws: the Studio design if one was chosen, else the simple settings.</summary>
     public BoostRoot.Core.Crosshair.CrosshairDesign OverlayCrosshair => CrosshairDesign ?? new(Color: CrosshairOrDefault.Color, Outline: CrosshairOrDefault.Outline, Dot: CrosshairOrDefault.Dot,
@@ -140,6 +141,17 @@ public interface IAppServices
     IReadOnlyList<PreflightItem> Preflight(AppSettings settings);
     /// <summary>Short chime after a successful boost (only called when Sounds is on).</summary>
     void PlayBoostSound() { }
+    /// <summary>One ICMP echo; null when lost/timed out. Measure only — never changes network settings.</summary>
+    async Task<double?> PingOnceAsync(string host)
+    {
+        try
+        {
+            using var p = new System.Net.NetworkInformation.Ping();
+            var r = await p.SendPingAsync(host, 1000);
+            return r.Status == System.Net.NetworkInformation.IPStatus.Success ? r.RoundtripTime : null;
+        }
+        catch (Exception) { return null; }
+    }
 
     // Update Center
     Task<IReadOnlyList<AppUpdate>> ScanAppUpdatesAsync(CancellationToken ct);

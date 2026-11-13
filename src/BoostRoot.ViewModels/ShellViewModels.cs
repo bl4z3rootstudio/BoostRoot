@@ -103,6 +103,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty] public partial bool AutoUndo { get; set; }
     [ObservableProperty] public partial string Accent { get; set; }
     [ObservableProperty] public partial bool TrayIcon { get; set; }
+    [ObservableProperty] public partial bool AutoBoost { get; set; }
     public IReadOnlyList<AccentChoiceViewModel> Accents { get; }
 
     [RelayCommand]
@@ -163,6 +164,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         AutoUndo = s.AutoUndo;
         Accent = AccentPalette.Get(s.Accent).Key;
         TrayIcon = s.TrayIcon;
+        AutoBoost = s.AutoBoost;
         Accents = [.. AccentPalette.All.Select(a => new AccentChoiceViewModel(a.Key, a.Hex, a.Key == Accent))];
         _appsLoadPending = true;
         Metrics = [.. AppSettings.AllMetrics.Select(m => new MetricToggleViewModel(m, s.Metrics.Contains(m), Save))];
@@ -180,7 +182,7 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     public AppSettings Current => _base with
     {
-        AutoUndo = AutoUndo, Accent = Accent ?? "purple", TrayIcon = TrayIcon,
+        AutoUndo = AutoUndo, Accent = Accent ?? "purple", TrayIcon = TrayIcon, AutoBoost = AutoBoost,
         Language = Language ?? "tr", Sounds = Sounds, Animations = Animations, Offline = Offline,
         CloseList = [.. (CloseList ?? "").Split([',', ';', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],
         OverlayMetrics = [.. Metrics.Where(m => m.IsOn).Select(m => m.Key)],
@@ -213,6 +215,7 @@ public sealed partial class SettingsViewModel : ObservableObject
 public sealed partial class MainViewModel : ObservableObject
 {
     public IReadOnlyList<NavItemViewModel> Nav { get; }
+    public TestsViewModel Tests { get; }
     public HomeViewModel Home { get; }
     public SettingsViewModel Settings { get; }
     public ScanViewModel Scan { get; }
@@ -294,6 +297,7 @@ public sealed partial class MainViewModel : ObservableObject
         Crosshair = new CrosshairViewModel(services, d => Settings.UseCrosshair(d));
         Monitor = new MonitorViewModel(services, () => Settings.Current);
         Updates = new UpdatesViewModel(services);
+        Tests = new TestsViewModel();
         Home.CurrentCrosshairCode = () => Crosshair.Design.ToValorantCode();
         Home.ApplySharedCrosshair = code => { if (BoostRoot.Core.Crosshair.CrosshairDesign.FromValorantCode(code) is { } d) Crosshair.Load(d); };
         Nav =
@@ -306,6 +310,7 @@ public sealed partial class MainViewModel : ObservableObject
             new("clips", "M4 6h12v12H4zM16 10l5-3v10l-5-3", Clips),
             new("updates", "M11 3h2v10l3.5-3.5 1.4 1.4L12 16.8 6.1 10.9l1.4-1.4L11 13zM4 19h16v2H4z", Updates),
             new("monitor", "M3 21V10h4v11zm7 0V3h4v18zm7 0v-7h4v7z", Monitor),
+            new("tests", "M12 2a6 6 0 0 0-6 6v8a6 6 0 0 0 12 0V8a6 6 0 0 0-6-6z", Tests),
             new("crosshair", "M11 2h2v7h-2zM11 15h2v7h-2zM2 11h7v2H2zM15 11h7v2h-7zM11 11h2v2h-2z", Crosshair),
             new("tools", "M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z", Tools),
             new("settings", "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z", Settings),

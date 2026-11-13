@@ -140,8 +140,12 @@ public sealed partial class HomeViewModel : ObservableObject
         var q = BoostRoot.Core.Profiles.GameLibrary.Normalize(SearchText ?? "");
         Games.Clear();
         foreach (var g in _all) g.IsFavorite = g.Entry.Profile is { } pf && _settings.IsFavorite(pf.Id);
-        // Favorites first, then installed, then name.
-        foreach (var g in _all.Where(g => Visible(g, q)).OrderByDescending(g => g.IsFavorite).ThenByDescending(g => g.IsInstalled).ThenBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase))
+        // Favorites first, then installed (most recently played first), then name.
+        var last = new Dictionary<string, DateTime>(StringComparer.Ordinal);
+        try { foreach (var ps in _services.Playtime.All()) if (!last.TryGetValue(ps.GameId, out var d) || ps.End > d) last[ps.GameId] = ps.End; }
+        catch (Exception) { }
+        DateTime Last(GameCardViewModel g) => g.Entry.Profile is { } p && last.TryGetValue(p.Id, out var d) ? d : DateTime.MinValue;
+        foreach (var g in _all.Where(g => Visible(g, q)).OrderByDescending(g => g.IsFavorite).ThenByDescending(g => g.IsInstalled).ThenByDescending(Last).ThenBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase))
             Games.Add(g);
         OnPropertyChanged(nameof(GamesTitle));
         OnPropertyChanged(nameof(LibraryText));

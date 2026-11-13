@@ -35,6 +35,9 @@ public sealed class GameSession : IDisposable
     private bool _timerRes;
     /// <summary>Optional hooks set by the app.</summary>
     public Action<string, string, DateTime, DateTime>? RecordPlaytime { get; set; }
+    /// <summary>Automatic FPS logging: the whole session's frame stats are stored as an "auto" run.</summary>
+    public Action<BoostRoot.Core.Fps.FpsRun>? RecordFps { get; set; }
+    private readonly List<double> _log = [];
     public Func<IReadOnlyList<string>, bool>? RaisePriority { get; set; }
     private readonly IReadOnlyList<string> _names;
 
@@ -81,6 +84,7 @@ public sealed class GameSession : IDisposable
         try { RaisePriority?.Invoke(_names); } catch (Exception) { }
         _frames = _startFrames();
         _frames.Frame += _fps.Add;
+        _frames.Frame += ms => { lock (_log) if (_log.Count < 2_000_000) _log.Add(ms); };
         _hotkeys = new HotkeyService([
             (HkOverlay, HotkeyService.Alt, VK_O), (HkCrosshair, HotkeyService.Alt, VK_C),
             (HkSaveReplay, HotkeyService.Alt, VK_F10), (HkRecord, HotkeyService.Alt, VK_F9), (HkScreenshot, HotkeyService.Alt, VK_F1)]);
@@ -122,7 +126,14 @@ public sealed class GameSession : IDisposable
         _clips?.StopAll();
         if (_stretched) DisplayChanger.Restore();
         if (_timerRes) TimerResolution.Release();
-        if (_startedAt is { } st && _entry.Profile is { } pr) RecordPlaytime?.Invoke(pr.Id, _entry.DisplayName, st, DateTime.UtcNow);
+        if (_startedAt is { } st && _entry.Profile is { } pr)
+        {
+            RecordPlaytime?.Invoke(pr.Id, _entry.DisplayName, st, DateTime.UtcNow);
+            List<double> log;
+            lock (_log) { log = [.. _log]; _log.Clear(); }
+            if (log.Count > 600 && BoostRoot.Core.Fps.FrameStats.From(log) is { } stats)
+                try { RecordFps?.Invoke(new(pr.Id, _entry.DisplayName, DateTime.UtcNow, "auto", stats)); } catch (Exception) { }
+        }
         Ended?.Invoke();
     }
 }

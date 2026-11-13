@@ -9,12 +9,19 @@ namespace BoostRoot.ViewModels;
 
 public sealed record FpsHistoryRow(string When, string Game, string Label, string Avg, string Low1);
 
+/// <summary>One bar in the cross-game comparison; Width is 0..1 relative to the fastest game.</summary>
+public sealed record GameFpsRow(string Game, string Avg, string Low1, double Width);
+
 public sealed partial class FpsViewModel : ObservableObject
 {
     private readonly IAppServices _services;
     public ObservableCollection<CatalogEntry> Games { get; } = [];
     public ObservableCollection<MinutesChoice> Durations { get; } = [new(30, "fps.s30"), new(60, "fps.s60") { IsSelected = true }, new(120, "fps.s120")];
     public ObservableCollection<FpsHistoryRow> History { get; } = [];
+    public ObservableCollection<GameFpsRow> PerGame { get; } = [];
+    /// <summary>Frame times (ms) of the last measurement, worst frame per bucket.</summary>
+    [ObservableProperty] public partial IReadOnlyList<double>? FrameTimes { get; set; }
+    [ObservableProperty] public partial double FrameTimeMax { get; set; } = 33.4;
 
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(MeasureCommand))] public partial CatalogEntry? Selected { get; set; }
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(MeasureCommand), nameof(CancelCommand))] public partial bool IsRunning { get; set; }
@@ -72,6 +79,10 @@ public sealed partial class FpsViewModel : ObservableObject
         foreach (var r in _services.FpsHistory.All().TakeLast(20).Reverse())
             History.Add(new(r.At.ToLocalTime().ToString("dd.MM HH:mm"), r.GameName, Loc.I["fps." + r.Label], $"{r.Stats.AvgFps:0}", $"{r.Stats.Low1:0}"));
         LoadComparison();
+        PerGame.Clear();
+        var latest = FrameTimeline.LatestPerGame(_services.FpsHistory.All()).Take(12).ToList();
+        var top = latest.Count == 0 ? 1 : Math.Max(1, latest[0].Stats.AvgFps);
+        foreach (var r in latest) PerGame.Add(new(r.GameName, $"{r.Stats.AvgFps:0}", $"{r.Stats.Low1:0}", r.Stats.AvgFps / top));
     }
 
     private void LoadComparison()
@@ -129,6 +140,8 @@ public sealed partial class FpsViewModel : ObservableObject
             List<double> copy;
             lock (frames) copy = [.. frames];
             if (FrameStats.From(copy) is not { } stats) { Error = Loc.I["fps.err.noFrames"]; return; }
+            FrameTimes = FrameTimeline.Downsample(copy);
+            FrameTimeMax = FrameTimeline.Ceiling(FrameTimes);
             _services.FpsHistory.Add(new FpsRun(entry.Profile!.Id, entry.DisplayName, DateTime.UtcNow, label, stats));
             LoadHistory();
             Phase = Loc.I["fps.done"];

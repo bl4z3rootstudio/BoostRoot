@@ -263,4 +263,5 @@
   <Style Selector="Button.swatch:pointerover">
     <Setter Property="RenderTransform" Value="scale(1.12)" />
   </Style>
+  <Style Selector="TextBlock.bad"><Setter Property="Foreground" Value="{StaticResource Bad}" /></Style>
 </Styles>

@@ -1,6 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:BoostRoot.ViewModels" xmlns:loc="using:BoostRoot.ViewModels.Localization"
-             xmlns:g="using:BoostRoot.Games" xmlns:f="using:BoostRoot.Core.Fps"
+             xmlns:g="using:BoostRoot.Games" xmlns:c="using:BoostRoot.App.Controls" xmlns:f="using:BoostRoot.Core.Fps"
              x:Class="BoostRoot.App.Views.FpsView" x:DataType="vm:FpsViewModel">
   <ScrollViewer>
     <StackPanel Margin="48,24" Spacing="16">
@@ -74,6 +74,29 @@
           </StackPanel>
         </Border>
       </Grid>
+      <Border Classes="card" IsVisible="{Binding FrameTimes, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <DockPanel Height="170">
+          <TextBlock DockPanel.Dock="Top" Classes="muted" Text="{Binding [fps.timeline], Source={x:Static loc:Loc.I}}" />
+          <TextBlock DockPanel.Dock="Right" Classes="muted" FontSize="11" VerticalAlignment="Top" Margin="8,4,0,0"><Run Text="{Binding FrameTimeMax, StringFormat='{}{0:0} ms'}" /></TextBlock>
+          <c:LineChart Values="{Binding FrameTimes}" Max="{Binding FrameTimeMax}" Capacity="300" Stroke="{StaticResource AccentLight}" />
+        </DockPanel>
+      </Border>
+      <StackPanel Spacing="6" IsVisible="{Binding !!PerGame.Count}">
+        <TextBlock Classes="h2" Text="{Binding [fps.perGame], Source={x:Static loc:Loc.I}}" />
+        <TextBlock Classes="muted" FontSize="11" Text="{Binding [fps.autoNote], Source={x:Static loc:Loc.I}}" />
+        <ItemsControl ItemsSource="{Binding PerGame}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:GameFpsRow">
+              <Grid ColumnDefinitions="200,*,80,70" Margin="0,4">
+                <TextBlock Text="{Binding Game}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                <ProgressBar Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding Width}" Height="10" Margin="8,0" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" FontWeight="SemiBold" HorizontalAlignment="Right"><Run Text="{Binding Avg}" /><Run Text=" fps" /></TextBlock>
+                <TextBlock Grid.Column="3" Classes="muted" HorizontalAlignment="Right"><Run Text="{Binding Low1}" /><Run Text=" 1%" /></TextBlock>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
       <TextBlock Classes="h2" Text="{Binding [fps.history], Source={x:Static loc:Loc.I}}" />
       <ItemsControl ItemsSource="{Binding History}">
         <ItemsControl.ItemTemplate>

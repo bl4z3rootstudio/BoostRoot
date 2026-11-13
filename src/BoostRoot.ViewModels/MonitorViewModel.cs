@@ -22,6 +22,37 @@ public sealed partial class MonitorViewModel(IAppServices services, Func<AppSett
     public ObservableCollection<double> GpuSeries { get; } = [];
     public ObservableCollection<double> TempSeries { get; } = [];
     public ObservableCollection<double> RamSeries { get; } = [];
+    public ObservableCollection<double> PingSeries { get; } = [];
+    public IReadOnlyList<string> PingHosts { get; } = ["1.1.1.1", "8.8.8.8", "9.9.9.9"];
+    [ObservableProperty] public partial string PingHost { get; set; } = "1.1.1.1";
+    [ObservableProperty] public partial string PingText { get; set; } = "—";
+    [ObservableProperty] public partial string PingInfo { get; set; } = "";
+    [ObservableProperty] public partial bool PingBad { get; set; }
+    private readonly Queue<double?> _pings = new();
+    private bool _pinging;
+
+    partial void OnPingHostChanged(string value) { _pings.Clear(); PingSeries.Clear(); }
+
+    /// <summary>Live ping: one echo per tick, last 60 kept for loss / jitter.</summary>
+    public async Task PingTickAsync()
+    {
+        if (_pinging) return;
+        _pinging = true;
+        try
+        {
+            var ms = await services.PingOnceAsync(PingHost);
+            _pings.Enqueue(ms);
+            while (_pings.Count > 60) _pings.Dequeue();
+            PingSeries.Add(ms ?? 0); if (PingSeries.Count > 120) PingSeries.RemoveAt(0);
+            var ok = _pings.Where(p => p is not null).Select(p => p!.Value).ToList();
+            var loss = 100.0 * (_pings.Count - ok.Count) / _pings.Count;
+            var jitter = ok.Count > 1 ? ok.Zip(ok.Skip(1), (a, b) => Math.Abs(a - b)).Average() : 0;
+            PingText = ms is { } v ? $"{v:0} ms" : Loc.I["mon.pingLost"];
+            PingInfo = Loc.I.Format("mon.pingInfo", $"{jitter:0}", $"{loss:0}");
+            PingBad = ms is null or > 100 || loss >= 2 || jitter > 20;
+        }
+        finally { _pinging = false; }
+    }
     public ObservableCollection<ProcessRowViewModel> Processes { get; } = [];
     public ObservableCollection<PreflightItem> Checks { get; } = [];
     [ObservableProperty] public partial string CpuText { get; set; } = "—";
