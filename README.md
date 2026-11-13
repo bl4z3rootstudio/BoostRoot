@@ -26,8 +26,8 @@
 ### Özellikler
 | | |
 |---|---|
-| 🎮 **500+ oyun** | 30 oyunda ayar dosyası seviyesinde ince ayar (VALORANT, CS2, Fortnite, PUBG, Apex, LoL, Minecraft, Rocket League, GTA V…), 500'den fazla oyunda (Game Pass dahil) sürücü + Windows + türe özel rehber. Kütüphanede olmayan **her yüklü oyun** da otomatik Boost'lanır |
-| ✛ **Nişangâh Stüdyosu** | Tasarla → VALORANT kodu olarak kopyala, CS2/TF2 komutu olarak kopyala ya da BoostRoot nişangâhıyla tüm oyunlarda kullan. VALORANT kodunu içe aktarma, hazır tasarımlar |
+| 🎮 **~800 oyun** | 30 oyunda ayar dosyası seviyesinde ince ayar (VALORANT, CS2, Fortnite, PUBG, Apex, LoL, Minecraft, Rocket League, GTA V…), yüzlerce oyunda (Game Pass dahil) sürücü + Windows + türe özel rehber. Kütüphanede olmayan **her yüklü oyun** da otomatik Boost'lanır |
+| ✛ **Nişangâh Stüdyosu** | Her detayını ayarla (dikey uzunluk, hareket/ateş hatası, T, nokta…) → VALORANT koduyla birebir aktar, CS2'ye doğrudan yaz, diğer tüm oyunlarda ekranda göster |
 | 🎚 **4 seviye** | Kalite · Dengeli · Maks FPS · Rekabetçi — PC'ne göre öneri ★ |
 | 🩺 **PC Karnesi** | İşlemci, ekran kartı, RAM (XMP kapalı mı?), ekran (Hz doğru mu?), sürücü yaşı, internet |
 | 📈 **FPS testi** | Boost öncesi/sonrası ortalama, %1 low, %0.1 low, takılma — Instagram hikâyesi/kare paylaşım görseli |
@@ -36,6 +36,9 @@
 | 🧹 **Araçlar** | Çöp temizleyici, başlangıç yöneticisi, sürücü kontrolü, gelişmiş Windows ayarları |
 | 🖥 **Oyun içi gösterge** | Alt+O — FPS, %1 low, CPU/GPU yük ve sıcaklık, VRAM, RAM (MSI Afterburner gibi) |
 | ✛ **Oyun içi nişangâh** | Alt+C — her oyunun üstünde |
+| 🖥️ **Sistem İzleyici** | Canlı grafikler, en çok kaynak yiyen uygulamalar, "Oyuna hazır mısın?" kontrolü + tek tıkla düzelt |
+| 🤝 **Arkadaşınla paylaş** | Oyun + seviye + 4:3 + nişangâh tek kodda (BR1-…) |
+| 🌐 **DNS testi · Benchmark** | DNS hız ölçümü (değiştirmez), 60 sn BoostRoot Puanı |
 | 🧠 **RAM boşalt** | Hiçbir programı kapatmadan belleği boşaltır |
 | ⏱ **Oyun süresi** | Hangi oyunu ne kadar oynadığın; oyun açıkken öncelik + 0.5 ms zamanlayıcı |
 | 🎬 **Klipler** | Alt+F10 son anları kaydet · Alt+F9 kayıt · Alt+F1 ekran görüntüsü · kes, dikey (9:16) yap, Discord'a gönder |
@@ -71,7 +74,7 @@ BoostRoot tamamen ücretsizdir ve öyle kalacak. Beğendiysen:
 
 ## Geliştirme / Development
 ```bash
-dotnet test                     # 180 tests (Linux or Windows)
+dotnet test                     # 190+ tests (Linux or Windows)
 dotnet run --project src/BoostRoot.App   # Windows
 ```
 - `src/BoostRoot.Core` — safety (NeverTouchGuard, journal, undo), config formats, profiles, FPS/stress/clip logic (cross-platform, tested)
