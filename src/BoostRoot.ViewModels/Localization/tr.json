@@ -264,5 +264,10 @@
   "ch.preview": "Önizleme",
   "home.library": "Kütüphanede {0} oyun",
   "home.search": "Oyun ara…",
-  "home.showAll": "Tüm kütüphaneyi göster"
+  "home.showAll": "Tüm kütüphaneyi göster",
+  "home.playtime": "Bu oyunda toplam {0} oynadın",
+  "tools.ram": "RAM boşalt",
+  "tools.ramNote": "Arka plandaki programların kullanmadığı belleği ve Windows'un bekleme önbelleğini boşaltır. Hiçbir program kapanmaz. Oyundan hemen önce bas.",
+  "tools.ramClean": "Şimdi boşalt",
+  "tools.ramFreed": "{0} boşaltıldı ✓"
 }

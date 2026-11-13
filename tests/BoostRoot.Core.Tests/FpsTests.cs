@@ -69,3 +69,28 @@ public class FpsTests
         Assert.Equal(["C:/card.png"], svc.Opened);
     }
 }
+
+public class PlaytimeTests
+{
+    [Fact]
+    public void Playtime_SumsAndIgnoresShortSessions()
+    {
+        var log = new PlaytimeLog(new InMemoryFileSystem(), "C:/p.jsonl");
+        var t = new DateTime(2026, 11, 1, 20, 0, 0, DateTimeKind.Utc);
+        log.Add(new PlaySession("val", "VALORANT", t, t.AddMinutes(90)));
+        log.Add(new PlaySession("val", "VALORANT", t.AddDays(1), t.AddDays(1).AddSeconds(20)));
+        log.Add(new PlaySession("cs2", "CS2", t, t.AddMinutes(30)));
+        Assert.Equal(TimeSpan.FromMinutes(90), log.Total("val"));
+        Assert.Equal(2, log.All().Count);
+        Assert.Equal("1 sa 30 dk", PlaytimeLog.Format(log.Total("val")));
+        Assert.Equal(TimeSpan.FromMinutes(30), log.Since(t.AddMinutes(60)));
+    }
+
+    [Fact]
+    public async Task Tools_RamCleanShowsFreed()
+    {
+        var vm = new ToolsViewModel(ViewModelTests.Services());
+        await vm.CleanRamCommand.ExecuteAsync(null);
+        Assert.Contains("512", vm.RamResult);
+    }
+}

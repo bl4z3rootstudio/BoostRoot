@@ -18,6 +18,16 @@
           <Button Grid.Column="1" Classes="ghost" VerticalAlignment="Center" Command="{Binding OpenDriverPageCommand}" Content="{Binding [tools.openDriver], Source={x:Static loc:Loc.I}}" />
         </Grid>
       </Border>
+      <Border Classes="card">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="h2" Text="{Binding [tools.ram], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [tools.ramNote], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Foreground="{StaticResource Good}" Text="{Binding RamResult}" />
+          </StackPanel>
+          <Button Grid.Column="1" Classes="primary" VerticalAlignment="Center" Command="{Binding CleanRamCommand}" Content="{Binding [tools.ramClean], Source={x:Static loc:Loc.I}}" />
+        </Grid>
+      </Border>
       <Border Classes="card" IsVisible="{Binding GpuTitle, Converter={x:Static ObjectConverters.IsNotNull}}">
         <StackPanel Spacing="8">
           <Grid ColumnDefinitions="*,Auto">

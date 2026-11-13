@@ -29,6 +29,7 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
           <TextBlock Classes="muted" Text="{Binding RecommendedText}" />
+          <TextBlock Classes="muted" Text="{Binding PlaytimeText}" IsVisible="{Binding PlaytimeText, Converter={x:Static ObjectConverters.IsNotNull}}" />
           <StackPanel Spacing="2" IsVisible="{Binding CanStretch}">
             <CheckBox IsChecked="{Binding IsStretched}" Content="{Binding [home.stretch], Source={x:Static loc:Loc.I}}" />
             <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" MaxWidth="620" HorizontalAlignment="Left" Text="{Binding [home.stretchNote], Source={x:Static loc:Loc.I}}" />

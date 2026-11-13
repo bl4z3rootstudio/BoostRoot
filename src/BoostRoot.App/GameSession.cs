@@ -31,6 +31,13 @@ public sealed class GameSession : IDisposable
     public event Action? Ended;
     public static GameSession? Current { get; private set; }
 
+    private DateTime? _startedAt;
+    private bool _timerRes;
+    /// <summary>Optional hooks set by the app.</summary>
+    public Action<string, string, DateTime, DateTime>? RecordPlaytime { get; set; }
+    public Func<IReadOnlyList<string>, bool>? RaisePriority { get; set; }
+    private readonly IReadOnlyList<string> _names;
+
     public GameSession(CatalogEntry entry, AppSettings settings, ISensors sensors, Func<IReadOnlyList<string>, bool> isRunning, Func<IReadOnlyList<string>, IFrameSource> frames, IClipRecorder? clips)
     {
         Current?.Dispose();
@@ -40,6 +47,7 @@ public sealed class GameSession : IDisposable
         _sensors = sensors;
         _clips = clips;
         var names = entry.Profile?.Detect.TryGetValue("process", out var p) == true ? p.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) : [];
+        _names = names;
         _watcher = new GameWatcher(isRunning, names, TimeSpan.FromMinutes(10));
         if (entry.Profile is { } prof && settings.IsStretched(prof.Id) && DisplayChanger.Current() is { } cur)
         {
@@ -68,6 +76,9 @@ public sealed class GameSession : IDisposable
 
     private void OnGameStarted()
     {
+        _startedAt = DateTime.UtcNow;
+        _timerRes = TimerResolution.Set();
+        try { RaisePriority?.Invoke(_names); } catch (Exception) { }
         _frames = _startFrames();
         _frames.Frame += _fps.Add;
         _hotkeys = new HotkeyService([
@@ -110,6 +121,8 @@ public sealed class GameSession : IDisposable
         _crosshair?.Close();
         _clips?.StopAll();
         if (_stretched) DisplayChanger.Restore();
+        if (_timerRes) TimerResolution.Release();
+        if (_startedAt is { } st && _entry.Profile is { } pr) RecordPlaytime?.Invoke(pr.Id, _entry.DisplayName, st, DateTime.UtcNow);
         Ended?.Invoke();
     }
 }

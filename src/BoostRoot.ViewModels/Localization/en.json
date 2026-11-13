@@ -264,5 +264,10 @@
   "ch.preview": "Preview",
   "home.library": "{0} games in the library",
   "home.search": "Search games…",
-  "home.showAll": "Show the whole library"
+  "home.showAll": "Show the whole library",
+  "home.playtime": "Total playtime: {0}",
+  "tools.ram": "Free up RAM",
+  "tools.ramNote": "Trims memory that background programs aren't using and clears Windows' standby cache. Nothing is closed. Press it right before playing.",
+  "tools.ramClean": "Free now",
+  "tools.ramFreed": "{0} freed ✓"
 }

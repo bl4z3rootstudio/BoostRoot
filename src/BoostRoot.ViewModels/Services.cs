@@ -113,6 +113,9 @@ public interface IAppServices
 
     // Crosshair studio + misc
     void CopyToClipboard(string text);
+    PlaytimeLog Playtime { get; }
+    /// <summary>Frees RAM without closing anything; returns bytes freed.</summary>
+    long CleanRam();
     IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> LoadCrosshairs();
     void SaveCrosshairs(IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> designs);
 }

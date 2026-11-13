@@ -505,4 +505,17 @@ public sealed class WindowsAppServices : IAppServices
         Directory.CreateDirectory(UserDataDir);
         File.WriteAllText(CrosshairFile, JsonSerializer.Serialize(designs.ToList(), AppJsonContext.Default.ListCrosshairDesign));
     }
+
+    private PlaytimeLog? _playtime;
+    public PlaytimeLog Playtime => _playtime ??= new PlaytimeLog(PhysicalFileSystem.Instance, Path.Combine(UserDataDir, "playtime.jsonl"));
+
+    public long CleanRam() => RamCleaner.Clean([]);
+
+    public bool SetGameHighPriority(IReadOnlyList<string> processNames)
+    {
+        var wanted = ResolveProcesses(processNames).Select(Path.GetFileNameWithoutExtension).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var ok = false;
+        foreach (var p in _processes.List().Where(p => wanted.Contains(Path.GetFileNameWithoutExtension(p.Name)))) ok |= _processes.SetHighPriority(p.Id);
+        return ok;
+    }
 }

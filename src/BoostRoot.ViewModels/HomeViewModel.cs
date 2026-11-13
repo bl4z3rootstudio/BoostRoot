@@ -38,6 +38,7 @@ public sealed partial class HomeViewModel : ObservableObject
 {
     public ObservableCollection<ChangeRow> Changes { get; } = [];
     [ObservableProperty] public partial string? Tips { get; set; }
+    [ObservableProperty] public partial string? PlaytimeText { get; set; }
     [ObservableProperty] public partial bool NoFileChanges { get; set; }
 
     /// <summary>"What will change?" list for the selected game + level (from the profile's notes).</summary>
@@ -48,6 +49,8 @@ public sealed partial class HomeViewModel : ObservableObject
         if (Selected?.Entry.Profile is not { } p) return;
         var tr = Loc.I.Language == "tr";
         Tips = p.Tips is { } t ? (tr ? t.Tr : t.En) : null;
+        var total = _services.Playtime.Total(p.Id);
+        PlaytimeText = total > TimeSpan.Zero ? Loc.I.Format("home.playtime", BoostRoot.Core.Fps.PlaytimeLog.Format(total)) : null;
         foreach (var key in p.Levels[SelectedLevel].Set.Keys)
         {
             if (!p.Notes.TryGetValue(key, out var n)) continue;

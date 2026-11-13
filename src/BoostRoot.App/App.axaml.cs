@@ -22,6 +22,8 @@ public sealed partial class App : Application
             {
                 var session = new GameSession(entry, settings, services.Sensors, services.IsGameRunning,
                     names => new BoostRoot.Platform.Windows.PresentMonSource(names), services.CreateClipRecorder(settings));
+                session.RecordPlaytime = (id, name, a, b) => services.Playtime.Add(new BoostRoot.Core.Fps.PlaySession(id, name, a, b));
+                session.RaisePriority = services.SetGameHighPriority;
                 session.Ended += () => { window.WindowState = Avalonia.Controls.WindowState.Normal; window.Activate(); };
             });
             desktop.Exit += (_, _) => GameSession.Current?.Dispose();

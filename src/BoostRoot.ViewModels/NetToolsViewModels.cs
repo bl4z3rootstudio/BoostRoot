@@ -162,6 +162,16 @@ public sealed partial class ToolsViewModel(IAppServices services) : ObservableOb
         finally { IsBusy = false; }
     }
 
+    [ObservableProperty] public partial string? RamResult { get; set; }
+
+    [RelayCommand]
+    public async Task CleanRamAsync()
+    {
+        IsBusy = true;
+        try { var freed = await Task.Run(services.CleanRam); RamResult = Loc.I.Format("tools.ramFreed", Bytes(freed)); }
+        finally { IsBusy = false; }
+    }
+
     [RelayCommand]
     public void OpenGpuApp() { if (_gpuApp is not null) services.OpenUrl(_gpuApp); }
 

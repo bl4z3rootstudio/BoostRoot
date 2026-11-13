@@ -88,6 +88,8 @@ internal sealed class FakeAppServices : IAppServices
     public Task<bool> InstallUpdateAsync(BoostRoot.Core.Updates.UpdateInfo update, IProgress<double>? progress, CancellationToken ct) => Task.FromResult(UpdateOk);
     public string? Clipboard { get; private set; }
     public void CopyToClipboard(string text) => Clipboard = text;
+    public PlaytimeLog Playtime { get; } = new(new InMemoryFileSystem(), "C:/p.jsonl");
+    public long CleanRam() => 512L << 20;
     public List<BoostRoot.Core.Crosshair.CrosshairDesign> Crosshairs { get; set; } = [];
     public IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> LoadCrosshairs() => Crosshairs;
     public void SaveCrosshairs(IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> designs) => Crosshairs = [.. designs];
