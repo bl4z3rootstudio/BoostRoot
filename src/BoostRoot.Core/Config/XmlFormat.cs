@@ -78,7 +78,17 @@ public sealed class XmlFormat : IConfigFormat
 
         public string Serialize()
         {
-            var body = _doc.ToString(SaveOptions.DisableFormatting);
+            // XmlWriter with NewLineHandling.None keeps "\n" as-is on every OS (default would write \r\n on Windows).
+            var sb = new System.Text.StringBuilder();
+            using (var w = System.Xml.XmlWriter.Create(sb, new System.Xml.XmlWriterSettings
+            {
+                OmitXmlDeclaration = true, NewLineHandling = System.Xml.NewLineHandling.None, Indent = false,
+                ConformanceLevel = System.Xml.ConformanceLevel.Fragment,
+            }))
+            {
+                foreach (var n in _doc.Nodes()) n.WriteTo(w);
+            }
+            var body = sb.ToString();
             var s = body;
             if (_doc.Declaration is { } d)
             {
