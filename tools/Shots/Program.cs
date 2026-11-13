@@ -19,6 +19,7 @@ vm.FinishWelcome();
 var w = new MainWindow { DataContext = vm, Width = 1440, Height = 900 };
 w.Show();
 void Pump(int ms = 600) { var end = DateTime.UtcNow.AddMilliseconds(ms); while (DateTime.UtcNow < end) { Dispatcher.UIThread.RunJobs(); AvaloniaHeadlessPlatform.ForceRenderTimerTick(); Thread.Sleep(16); } }
+vm.Updates.ScanCommand.Execute(null);
 foreach (var nav in vm.Nav)
 {
     vm.Navigate(nav);

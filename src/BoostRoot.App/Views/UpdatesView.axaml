@@ -1,0 +1,103 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BoostRoot.ViewModels" xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             x:Class="BoostRoot.App.Views.UpdatesView" x:DataType="vm:UpdatesViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="48,24" Spacing="16" MaxWidth="1000" HorizontalAlignment="Left">
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+        <StackPanel Spacing="4">
+          <TextBlock Classes="h1" FontSize="32" Text="{Binding [upd.title], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [upd.sub], Source={x:Static loc:Loc.I}}" />
+        </StackPanel>
+        <Button Grid.Column="1" Classes="ghost" VerticalAlignment="Center" Command="{Binding ScanCommand}" IsEnabled="{Binding !Scanning}" Content="{Binding [upd.scan], Source={x:Static loc:Loc.I}}" />
+        <Button Grid.Column="2" Classes="primary" VerticalAlignment="Center" Command="{Binding UpdateEverythingCommand}" IsEnabled="{Binding Scanned}" Content="{Binding [upd.updateAll], Source={x:Static loc:Loc.I}}" />
+      </Grid>
+      <Border Classes="card">
+        <StackPanel Spacing="6">
+          <TextBlock Classes="pop" FontSize="22" FontWeight="Bold" Text="{Binding Summary}" />
+          <ProgressBar IsIndeterminate="True" IsVisible="{Binding Scanning}" Foreground="{StaticResource Accent}" />
+          <ProgressBar IsIndeterminate="True" IsVisible="{Binding Installing}" Foreground="{StaticResource Good}" />
+          <TextBlock TextWrapping="Wrap" Foreground="{StaticResource AccentLight}" Text="{Binding Status}" />
+        </StackPanel>
+      </Border>
+      <Border Classes="card" IsVisible="{Binding GpuText, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel>
+            <TextBlock Classes="h2" Text="{Binding [upd.gpu], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Foreground="{StaticResource Warn}" IsVisible="{Binding GpuOld}" Text="{Binding GpuText}" TextWrapping="Wrap" />
+            <TextBlock Foreground="{StaticResource Good}" IsVisible="{Binding !GpuOld}" Text="{Binding GpuText}" TextWrapping="Wrap" />
+          </StackPanel>
+          <Button Grid.Column="1" Classes="ghost" VerticalAlignment="Center" Command="{Binding OpenGpuCommand}" Content="{Binding [upd.openGpu], Source={x:Static loc:Loc.I}}" />
+        </Grid>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Classes="h2" Text="{Binding [upd.apps], Source={x:Static loc:Loc.I}}" />
+            <Button Grid.Column="1" Classes="ghost" Command="{Binding UpgradeAllAppsCommand}" IsVisible="{Binding Apps.Count}" Content="{Binding [upd.updateAll], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+          <TextBlock Foreground="{StaticResource Warn}" TextWrapping="Wrap" Text="{Binding AppsNote}" IsVisible="{Binding AppsNote, Converter={x:Static ObjectConverters.IsNotNull}}" />
+          <ItemsControl ItemsSource="{Binding Apps}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:AppUpdateRow">
+                <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,4">
+                  <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Text="{Binding Name}" />
+                    <TextBlock Classes="muted" FontSize="12" Text="{Binding Versions}" />
+                  </StackPanel>
+                  <TextBlock Grid.Column="1" Classes="pop" VerticalAlignment="Center" Margin="0,0,12,0" Foreground="{StaticResource Good}" Text="{Binding State}" />
+                  <Button Grid.Column="2" Classes="ghost" IsEnabled="{Binding !Busy}" IsVisible="{Binding !Done}" Content="{Binding [upd.update], Source={x:Static loc:Loc.I}}"
+                          Command="{Binding $parent[ItemsControl].((vm:UpdatesViewModel)DataContext).UpgradeAppCommand}" CommandParameter="{Binding}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Classes="h2" Text="{Binding [upd.windows], Source={x:Static loc:Loc.I}}" />
+            <Button Grid.Column="1" Classes="ghost" Command="{Binding InstallWindowsCommand}" IsVisible="{Binding Windows.Count}" Content="{Binding [upd.install], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+          <TextBlock Foreground="{StaticResource Warn}" Text="{Binding WindowsNote}" IsVisible="{Binding WindowsNote, Converter={x:Static ObjectConverters.IsNotNull}}" />
+          <ItemsControl ItemsSource="{Binding Windows}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:WinUpdateRow">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,4">
+                  <CheckBox IsChecked="{Binding IsChecked}" />
+                  <StackPanel Grid.Column="1">
+                    <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding Title}" />
+                    <TextBlock FontSize="12"><Run Text="{Binding Kind}" Foreground="{StaticResource AccentLight}" /><Run Text="  " /><Run Text="{Binding Size}" Foreground="{StaticResource Muted}" /></TextBlock>
+                    <TextBlock FontSize="12" Foreground="{StaticResource Warn}" IsVisible="{Binding Unneeded}" Text="{Binding [upd.unneeded], Source={x:Static loc:Loc.I}}" />
+                  </StackPanel>
+                  <Button Grid.Column="3" Classes="ghost" Margin="8,0,0,0" Content="{Binding [upd.skip], Source={x:Static loc:Loc.I}}"
+                          Command="{Binding $parent[ItemsControl].((vm:UpdatesViewModel)DataContext).HideCommand}" CommandParameter="{Binding}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h2" Text="{Binding [upd.bloat], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [upd.bloatNote], Source={x:Static loc:Loc.I}}" />
+          <ItemsControl ItemsSource="{Binding Bloat}">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="2" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:BloatRow">
+                <Border Classes="appRow" Margin="0,0,8,8" Padding="10,6" CornerRadius="10">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding Name}" />
+                    <Button Grid.Column="1" Classes="ghost" IsEnabled="{Binding !Busy}" Content="{Binding [upd.remove], Source={x:Static loc:Loc.I}}"
+                            Command="{Binding $parent[ItemsControl].((vm:UpdatesViewModel)DataContext).RemoveBloatCommand}" CommandParameter="{Binding}" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

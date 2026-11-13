@@ -95,6 +95,17 @@ public sealed class FakeAppServices : IAppServices
         Task.FromResult<IReadOnlyList<(string, string, long)>>([("VALORANT", "C:/x", 30L << 30), ("Mini", "C:/m", 1L << 30)]);
     public int? LastBenchmark { get; set; }
     public List<int> Killed { get; } = [];
+    public List<string> Upgraded { get; } = [];
+    public Task<IReadOnlyList<BoostRoot.Core.Updates.AppUpdate>> ScanAppUpdatesAsync(CancellationToken ct) => Task.FromResult<IReadOnlyList<BoostRoot.Core.Updates.AppUpdate>>([new("Google Chrome", "Google.Chrome", "120.0", "131.0", "winget"), new("Discord", "Discord.Discord", "1.0", "1.1", "winget")]);
+    public Task<bool> UpgradeAppAsync(BoostRoot.Core.Updates.AppUpdate app, CancellationToken ct) { Upgraded.Add(app.Id); return Task.FromResult(true); }
+    public Task<IReadOnlyList<BoostRoot.Core.Updates.WinUpdate>> ScanWindowsUpdatesAsync(CancellationToken ct) => Task.FromResult<IReadOnlyList<BoostRoot.Core.Updates.WinUpdate>>([new("6b8f2c3a-1111-2222-3333-444455556666", "AMD - Display - 31.0", true, true, 500L << 20, ""), new("7b8f2c3a-1111-2222-3333-444455556666", "2026-11 Cumulative Update Preview", false, true, 1L << 30, "5000001")]);
+    public List<string> InstalledWin { get; } = [];
+    public Task<(bool Ok, bool Reboot)> InstallWindowsUpdatesAsync(IReadOnlyList<BoostRoot.Core.Updates.WinUpdate> updates, CancellationToken ct) { InstalledWin.AddRange(updates.Select(u => u.Id)); return Task.FromResult((true, true)); }
+    public Task HideWindowsUpdateAsync(BoostRoot.Core.Updates.WinUpdate update, CancellationToken ct) => Task.CompletedTask;
+    public Task<IReadOnlyList<BoostRoot.Core.Updates.BloatApp>> ScanBloatAsync(CancellationToken ct) => Task.FromResult<IReadOnlyList<BoostRoot.Core.Updates.BloatApp>>([new("king.com.CandyCrushSaga_1.0_x64__k", "king.com.CandyCrushSaga", "Candy Crush")]);
+    public Task<bool> RemoveBloatAsync(BoostRoot.Core.Updates.BloatApp app, CancellationToken ct) => Task.FromResult(true);
+    public string? BugContext { get; private set; }
+    public void ReportBug(string context) => BugContext = context;
     public IReadOnlyList<ProcessUsage> TopProcesses(int count) => [new(10, "chrome", 12.5, 900), new(11, "Discord", 3, 300)];
     public bool KillProcess(int pid) { Killed.Add(pid); return true; }
     public bool RamCleaned { get; private set; }

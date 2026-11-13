@@ -201,6 +201,7 @@ public sealed partial class MainViewModel : ObservableObject
     public ClipsViewModel Clips { get; }
     public CrosshairViewModel Crosshair { get; }
     public MonitorViewModel Monitor { get; }
+    public UpdatesViewModel Updates { get; }
 
     [ObservableProperty] public partial ObservableObject CurrentPage { get; set; }
     [ObservableProperty] public partial bool ShowWelcome { get; set; }
@@ -214,6 +215,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public const string SponsorsUrl = "https://github.com/bl4z3rootstudio/BoostRoot#destek-ol--support";
     [RelayCommand] public void Donate() => _services.OpenUrl(SponsorsUrl);
+    [RelayCommand] public void ReportBug() => _services.ReportBug(CurrentPage.GetType().Name);
 
     public async Task CheckUpdateAsync()
     {
@@ -269,6 +271,7 @@ public sealed partial class MainViewModel : ObservableObject
         ShowWelcome = !services.LoadSettings().FirstRunDone;
         Crosshair = new CrosshairViewModel(services, d => Settings.UseCrosshair(d));
         Monitor = new MonitorViewModel(services, () => Settings.Current);
+        Updates = new UpdatesViewModel(services);
         Home.CurrentCrosshairCode = () => Crosshair.Design.ToValorantCode();
         Home.ApplySharedCrosshair = code => { if (BoostRoot.Core.Crosshair.CrosshairDesign.FromValorantCode(code) is { } d) Crosshair.Load(d); };
         Nav =
@@ -279,7 +282,8 @@ public sealed partial class MainViewModel : ObservableObject
             new("stress", "M12 2a7 7 0 0 0-4 12.7V18h8v-3.3A7 7 0 0 0 12 2zM9 22h6", Stress),
             new("net", "M2 9a15 15 0 0 1 20 0M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M12 20h.01", Net),
             new("clips", "M4 6h12v12H4zM16 10l5-3v10l-5-3", Clips),
-            new("monitor", "M3 13h4l3-8 4 16 3-8h4", Monitor),
+            new("updates", "M11 3h2v10l3.5-3.5 1.4 1.4L12 16.8 6.1 10.9l1.4-1.4L11 13zM4 19h16v2H4z", Updates),
+            new("monitor", "M3 21V10h4v11zm7 0V3h4v18zm7 0v-7h4v7z", Monitor),
             new("crosshair", "M11 2h2v7h-2zM11 15h2v7h-2zM2 11h7v2H2zM15 11h7v2h-7zM11 11h2v2h-2z", Crosshair),
             new("tools", "M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z", Tools),
             new("settings", "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z", Settings),

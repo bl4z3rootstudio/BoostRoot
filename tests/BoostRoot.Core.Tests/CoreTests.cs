@@ -38,7 +38,13 @@ public class AppVersionTests
     }
 
     [Fact] public void FileVersion() => Assert.Equal("26.11.1.0", new AppVersion(26, 11, 1).ToFileVersion());
-    [Fact] public void Current_IsBuildVersion() => Assert.Equal("26.11.2", AppVersion.Current.ToString());
+    [Fact]
+    public void Current_IsBuildVersion()
+    {
+        var props = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Directory.Build.props"));
+        var v = System.Text.RegularExpressions.Regex.Match(props, "<Version>([^<]+)</Version>").Groups[1].Value;
+        Assert.Equal(v, AppVersion.Current.ToString());
+    }
 }
 
 public class TextFileTests

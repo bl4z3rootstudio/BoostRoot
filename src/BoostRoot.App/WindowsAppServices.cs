@@ -707,4 +707,49 @@ public sealed class WindowsAppServices : IAppServices
         items.Add(new("pf.gamebar", !dvrOn, dvrOn ? Loc.I["pf.gamebarFix"] : "✓"));
         return items;
     }
+
+    public async Task<IReadOnlyList<AppUpdate>> ScanAppUpdatesAsync(CancellationToken ct)
+    {
+        var (_, output) = await PowerShellRunner.WingetAsync(["upgrade", "--include-unknown", "--accept-source-agreements", "--disable-interactivity"], ct);
+        return WingetTable.Parse(output);
+    }
+
+    public async Task<bool> UpgradeAppAsync(AppUpdate app, CancellationToken ct)
+    {
+        var (code, _) = await PowerShellRunner.WingetAsync(["upgrade", "--id", app.Id, "--exact", "--silent", "--accept-package-agreements", "--accept-source-agreements", "--disable-interactivity"], ct);
+        return code == 0;
+    }
+
+    public async Task<IReadOnlyList<WinUpdate>> ScanWindowsUpdatesAsync(CancellationToken ct) =>
+        WindowsUpdateJson.Parse(await PowerShellRunner.RunAsync(WindowsUpdateJson.SearchScript, ct, TimeSpan.FromMinutes(10)));
+
+    public async Task<(bool Ok, bool Reboot)> InstallWindowsUpdatesAsync(IReadOnlyList<WinUpdate> updates, CancellationToken ct) =>
+        WindowsUpdateJson.ParseInstall(await PowerShellRunner.RunAsync(WindowsUpdateJson.InstallScript(updates.Select(u => u.Id)), ct, TimeSpan.FromHours(2)));
+
+    public Task HideWindowsUpdateAsync(WinUpdate update, CancellationToken ct) => PowerShellRunner.RunAsync(WindowsUpdateJson.HideScript(update.Id), ct, TimeSpan.FromMinutes(5));
+
+    public async Task<IReadOnlyList<BloatApp>> ScanBloatAsync(CancellationToken ct) =>
+        Bloatware.Match(await PowerShellRunner.RunAsync(Bloatware.ListScript, ct, TimeSpan.FromMinutes(2)), Loc.I.Language == "tr");
+
+    public async Task<bool> RemoveBloatAsync(BloatApp app, CancellationToken ct) =>
+        (await PowerShellRunner.RunAsync(Bloatware.RemoveScript(app.PackageFullName), ct, TimeSpan.FromMinutes(3))).Contains("OK", StringComparison.Ordinal);
+
+    public void ReportBug(string context)
+    {
+        var hw = _lastHardware;
+        var body = $"""
+            **Ne oldu? / What happened?**
+
+
+            **Ne bekliyordun? / What did you expect?**
+
+
+            ---
+            BoostRoot {Core.Versioning.AppVersion.Current} · {Environment.OSVersion.VersionString} · {(Environment.Is64BitOperatingSystem ? "x64" : "x86")}
+            CPU: {hw?.CpuName ?? "?"} · GPU: {string.Join(", ", hw?.Gpus.Select(g => g.Name) ?? [])} · RAM: {hw?.RamGb ?? 0:0} GB
+            Ekran / Page: {context}
+            """;
+        var url = "https://github.com/bl4z3rootstudio/BoostRoot/issues/new?title=" + Uri.EscapeDataString("[Hata] ") + "&body=" + Uri.EscapeDataString(body);
+        OpenUrl(url);
+    }
 }

@@ -136,6 +136,18 @@ public interface IAppServices
     bool KillProcess(int pid);
     /// <summary>"Ready to play?" checks.</summary>
     IReadOnlyList<PreflightItem> Preflight(AppSettings settings);
+
+    // Update Center
+    Task<IReadOnlyList<AppUpdate>> ScanAppUpdatesAsync(CancellationToken ct);
+    /// <summary>True when the app was upgraded.</summary>
+    Task<bool> UpgradeAppAsync(AppUpdate app, CancellationToken ct);
+    Task<IReadOnlyList<WinUpdate>> ScanWindowsUpdatesAsync(CancellationToken ct);
+    Task<(bool Ok, bool Reboot)> InstallWindowsUpdatesAsync(IReadOnlyList<WinUpdate> updates, CancellationToken ct);
+    Task HideWindowsUpdateAsync(WinUpdate update, CancellationToken ct);
+    Task<IReadOnlyList<BloatApp>> ScanBloatAsync(CancellationToken ct);
+    Task<bool> RemoveBloatAsync(BloatApp app, CancellationToken ct);
+    /// <summary>Opens a pre-filled GitHub issue with logs/system info (nothing is sent automatically).</summary>
+    void ReportBug(string context);
     IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> LoadCrosshairs();
     void SaveCrosshairs(IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> designs);
     /// <summary>Writes the design into CS2's own crosshair settings (all Steam accounts). Returns accounts changed; CS2 must be closed.</summary>
