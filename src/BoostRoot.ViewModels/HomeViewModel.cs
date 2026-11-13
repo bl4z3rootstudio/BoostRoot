@@ -139,12 +139,7 @@ public sealed partial class HomeViewModel : ObservableObject
     {
         var q = BoostRoot.Core.Profiles.GameLibrary.Normalize(SearchText ?? "");
         Games.Clear();
-        foreach (var g in _all)
-        {
-            var id = g.Entry.Profile?.Id ?? "";
-            var visible = Visible(g, q);
-            if (visible) { g.IsFavorite = g.Entry.Profile is { } pf && _settings.IsFavorite(pf.Id); }
-        }
+        foreach (var g in _all) g.IsFavorite = g.Entry.Profile is { } pf && _settings.IsFavorite(pf.Id);
         // Favorites first, then installed, then name.
         foreach (var g in _all.Where(g => Visible(g, q)).OrderByDescending(g => g.IsFavorite).ThenByDescending(g => g.IsInstalled).ThenBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase))
             Games.Add(g);

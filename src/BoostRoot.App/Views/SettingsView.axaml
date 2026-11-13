@@ -23,23 +23,31 @@
       </Border>
       <Border Classes="card">
         <StackPanel Spacing="8">
-          <TextBlock Text="{Binding [settings.closeList], Source={x:Static loc:Loc.I}}" />
-          <TextBox Text="{Binding CloseList}" AcceptsReturn="False" />
-        </StackPanel>
-      </Border>
-      <Border Classes="card">
-        <StackPanel Spacing="8">
           <ToggleSwitch IsChecked="{Binding AutoUndo}" Content="{Binding [settings.autoUndo], Source={x:Static loc:Loc.I}}" />
           <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [settings.autoUndoNote], Source={x:Static loc:Loc.I}}" />
-          <TextBlock Margin="0,8,0,0" FontWeight="SemiBold" Text="{Binding [settings.closeApps], Source={x:Static loc:Loc.I}}" />
-          <TextBox Text="{Binding CloseList}" TextWrapping="Wrap" />
-          <Button Classes="ghost" HorizontalAlignment="Left" Command="{Binding LoadRunningAppsCommand}" Content="{Binding [settings.pickApps], Source={x:Static loc:Loc.I}}" />
-          <ItemsControl ItemsSource="{Binding RunningApps}">
-            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+            <StackPanel>
+              <TextBlock FontWeight="SemiBold" Text="{Binding [settings.closeApps], Source={x:Static loc:Loc.I}}" />
+              <TextBlock Classes="muted" FontSize="11" Text="{Binding [settings.closeAppsNote], Source={x:Static loc:Loc.I}}" />
+            </StackPanel>
+            <Button Grid.Column="1" Classes="ghost" Command="{Binding LoadRunningAppsCommand}" Content="{Binding [tools.refresh], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+          <ItemsControl ItemsSource="{Binding AppChoices}">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="2" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="x:String">
-                <Button Classes="pill" Margin="0,0,6,6" Content="{Binding StringFormat='+ {0}'}"
-                        Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).AddToCloseListCommand}" CommandParameter="{Binding}" />
+              <DataTemplate x:DataType="vm:AppChoiceViewModel">
+                <Border Classes="appRow" Classes.on="{Binding IsChecked}" Margin="0,0,8,8" Padding="10,6" CornerRadius="10">
+                  <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Border Width="30" Height="30" CornerRadius="15" Background="#3B1F66" Margin="0,0,10,0">
+                      <TextBlock Text="{Binding Initial}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                      <TextBlock FontWeight="SemiBold" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                      <TextBlock FontSize="11" Foreground="{StaticResource Good}" IsVisible="{Binding IsRunning}" Text="{Binding [settings.appRunning], Source={x:Static loc:Loc.I}}" />
+                    </StackPanel>
+                    <CheckBox Grid.Column="2" IsChecked="{Binding IsChecked}" />
+                  </Grid>
+                </Border>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>

@@ -69,6 +69,10 @@
                   <CheckBox IsChecked="{Binding Dot}" Content="{Binding [ch.dot], Source={x:Static loc:Loc.I}}" />
                   <TextBlock Classes="muted" Text="{Binding [ch.dotSize], Source={x:Static loc:Loc.I}}" />
                   <Slider Minimum="1" Maximum="6" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding DotThickness}" />
+                  <TextBlock Classes="muted" Text="{Binding [ch.dotOpacity], Source={x:Static loc:Loc.I}}" />
+                  <Slider Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True" Value="{Binding DotOpacity}" />
+                  <CheckBox IsChecked="{Binding RoundDot}" Content="{Binding [ch.roundDot], Source={x:Static loc:Loc.I}}" />
+                  <CheckBox IsChecked="{Binding HideTop}" Content="{Binding [ch.hideTop], Source={x:Static loc:Loc.I}}" />
                 </StackPanel>
               </Grid>
             </StackPanel>
@@ -81,6 +85,10 @@
                 <TextBlock Classes="muted" Text="{Binding [ch.length], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="20" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding InnerLength}" />
                 <TextBlock Classes="muted" Text="{Binding [ch.offset], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="20" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding InnerOffset}" />
                 <TextBlock Classes="muted" Text="{Binding [ch.opacity], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True" Value="{Binding InnerOpacity}" />
+                <CheckBox IsChecked="{Binding InnerSeparateVertical}" Content="{Binding [ch.vertical], Source={x:Static loc:Loc.I}}" />
+                <Slider IsVisible="{Binding InnerSeparateVertical}" Minimum="0" Maximum="20" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding InnerVertical}" />
+                <CheckBox IsChecked="{Binding InnerMovementError}" Content="{Binding [ch.moveErr], Source={x:Static loc:Loc.I}}" />
+                <CheckBox IsChecked="{Binding InnerFiringError}" Content="{Binding [ch.fireErr], Source={x:Static loc:Loc.I}}" />
               </StackPanel>
             </Border>
             <Border Grid.Column="1" Classes="card">
@@ -90,6 +98,8 @@
                 <TextBlock Classes="muted" Text="{Binding [ch.length], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="20" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding OuterLength}" />
                 <TextBlock Classes="muted" Text="{Binding [ch.offset], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="40" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding OuterOffset}" />
                 <TextBlock Classes="muted" Text="{Binding [ch.opacity], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True" Value="{Binding OuterOpacity}" />
+                <CheckBox IsChecked="{Binding OuterMovementError}" Content="{Binding [ch.moveErr], Source={x:Static loc:Loc.I}}" />
+                <CheckBox IsChecked="{Binding OuterFiringError}" Content="{Binding [ch.fireErr], Source={x:Static loc:Loc.I}}" />
               </StackPanel>
             </Border>
           </Grid>
@@ -110,7 +120,9 @@
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
               </ItemsControl>
-              <TextBlock Foreground="{StaticResource Good}" TextWrapping="Wrap" Text="{Binding Status}" />
+              <Button Classes="primary" HorizontalAlignment="Left" Command="{Binding ApplyCs2Command}" Content="{Binding [ch.cs2Apply], Source={x:Static loc:Loc.I}}" />
+              <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [ch.valorantHow], Source={x:Static loc:Loc.I}}" />
+              <TextBlock Classes="pop" Foreground="{StaticResource Good}" TextWrapping="Wrap" Text="{Binding Status}" />
               <SelectableTextBlock Classes="muted" FontFamily="Consolas" FontSize="11" TextWrapping="Wrap" Text="{Binding LastExport}" />
               <TextBlock Text="{Binding [ch.import], Source={x:Static loc:Loc.I}}" Margin="0,8,0,0" />
               <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">

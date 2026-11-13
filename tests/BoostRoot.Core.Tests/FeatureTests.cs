@@ -65,9 +65,13 @@ public class FeatureTests
         main.Settings.AutoUndo = true;
         Assert.True(svc.Saved.AutoUndo);
         main.Settings.LoadRunningApps();
-        Assert.Contains("Discord", main.Settings.RunningApps);
-        main.Settings.AddToCloseList("Discord");
+        var discord = main.Settings.AppChoices.First(a => a.Process == "Discord");
+        Assert.True(discord.IsRunning);
+        Assert.Same(discord, main.Settings.AppChoices[0].IsRunning ? main.Settings.AppChoices.First(a => a.Process == "Discord") : null);
+        discord.IsChecked = true;
         Assert.Contains("Discord", svc.Saved.CloseList);
+        main.Settings.AppChoices.First(a => a.Process == "chrome").IsChecked = false;
+        Assert.DoesNotContain("chrome", svc.Saved.CloseList);
     }
 
     [Fact]

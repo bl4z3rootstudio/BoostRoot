@@ -38,6 +38,15 @@ public sealed partial class CrosshairViewModel : ObservableObject
     [ObservableProperty] public partial int OuterLength { get; set; } = 2;
     [ObservableProperty] public partial int OuterOffset { get; set; } = 10;
     [ObservableProperty] public partial double OuterOpacity { get; set; } = 0.35;
+    [ObservableProperty] public partial bool InnerSeparateVertical { get; set; }
+    [ObservableProperty] public partial int InnerVertical { get; set; } = 6;
+    [ObservableProperty] public partial bool InnerMovementError { get; set; }
+    [ObservableProperty] public partial bool InnerFiringError { get; set; }
+    [ObservableProperty] public partial bool OuterMovementError { get; set; }
+    [ObservableProperty] public partial bool OuterFiringError { get; set; }
+    [ObservableProperty] public partial bool HideTop { get; set; }
+    [ObservableProperty] public partial bool RoundDot { get; set; }
+    [ObservableProperty] public partial double DotOpacity { get; set; } = 1;
     [ObservableProperty] public partial CrosshairDesign Design { get; set; } = new();
     [ObservableProperty] public partial string? ImportCode { get; set; }
     [ObservableProperty] public partial string? Status { get; set; }
@@ -59,17 +68,19 @@ public sealed partial class CrosshairViewModel : ObservableObject
         if (!_loading && e.PropertyName is not (nameof(Design) or nameof(ImportCode) or nameof(Status) or nameof(LastExport))) Rebuild();
     }
 
-    private void Rebuild() => Design = new CrosshairDesign(Name, Color, Outline, OutlineThickness, OutlineOpacity, Dot, DotThickness, 1,
-        new CrosshairLines(InnerShow, InnerThickness, InnerLength, InnerOffset, InnerOpacity),
-        new CrosshairLines(OuterShow, OuterThickness, OuterLength, OuterOffset, OuterOpacity));
+    private void Rebuild() => Design = new CrosshairDesign(Name, Color, Outline, OutlineThickness, OutlineOpacity, Dot, DotThickness, DotOpacity,
+        new CrosshairLines(InnerShow, InnerThickness, InnerLength, InnerOffset, InnerOpacity, InnerSeparateVertical ? InnerVertical : null, InnerMovementError, InnerFiringError),
+        new CrosshairLines(OuterShow, OuterThickness, OuterLength, OuterOffset, OuterOpacity, null, OuterMovementError, OuterFiringError),
+        HideTop, RoundDot);
 
     [RelayCommand]
     public void Load(CrosshairDesign d)
     {
         _loading = true;
-        (Name, Color, Outline, OutlineThickness, OutlineOpacity, Dot, DotThickness) = (d.Name, d.Color, d.Outline, d.OutlineThickness, d.OutlineOpacity, d.Dot, d.DotThickness);
+        (Name, Color, Outline, OutlineThickness, OutlineOpacity, Dot, DotThickness, DotOpacity, HideTop, RoundDot) = (d.Name, d.Color, d.Outline, d.OutlineThickness, d.OutlineOpacity, d.Dot, d.DotThickness, d.DotOpacity, d.HideTop, d.RoundDot);
         var i = d.InnerLines; (InnerShow, InnerThickness, InnerLength, InnerOffset, InnerOpacity) = (i.Show, i.Thickness, i.Length, i.Offset, i.Opacity);
-        var o = d.OuterLines; (OuterShow, OuterThickness, OuterLength, OuterOffset, OuterOpacity) = (o.Show, o.Thickness, o.Length, o.Offset, o.Opacity);
+        (InnerSeparateVertical, InnerVertical, InnerMovementError, InnerFiringError) = (i.VerticalLength is not null, i.VLength, i.MovementError, i.FiringError);
+        var o = d.OuterLines; (OuterShow, OuterThickness, OuterLength, OuterOffset, OuterOpacity, OuterMovementError, OuterFiringError) = (o.Show, o.Thickness, o.Length, o.Offset, o.Opacity, o.MovementError, o.FiringError);
         _loading = false;
         Rebuild();
     }
@@ -97,6 +108,18 @@ public sealed partial class CrosshairViewModel : ObservableObject
             _useAsOverlay(Design);
             Status = Loc.I["ch.overlaySet"];
         }
+    }
+
+    /// <summary>CS2: write straight into the game's crosshair settings (no console needed).</summary>
+    [RelayCommand]
+    public void ApplyCs2()
+    {
+        try
+        {
+            var n = _services.ApplyCs2Crosshair(Design);
+            Status = n > 0 ? Loc.I.Format("ch.cs2Applied", n) : Loc.I["ch.cs2NotFound"];
+        }
+        catch (InvalidOperationException ex) { Status = ex.Message; }
     }
 
     [RelayCommand]

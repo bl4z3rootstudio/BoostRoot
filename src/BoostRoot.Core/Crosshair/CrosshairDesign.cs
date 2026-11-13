@@ -4,7 +4,14 @@ using System.Text;
 namespace BoostRoot.Core.Crosshair;
 
 /// <summary>One line group (inner or outer) of a crosshair.</summary>
-public sealed record CrosshairLines(bool Show = true, int Thickness = 2, int Length = 6, int Offset = 3, double Opacity = 1);
+/// <param name="VerticalLength">Separate vertical length (VALORANT "adjust vertical length"); null = same as Length.</param>
+/// <param name="MovementError">Lines spread while moving (VALORANT).</param>
+/// <param name="FiringError">Lines spread while shooting (VALORANT).</param>
+public sealed record CrosshairLines(bool Show = true, int Thickness = 2, int Length = 6, int Offset = 3, double Opacity = 1,
+    int? VerticalLength = null, bool MovementError = false, bool FiringError = false)
+{
+    public int VLength => VerticalLength ?? Length;
+}
 
 /// <summary>Game-independent crosshair design that can be exported to several games.</summary>
 public sealed record CrosshairDesign(
@@ -17,7 +24,9 @@ public sealed record CrosshairDesign(
     int DotThickness = 2,
     double DotOpacity = 1,
     CrosshairLines? Inner = null,
-    CrosshairLines? Outer = null)
+    CrosshairLines? Outer = null,
+    bool HideTop = false,
+    bool RoundDot = false)
 {
     public CrosshairLines InnerLines => Inner ?? new();
     public CrosshairLines OuterLines => Outer ?? new(Show: false, Thickness: 2, Length: 2, Offset: 10, Opacity: 0.35);
@@ -67,17 +76,21 @@ public sealed record CrosshairDesign(
             if (DotThickness != 2) Add("z", Math.Clamp(DotThickness, 1, 6).ToString(CultureInfo.InvariantCulture));
             if (Math.Abs(DotOpacity - 1) > 0.001) Add("a", F(DotOpacity));
         }
-        void Lines(string p, CrosshairLines l, CrosshairLines def)
+        void Lines(string p, CrosshairLines l, CrosshairLines def, bool defMove, bool defFire)
         {
             if (!l.Show) { Add(p + "b", "0"); return; }
             if (l.Thickness != def.Thickness) Add(p + "t", Math.Clamp(l.Thickness, 0, 10).ToString(CultureInfo.InvariantCulture));
             if (l.Length != def.Length) Add(p + "l", Math.Clamp(l.Length, 0, 20).ToString(CultureInfo.InvariantCulture));
+            if (l.VerticalLength is { } v && v != l.Length) { Add(p + "v", Math.Clamp(v, 0, 20).ToString(CultureInfo.InvariantCulture)); Add(p + "g", "1"); }
             if (l.Offset != def.Offset) Add(p + "o", Math.Clamp(l.Offset, 0, 20).ToString(CultureInfo.InvariantCulture));
             if (Math.Abs(l.Opacity - def.Opacity) > 0.001) Add(p + "a", F(l.Opacity));
+            if (l.MovementError != defMove) Add(p + "m", l.MovementError ? "1" : "0");
+            if (l.FiringError != defFire) Add(p + "f", l.FiringError ? "1" : "0");
         }
-        Lines("0", InnerLines, new(true, 2, 6, 3, 0.8));
+        // VALORANT defaults: inner = no movement error, firing error on; outer = both on.
+        Lines("0", InnerLines, new(true, 2, 6, 3, 0.8), false, true);
         var outer = OuterLines;
-        if (outer.Show) Lines("1", outer, new(true, 2, 2, 10, 0.35)); else Add("1b", "0");
+        if (outer.Show) Lines("1", outer, new(true, 2, 2, 10, 0.35), true, true); else Add("1b", "0");
         return sb.ToString();
     }
 
@@ -100,8 +113,8 @@ public sealed record CrosshairDesign(
         var c = I("c", 0);
         var color = c == 8 && d.TryGetValue("u", out var u) && u.Length >= 6 ? "#" + u[..6] : "#" + ValorantColors.FirstOrDefault(x => x.Index == c, ValorantColors[0]).Hex;
         return new CrosshairDesign("VALORANT", color, I("h", 1) == 1, I("t", 1), D("o", 0.5), I("d", 0) == 1, I("z", 2), D("a", 1),
-            new CrosshairLines(I("0b", 1) == 1, I("0t", 2), I("0l", 6), I("0o", 3), D("0a", 0.8)),
-            new CrosshairLines(I("1b", 1) == 1, I("1t", 2), I("1l", 2), I("1o", 10), D("1a", 0.35)));
+            new CrosshairLines(I("0b", 1) == 1, I("0t", 2), I("0l", 6), I("0o", 3), D("0a", 0.8), I("0g", 0) == 1 ? I("0v", 6) : null, I("0m", 0) == 1, I("0f", 1) == 1),
+            new CrosshairLines(I("1b", 1) == 1, I("1t", 2), I("1l", 2), I("1o", 10), D("1a", 0.35), I("1g", 0) == 1 ? I("1v", 2) : null, I("1m", 1) == 1, I("1f", 1) == 1));
     }
 
     // ---------------- Source engine (CS2, CS:GO, TF2, CS:Source) ----------------
@@ -123,8 +136,12 @@ public sealed record CrosshairDesign(
             $"cl_crosshairdot {(Dot ? 1 : 0)}",
             $"cl_crosshair_drawoutline {(Outline ? 1 : 0)}",
             $"cl_crosshair_outlinethickness {Math.Clamp(OutlineThickness, 0, 3)}",
-            "cl_crosshair_t 0");
+            $"cl_crosshair_t {(HideTop ? 1 : 0)}");
     }
+
+    /// <summary>The same values as CS2 user convars (written straight into cs2_user_convars_*.vcfg).</summary>
+    public IReadOnlyDictionary<string, string> ToSourceConvars() =>
+        ToSourceCommands().Split("; ").Select(c => c.Split(' ', 2)).Where(p => p.Length == 2).ToDictionary(p => p[0], p => p[1]);
 
     /// <summary>Settings the BoostRoot overlay crosshair (works on top of any game) can draw.</summary>
     public (string Color, int Size, int Thickness, int Gap, bool Dot, bool Outline) ToOverlay() =>

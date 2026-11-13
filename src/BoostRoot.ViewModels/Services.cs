@@ -28,8 +28,12 @@ public sealed record AppSettings(
     ClipSettings? Clips = null,
     bool FirstRunDone = false,
     IReadOnlyList<string>? Favorites = null,
-    bool AutoUndo = false)
+    bool AutoUndo = false,
+    BoostRoot.Core.Crosshair.CrosshairDesign? CrosshairDesign = null)
 {
+    /// <summary>What the overlay draws: the Studio design if one was chosen, else the simple settings.</summary>
+    public BoostRoot.Core.Crosshair.CrosshairDesign OverlayCrosshair => CrosshairDesign ?? new(Color: CrosshairOrDefault.Color, Outline: CrosshairOrDefault.Outline, Dot: CrosshairOrDefault.Dot,
+        Inner: new(CrosshairOrDefault.Size > 0, CrosshairOrDefault.Thickness, CrosshairOrDefault.Size, CrosshairOrDefault.Gap, 1));
     public bool IsFavorite(string profileId) => Favorites?.Contains(profileId) == true;
     public static AppSettings Default { get; } = new("tr", true, true, false, ["chrome", "msedge", "opera", "firefox", "spotify", "steamwebhelper", "epicgameslauncher"], false);
     public static IReadOnlyList<string> AllMetrics { get; } = ["fps", "low1", "cpu", "cputemp", "gpu", "gputemp", "vram", "ram", "clock", "ping", "time"];
@@ -129,6 +133,8 @@ public interface IAppServices
     int? LastBenchmark { get; set; }
     IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> LoadCrosshairs();
     void SaveCrosshairs(IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> designs);
+    /// <summary>Writes the design into CS2's own crosshair settings (all Steam accounts). Returns accounts changed; CS2 must be closed.</summary>
+    int ApplyCs2Crosshair(BoostRoot.Core.Crosshair.CrosshairDesign design);
 }
 
 public sealed record ShareCard(string Game, FrameStats Before, FrameStats After, double Gain, string Cpu, string Gpu);

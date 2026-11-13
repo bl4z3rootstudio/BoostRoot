@@ -10,7 +10,11 @@
     </ResourceDictionary>
   </Application.Resources>
   <Application.Styles>
-    <FluentTheme />
+    <FluentTheme>
+      <FluentTheme.Palettes>
+        <ColorPaletteResources x:Key="Dark" Accent="#A855F7" AltHigh="#0B0912" RegionColor="#0B0912" />
+      </FluentTheme.Palettes>
+    </FluentTheme>
     <StyleInclude Source="avares://BoostRoot/Theme/Styles.axaml" />
   </Application.Styles>
 </Application>

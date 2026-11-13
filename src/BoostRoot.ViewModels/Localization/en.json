@@ -312,5 +312,19 @@
   "bench.resultPrev": "BoostRoot Score: {0} ({1}% vs previous)",
   "bench.failed": "Benchmark stopped early (heat or errors)",
   "metric.ping": "Ping",
-  "metric.time": "Clock"
+  "metric.time": "Clock",
+  "settings.closeAppsNote": "Checked apps are closed when you press Boost. Apps open right now are at the top.",
+  "settings.appRunning": "● running now",
+  "ch.vertical": "Separate vertical length",
+  "ch.verticalLen": "Vertical length",
+  "ch.moveErr": "Movement error (spreads while moving)",
+  "ch.fireErr": "Firing error (spreads while shooting)",
+  "ch.hideTop": "Hide top line (T crosshair)",
+  "ch.roundDot": "Round dot",
+  "ch.dotOpacity": "Dot opacity",
+  "ch.cs2Apply": "Apply to CS2 directly",
+  "ch.cs2Applied": "CS2 crosshair written to {0} Steam account(s) — open CS2, it's there ✓",
+  "ch.cs2NotFound": "CS2 settings not found (open and close CS2 once) or CS2 is running.",
+  "ch.valorantHow": "VALORANT: Settings → Crosshair → \"Import profile code\" (⬇ icon) → Ctrl+V → Import. The exact same crosshair appears in game.",
+  "ch.layout": "Layout"
 }

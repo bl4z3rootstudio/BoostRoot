@@ -33,6 +33,9 @@ public static class GameLibrary
         ["generic"] = new("BoostRoot bu oyunu henüz tanımıyor; Windows ve ekran kartı ayarları uygulanır. Oyun içinde: V-Sync kapalı, hareket bulanıklığı kapalı, gölge orta, FSR/DLSS Kalite.", "BoostRoot doesn't know this game yet; Windows and GPU settings are applied. In game: V-Sync off, motion blur off, shadows medium, FSR/DLSS Quality."),
     };
 
+    /// <summary>Steam app id used only to fetch cover art (detection stays name-based).</summary>
+    public const string CoverKey = "coverSteam";
+
     public static string Slug(string name)
     {
         var sb = new StringBuilder();
@@ -88,6 +91,7 @@ public static class GameLibrary
             var genre = f.Length > 1 && GenreTips.ContainsKey(f[1].Trim()) ? f[1].Trim() : "generic";
             var detect = new Dictionary<string, string> { ["name"] = name };
             if (f.Length > 2 && f[2].Trim().Length > 0) detect["process"] = f[2].Trim();
+            if (f.Length > 4 && f[4].Trim() is { Length: > 0 } app && app.All(char.IsAsciiDigit)) detect[CoverKey] = app; // cover art only, not detection
             list.Add(Make(id, name, genre, detect, f.Length > 3 && f[3].Trim().Length > 0 ? f[3].Trim() : "none"));
         }
         return list;

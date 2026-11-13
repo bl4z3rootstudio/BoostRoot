@@ -242,4 +242,15 @@
   </Style>
   <Style Selector="Button.star.on"><Setter Property="Foreground" Value="#FACC15" /><Setter Property="RenderTransform" Value="scale(1.12)" /></Style>
   <Style Selector="Button.star:pointerover"><Setter Property="RenderTransform" Value="scale(1.2)" /></Style>
+  <Style Selector="ToggleSwitch">
+    <Setter Property="OnContent" Value="" />
+    <Setter Property="OffContent" Value="" />
+  </Style>
+  <Style Selector="Border.appRow">
+    <Setter Property="Background" Value="#14111F" />
+    <Setter Property="BorderBrush" Value="#2A2340" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Transitions"><Transitions><BrushTransition Property="Background" Duration="0:0:0.2" /><BrushTransition Property="BorderBrush" Duration="0:0:0.2" /></Transitions></Setter>
+  </Style>
+  <Style Selector="Border.appRow.on"><Setter Property="Background" Value="#2A1650" /><Setter Property="BorderBrush" Value="#A855F7" /></Style>
 </Styles>

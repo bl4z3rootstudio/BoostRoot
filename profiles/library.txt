@@ -1,538 +1,799 @@
-# BoostRoot game library — one game per line: Name;genre;process.exe(optional);anticheat(optional)
+# BoostRoot game library — one game per line: Name;genre;process.exe(optional);anticheat(optional);steamAppIdForCover(optional)
 # genre: fps · br · tactical · moba · racing · sports · fighting · openworld · action · rpg · mmo · survival · horror · strategy · sim · building · indie · platformer · coop · puzzle
 # These get driver + Windows optimization and a genre guide. Games with a JSON profile get deeper, file-level tuning.
-Overwatch 2;fps;Overwatch.exe;other
-Call of Duty;fps;cod.exe;ricochet
-Call of Duty: Black Ops 6;fps;cod.exe;ricochet
-Call of Duty: Modern Warfare III;fps;cod.exe;ricochet
-Call of Duty: Warzone;br;cod.exe;ricochet
-Call of Duty: Black Ops 7;fps;cod.exe;ricochet
-Battlefield 6;fps;bf6.exe;other
-Battlefield 2042;fps;BF2042.exe;eac
-Battlefield V;fps;bfv.exe;other
-Battlefield 1;fps;bf1.exe;other
-Halo Infinite;fps;HaloInfinite.exe;eac
-Halo: The Master Chief Collection;fps;MCC-Win64-Shipping.exe;eac
-Gears 5;action;Gears5.exe
-Gears of War: Reloaded;action
-Gears Tactics;strategy
-DOOM: The Dark Ages;fps
-DOOM Eternal;fps;DOOMEternalx64vk.exe
-DOOM (2016);fps
-Wolfenstein II: The New Colossus;fps
-Destiny 2;fps;destiny2.exe;battleye
-The Finals;fps;Discovery.exe;eac
-XDefiant;fps
+Overwatch 2;fps;Overwatch.exe;other;2357570
+Call of Duty;fps;cod.exe;ricochet;1938090
+Call of Duty: Black Ops 6;fps;cod.exe;ricochet;4384550
+Call of Duty: Modern Warfare III;fps;cod.exe;ricochet;3595270
+Call of Duty: Warzone;br;cod.exe;ricochet;1962663
+Call of Duty: Black Ops 7;fps;cod.exe;ricochet;3606480
+Battlefield 6;fps;bf6.exe;other;2807960
+Battlefield 2042;fps;BF2042.exe;eac;1517290
+Battlefield V;fps;bfv.exe;other;1238810
+Battlefield 1;fps;bf1.exe;other;1238840
+Halo Infinite;fps;HaloInfinite.exe;eac;1240440
+Halo: The Master Chief Collection;fps;MCC-Win64-Shipping.exe;eac;976730
+Gears 5;action;Gears5.exe;;1097840
+Gears of War: Reloaded;action;;;2523720
+Gears Tactics;strategy;;;1184050
+DOOM: The Dark Ages;fps;;;3017860
+DOOM Eternal;fps;DOOMEternalx64vk.exe;;782330
+DOOM (2016);fps;;;379720
+Wolfenstein II: The New Colossus;fps;;;612880
+Destiny 2;fps;destiny2.exe;battleye;1085660
+The Finals;fps;Discovery.exe;eac;2073850
 Splitgate 2;fps
-Escape from Tarkov;tactical;EscapeFromTarkov.exe;battleye
-Arena Breakout: Infinite;tactical
-Hunt: Showdown 1896;tactical;HuntGame.exe;eac
-Ready or Not;tactical;ReadyOrNot-Win64-Shipping.exe
-Insurgency: Sandstorm;tactical
-Squad;tactical;SquadGame.exe;eac
-Hell Let Loose;tactical;HLL-Win64-Shipping.exe;eac
-Arma 3;tactical;arma3_x64.exe;battleye
-Arma Reforger;tactical;ArmaReforgerSteam.exe;battleye
-Delta Force;tactical
-Marvel Rivals;fps;Marvel-Win64-Shipping.exe;other
-Deadlock;moba;deadlock.exe;vac
-Team Fortress 2;fps;tf_win64.exe;vac
-Paladins;fps
-Warframe;action;Warframe.x64.exe
-Payday 3;coop
-Payday 2;coop;payday2_win32_release.exe
-Left 4 Dead 2;coop;left4dead2.exe;vac
-Back 4 Blood;coop
-Deep Rock Galactic;coop;FSD-Win64-Shipping.exe
-Helldivers 2;coop;helldivers2.exe;other
-Warhammer 40,000: Space Marine 2;action
-Warhammer 40,000: Darktide;coop
-Warhammer: Vermintide 2;coop
-Titanfall 2;fps;Titanfall2.exe
-Borderlands 4;fps
-Borderlands 3;fps
-Tiny Tina's Wonderlands;fps
-Far Cry 6;fps
-Far Cry 5;fps
-Far Cry New Dawn;fps
-Atomic Heart;fps
-S.T.A.L.K.E.R. 2: Heart of Chornobyl;fps
-Metro Exodus;fps
-Ghostrunner 2;action
-Severed Steel;fps
-High on Life;fps
-Prey;action
-Dishonored 2;action
-Deathloop;fps
+Escape from Tarkov;tactical;EscapeFromTarkov.exe;battleye;3932890
+Arena Breakout: Infinite;tactical;;;2073620
+Hunt: Showdown 1896;tactical;HuntGame.exe;eac;594650
+Ready or Not;tactical;ReadyOrNot-Win64-Shipping.exe;;1144200
+Insurgency: Sandstorm;tactical;;;581320
+Squad;tactical;SquadGame.exe;eac;393380
+Hell Let Loose;tactical;HLL-Win64-Shipping.exe;eac;686810
+Arma 3;tactical;arma3_x64.exe;battleye;107410
+Arma Reforger;tactical;ArmaReforgerSteam.exe;battleye;1874880
+Delta Force;tactical;;;2507950
+Marvel Rivals;fps;Marvel-Win64-Shipping.exe;other;2767030
+Deadlock;moba;deadlock.exe;vac;1422450
+Team Fortress 2;fps;tf_win64.exe;vac;440
+Paladins;fps;;;444090
+Warframe;action;Warframe.x64.exe;;230410
+Payday 3;coop;;;1272080
+Payday 2;coop;payday2_win32_release.exe;;218620
+Left 4 Dead 2;coop;left4dead2.exe;vac;550
+Back 4 Blood;coop;;;924970
+Deep Rock Galactic;coop;FSD-Win64-Shipping.exe;;548430
+Helldivers 2;coop;helldivers2.exe;other;553850
+Warhammer 40,000: Space Marine 2;action;;;2183900
+Warhammer 40,000: Darktide;coop;;;1361210
+Warhammer: Vermintide 2;coop;;;552500
+Titanfall 2;fps;Titanfall2.exe;;1237970
+Borderlands 4;fps;;;1285190
+Borderlands 3;fps;;;397540
+Tiny Tina's Wonderlands;fps;;;1286680
+Far Cry 6;fps;;;2369390
+Far Cry 5;fps;;;552520
+Far Cry New Dawn;fps;;;939960
+Atomic Heart;fps;;;668580
+S.T.A.L.K.E.R. 2: Heart of Chornobyl;fps;;;1643320
+Metro Exodus;fps;;;412020
+Ghostrunner 2;action;;;2144740
+Severed Steel;fps;;;1227690
+High on Life;fps;;;1583230
+Prey;action;;;480490
+Dishonored 2;action;;;403640
+Deathloop;fps;;;1252330
 Rainbow Six Extraction;tactical
-Valorant Mobile;fps
-Naraka: Bladepoint;br
+Naraka: Bladepoint;br;;;1203220
 Super People;br
 Spectre Divide;fps
-Fragpunk;fps
-Battlebit Remastered;fps
-War Thunder;sim;aces.exe;eac
-World of Tanks;mmo;WorldOfTanks.exe
-World of Warships;mmo
-Enlisted;fps
-Crossfire;fps
+Fragpunk;fps;;;2943650
+Battlebit Remastered;fps;;;671860
+War Thunder;sim;aces.exe;eac;236390
+World of Tanks;mmo;WorldOfTanks.exe;;1407200
+World of Warships;mmo;;;552990
+Enlisted;fps;;;2051620
+Crossfire;fps;;;4687500
 Point Blank;fps
-Zula;fps
-Wolfteam;fps
-Knight Online;mmo
+Zula;fps;;;747610
+Wolfteam;fps;;;2170050
+Knight Online;mmo;;;389430
 Metin2;mmo
-Dota 2;moba;dota2.exe;vac
-Smite 2;moba
+Dota 2;moba;dota2.exe;vac;570
+Smite 2;moba;;;2437170
 Heroes of the Storm;moba
 Pokémon Unite;moba
 Teamfight Tactics;strategy
 Hearthstone;strategy
 Legends of Runeterra;strategy
-Marvel Snap;strategy
+Marvel Snap;strategy;;;1997040
 Rocket League Sideswipe;racing
-Forza Motorsport;racing;forza_gaming.desktop.x64_release_final.exe
-Forza Horizon 4;racing;ForzaHorizon4.exe
-Forza Horizon 6;racing
-F1 25;racing
-F1 24;racing;F1_24.exe;eac
-EA SPORTS WRC;racing
-Assetto Corsa;racing;acs.exe
-Assetto Corsa Competizione;racing;AC2-Win64-Shipping.exe
-Assetto Corsa EVO;racing
-iRacing;racing
+Forza Motorsport;racing;forza_gaming.desktop.x64_release_final.exe;;2440510
+Forza Horizon 4;racing;ForzaHorizon4.exe;;1293830
+Forza Horizon 6;racing;;;2483190
+F1 25;racing;;;3059520
+F1 24;racing;F1_24.exe;eac;2488620
+EA SPORTS WRC;racing;;;1849250
+Assetto Corsa;racing;acs.exe;;244210
+Assetto Corsa Competizione;racing;AC2-Win64-Shipping.exe;;805550
+Assetto Corsa EVO;racing;;;3058630
+iRacing;racing;;;266410
 Gran Turismo;racing
-Need for Speed Unbound;racing
-Need for Speed Heat;racing
-The Crew Motorfest;racing
-BeamNG.drive;racing;BeamNG.drive.x64.exe
-Wreckfest;racing
-Wreckfest 2;racing
-CarX Drift Racing Online;racing
-Trackmania;racing;Trackmania.exe
-Hot Wheels Unleashed 2;racing
+Need for Speed Unbound;racing;;;1846380
+Need for Speed Heat;racing;;;1222680
+The Crew Motorfest;racing;;;2698940
+BeamNG.drive;racing;BeamNG.drive.x64.exe;;284160
+Wreckfest;racing;;;228380
+Wreckfest 2;racing;;;1203190
+CarX Drift Racing Online;racing;;;635260
+Trackmania;racing;Trackmania.exe;;2225070
+Hot Wheels Unleashed 2;racing;;;2051120
 Mario Kart;racing
-Car Mechanic Simulator 2021;sim
+Car Mechanic Simulator 2021;sim;;;1190000
 Car Mechanic Simulator 2026;sim
-American Truck Simulator;sim;amtrucks.exe
-Snowrunner;sim;SnowRunner.exe
-Expeditions: A MudRunner Game;sim
-Farming Simulator 25;sim;FarmingSimulator2025.exe
-Farming Simulator 22;sim;FarmingSimulator2022.exe
-Microsoft Flight Simulator 2024;sim;FlightSimulator2024.exe
-Microsoft Flight Simulator;sim;FlightSimulator.exe
-Cities: Skylines II;building;Cities2.exe
-Cities: Skylines;building;Cities.exe
-Planet Zoo;building
-Planet Coaster 2;building
-Jurassic World Evolution 3;building
-Two Point Hospital;building
-Two Point Campus;building
-Two Point Museum;building
-House Flipper 2;sim
-PowerWash Simulator;sim;PowerWashSimulator.exe
-PowerWash Simulator 2;sim
-Supermarket Simulator;sim
-Supermarket Together;coop
-Gas Station Simulator;sim
-Drug Dealer Simulator 2;sim
-TCG Card Shop Simulator;sim
-Internet Cafe Simulator 2;sim
-Bus Simulator 21;sim
-Train Sim World 5;sim
-Construction Simulator;sim
-Euro Truck Simulator;sim
+American Truck Simulator;sim;amtrucks.exe;;270880
+Snowrunner;sim;SnowRunner.exe;;1465360
+Expeditions: A MudRunner Game;sim;;;2477340
+Farming Simulator 25;sim;FarmingSimulator2025.exe;;2300320
+Farming Simulator 22;sim;FarmingSimulator2022.exe;;1248130
+Microsoft Flight Simulator 2024;sim;FlightSimulator2024.exe;;2537590
+Microsoft Flight Simulator;sim;FlightSimulator.exe;;2537590
+Cities: Skylines II;building;Cities2.exe;;949230
+Cities: Skylines;building;Cities.exe;;255710
+Planet Zoo;building;;;703080
+Planet Coaster 2;building;;;2688950
+Jurassic World Evolution 3;building;;;2958130
+Two Point Hospital;building;;;535930
+Two Point Campus;building;;;1649080
+Two Point Museum;building;;;2185060
+House Flipper 2;sim;;;1190970
+PowerWash Simulator;sim;PowerWashSimulator.exe;;1290000
+PowerWash Simulator 2;sim;;;2968420
+Supermarket Simulator;sim;;;2670630
+Supermarket Together;coop;;;2709570
+Gas Station Simulator;sim;;;1149620
+Drug Dealer Simulator 2;sim;;;1708850
+TCG Card Shop Simulator;sim;;;3070070
+Internet Cafe Simulator 2;sim;;;1563180
+Bus Simulator 21;sim;;;976590
+Train Sim World 5;sim;;;2967990
+Construction Simulator;sim;;;1273400
+Euro Truck Simulator;sim;;;3809270
 Kebab Chefs! - Restaurant Simulator;coop
-Cooking Simulator;sim
-Thief Simulator 2;sim
-Hardspace: Shipbreaker;sim
-Schedule I;sim
-Contraband Police;sim
-Motor Town: Behind The Wheel;sim
-Car For Sale Simulator 2023;sim
-My Summer Car;sim
-My Winter Car;sim
-Pacific Drive;survival
-The Long Drive;sim
-Mon Bazou;sim
+Cooking Simulator;sim;;;641320
+Thief Simulator 2;sim;;;1332720
+Hardspace: Shipbreaker;sim;;;1161580
+Schedule I;sim;;;3164500
+Contraband Police;sim;;;756800
+Motor Town: Behind The Wheel;sim;;;1369670
+Car For Sale Simulator 2023;sim;;;2285360
+My Summer Car;sim;;;516750
+My Winter Car;sim;;;4164420
+Pacific Drive;survival;;;1458140
+The Long Drive;sim;;;1017180
+Mon Bazou;sim;;;1520370
 Gas Station Simulator 2;sim
-EA SPORTS FC 26;sports;FC26.exe;eac
-EA SPORTS FC 25;sports;FC25.exe;eac
-eFootball;sports;eFootball.exe
-NBA 2K26;sports
+EA SPORTS FC 26;sports;FC26.exe;eac;3405690
+EA SPORTS FC 25;sports;FC25.exe;eac;2669320
+eFootball;sports;eFootball.exe;;1665460
+NBA 2K26;sports;;;3472040
 NBA 2K25;sports
 Madden NFL 26;sports
 NHL 25;sports
-Football Manager 26;strategy
-Football Manager 2024;strategy;fm.exe
-Rematch;sports
-Golf With Your Friends;sports
-PGA TOUR 2K25;sports
+Football Manager 26;strategy;;;3551410
+Football Manager 2024;strategy;fm.exe;;2473420
+Rematch;sports;;;2138720
+Golf With Your Friends;sports;;;431240
+PGA TOUR 2K25;sports;;;2385530
 Tony Hawk's Pro Skater 3 + 4;sports
-Skate.;sports
-Session: Skate Sim;sports
-Riders Republic;sports
-Steep;sports
-Tekken 8;fighting;Polaris-Win64-Shipping.exe;eac
-Street Fighter 6;fighting;StreetFighter6.exe
-Mortal Kombat 1;fighting
-Guilty Gear -Strive-;fighting
-Dragon Ball: Sparking! ZERO;fighting
-Dragon Ball FighterZ;fighting
-Brawlhalla;fighting;Brawlhalla.exe
-MultiVersus;fighting
-Fatal Fury: City of the Wolves;fighting
-For Honor;fighting;ForHonor.exe;eac
-Mordhau;fighting;Mordhau-Win64-Shipping.exe;eac
-Chivalry 2;fighting
-Assassin's Creed Shadows;openworld
-Assassin's Creed Mirage;openworld
-Assassin's Creed Valhalla;openworld
-Assassin's Creed Odyssey;openworld
-Assassin's Creed Origins;openworld
-Watch Dogs: Legion;openworld
-Watch Dogs 2;openworld
-Grand Theft Auto IV;openworld
-Grand Theft Auto VI;openworld
-Mafia: The Old Country;openworld
-Mafia: Definitive Edition;openworld
-Mafia III;openworld
-Sleeping Dogs;openworld
-Saints Row;openworld
-Just Cause 4;openworld
-Starfield;rpg;Starfield.exe
-Fallout 4;rpg;Fallout4.exe
-Fallout 76;rpg;Fallout76.exe
-Fallout: New Vegas;rpg
-The Elder Scrolls V: Skyrim Special Edition;rpg;SkyrimSE.exe
-The Elder Scrolls IV: Oblivion Remastered;rpg
-The Elder Scrolls Online;mmo;eso64.exe
-Indiana Jones and the Great Circle;action
-The Outer Worlds 2;rpg
-The Outer Worlds;rpg
-Avowed;rpg
-South of Midnight;action
-Ninja Gaiden 2 Black;action
-Ninja Gaiden 4;action
-Hellblade II: Senua's Saga;action
-Hi-Fi Rush;action
-Grounded;survival
-Grounded 2;survival
-Sea of Thieves;survival;SoTGame.exe;eac
-State of Decay 2;survival
-Age of Empires IV;strategy;RelicCardinal.exe
-Age of Empires II: Definitive Edition;strategy;AoE2DE_s.exe
-Age of Empires III: Definitive Edition;strategy
-Age of Mythology: Retold;strategy
-Microsoft Flight Simulator 40th Anniversary;sim
-Ara: History Untold;strategy
-Clockwork Revolution;rpg
-Fable;rpg
+Skate.;sports;;;3354750
+Session: Skate Sim;sports;;;861650
+Riders Republic;sports;;;2290180
+Steep;sports;;;460920
+Tekken 8;fighting;Polaris-Win64-Shipping.exe;eac;1778820
+Street Fighter 6;fighting;StreetFighter6.exe;;1364780
+Mortal Kombat 1;fighting;;;1971870
+Guilty Gear -Strive-;fighting;;;1384160
+Dragon Ball: Sparking! ZERO;fighting;;;1790600
+Dragon Ball FighterZ;fighting;;;678950
+Brawlhalla;fighting;Brawlhalla.exe;;291550
+MultiVersus;fighting;;;1818750
+Fatal Fury: City of the Wolves;fighting;;;2492040
+For Honor;fighting;ForHonor.exe;eac;304390
+Mordhau;fighting;Mordhau-Win64-Shipping.exe;eac;629760
+Chivalry 2;fighting;;;1824220
+Assassin's Creed Shadows;openworld;;;3159330
+Assassin's Creed Mirage;openworld;;;3035570
+Assassin's Creed Valhalla;openworld;;;2208920
+Assassin's Creed Odyssey;openworld;;;812140
+Assassin's Creed Origins;openworld;;;582160
+Watch Dogs: Legion;openworld;;;2239550
+Watch Dogs 2;openworld;;;447040
+Grand Theft Auto IV;openworld;;;12210
+Grand Theft Auto VI;openworld;;;1546990
+Mafia: The Old Country;openworld;;;1941540
+Mafia: Definitive Edition;openworld;;;1030840
+Mafia III;openworld;;;360430
+Sleeping Dogs;openworld;;;202170
+Saints Row;openworld;;;742420
+Just Cause 4;openworld;;;517630
+Starfield;rpg;Starfield.exe;;1716740
+Fallout 4;rpg;Fallout4.exe;;377160
+Fallout 76;rpg;Fallout76.exe;;1151340
+Fallout: New Vegas;rpg;;;22380
+The Elder Scrolls V: Skyrim Special Edition;rpg;SkyrimSE.exe;;489830
+The Elder Scrolls IV: Oblivion Remastered;rpg;;;2623190
+The Elder Scrolls Online;mmo;eso64.exe;;306130
+Indiana Jones and the Great Circle;action;;;2677660
+The Outer Worlds 2;rpg;;;1449110
+The Outer Worlds;rpg;;;1449110
+Avowed;rpg;;;2457220
+South of Midnight;action;;;1934570
+Ninja Gaiden 2 Black;action;;;3287520
+Ninja Gaiden 4;action;;;2627260
+Hellblade II: Senua's Saga;action;;;2461850
+Hi-Fi Rush;action;;;1817230
+Grounded;survival;;;962130
+Grounded 2;survival;;;2661300
+Sea of Thieves;survival;SoTGame.exe;eac;1172620
+State of Decay 2;survival;;;495420
+Age of Empires IV;strategy;RelicCardinal.exe;;1466860
+Age of Empires II: Definitive Edition;strategy;AoE2DE_s.exe;;813780
+Age of Empires III: Definitive Edition;strategy;;;933110
+Age of Mythology: Retold;strategy;;;1934680
+Ara: History Untold;strategy;;;2021880
+Clockwork Revolution;rpg;;;2439280
+Fable;rpg;;;2769570
 Perfect Dark;fps
-State of Decay 3;survival
-Towerborne;action
-Ark: Survival Ascended;survival;ArkAscended.exe;battleye
-Ark: Survival Evolved;survival;ShooterGame.exe;battleye
-DayZ;survival;DayZ_x64.exe;battleye
-Conan Exiles;survival
-V Rising;survival
-Enshrouded;survival;enshrouded.exe
-Once Human;survival
-Dune: Awakening;survival
-The Forest;survival;TheForest.exe
-Raft;survival;Raft.exe
-Subnautica;survival;Subnautica.exe
-Subnautica: Below Zero;survival
-Subnautica 2;survival
-The Planet Crafter;survival
-Satisfactory;building;FactoryGame-Win64-Shipping.exe
-Factorio;building;factorio.exe
-Dyson Sphere Program;building
-Astroneer;survival
-No Man's Sky;survival;NMS.exe
-Green Hell;survival
-The Long Dark;survival
-Project Zomboid;survival;ProjectZomboid64.exe
-Don't Starve Together;survival
-Core Keeper;survival
-Terraria;survival;Terraria.exe
-Starbound;survival
-Abiotic Factor;coop
-Icarus;survival
-Night of the Dead;survival
-Medieval Dynasty;survival
-Smalland: Survive the Wilds;survival
-Bellwright;survival
-Myth of Empires;survival
-Soulmask;survival
-Nightingale;survival
-Light No Fire;survival
-Manor Lords;strategy;ManorLords-Win64-Shipping.exe
-Frostpunk 2;strategy
-Frostpunk;strategy
-RimWorld;strategy;RimWorldWin64.exe
-Stellaris;strategy;stellaris.exe
-Europa Universalis IV;strategy
-Europa Universalis V;strategy
-Hearts of Iron IV;strategy;hoi4.exe
-Crusader Kings III;strategy;ck3.exe
-Victoria 3;strategy
-Total War: WARHAMMER III;strategy
-Total War: Rome II;strategy
-Total War: Three Kingdoms;strategy
-Total War: PHARAOH;strategy
-Mount & Blade II: Bannerlord;strategy;Bannerlord.exe
-Civilization VII;strategy
-Sid Meier's Civilization VI;strategy;CivilizationVI.exe
-Company of Heroes 3;strategy
+State of Decay 3;survival;;;1340720
+Towerborne;action;;;2458830
+Ark: Survival Ascended;survival;ArkAscended.exe;battleye;2399830
+Ark: Survival Evolved;survival;ShooterGame.exe;battleye;346110
+DayZ;survival;DayZ_x64.exe;battleye;221100
+Conan Exiles;survival;;;440900
+V Rising;survival;;;1604030
+Enshrouded;survival;enshrouded.exe;;1203620
+Once Human;survival;;;2139460
+Dune: Awakening;survival;;;1172710
+The Forest;survival;TheForest.exe;;242760
+Raft;survival;Raft.exe;;648800
+Subnautica;survival;Subnautica.exe;;264710
+Subnautica: Below Zero;survival;;;848450
+Subnautica 2;survival;;;1962700
+The Planet Crafter;survival;;;1284190
+Satisfactory;building;FactoryGame-Win64-Shipping.exe;;526870
+Factorio;building;factorio.exe;;427520
+Dyson Sphere Program;building;;;1366540
+Astroneer;survival;;;361420
+No Man's Sky;survival;NMS.exe;;275850
+Green Hell;survival;;;815370
+The Long Dark;survival;;;305620
+Project Zomboid;survival;ProjectZomboid64.exe;;108600
+Don't Starve Together;survival;;;322330
+Core Keeper;survival;;;1621690
+Terraria;survival;Terraria.exe;;105600
+Starbound;survival;;;211820
+Abiotic Factor;coop;;;427410
+Icarus;survival;;;1149460
+Night of the Dead;survival;;;1377380
+Medieval Dynasty;survival;;;1129580
+Smalland: Survive the Wilds;survival;;;768200
+Bellwright;survival;;;1812450
+Myth of Empires;survival;;;1371580
+Soulmask;survival;;;2646460
+Nightingale;survival;;;1928980
+Light No Fire;survival;;;2719590
+Manor Lords;strategy;ManorLords-Win64-Shipping.exe;;1363080
+Frostpunk 2;strategy;;;1601580
+Frostpunk;strategy;;;323190
+RimWorld;strategy;RimWorldWin64.exe;;294100
+Stellaris;strategy;stellaris.exe;;281990
+Europa Universalis IV;strategy;;;236850
+Europa Universalis V;strategy;;;3450310
+Hearts of Iron IV;strategy;hoi4.exe;;394360
+Crusader Kings III;strategy;ck3.exe;;1158310
+Victoria 3;strategy;;;529340
+Total War: WARHAMMER III;strategy;;;1142710
+Total War: Rome II;strategy;;;214950
+Total War: Three Kingdoms;strategy;;;779340
+Total War: PHARAOH;strategy;;;1937780
+Mount & Blade II: Bannerlord;strategy;Bannerlord.exe;;261550
+Civilization VII;strategy;;;1295660
+Sid Meier's Civilization VI;strategy;CivilizationVI.exe;;289070
+Company of Heroes 3;strategy;;;1677280
 StarCraft II;strategy;SC2_x64.exe
 Warcraft III: Reforged;strategy
-Command & Conquer Remastered Collection;strategy
-Anno 117: Pax Romana;building
-Anno 1800;building
-Tropico 6;building
-Against the Storm;building
-Timberborn;building
-Workers & Resources: Soviet Republic;building
-Foundation;building
-Kingdom Come: Deliverance II;rpg;KingdomCome.exe
-Kingdom Come: Deliverance;rpg
-The Witcher 3: Wild Hunt;rpg;witcher3.exe
-Baldur's Gate 3;rpg;bg3.exe
-Divinity: Original Sin 2;rpg
-Dragon Age: The Veilguard;rpg
-Mass Effect Legendary Edition;rpg
-Starfield: Shattered Space;rpg
-Diablo IV;rpg;Diablo IV.exe
-Diablo II: Resurrected;rpg
+Command & Conquer Remastered Collection;strategy;;;1213210
+Anno 117: Pax Romana;building;;;3274580
+Anno 1800;building;;;916440
+Tropico 6;building;;;492720
+Against the Storm;building;;;1336490
+Timberborn;building;;;1062090
+Workers & Resources: Soviet Republic;building;;;784150
+Foundation;building;;;690830
+Kingdom Come: Deliverance II;rpg;KingdomCome.exe;;1771300
+Kingdom Come: Deliverance;rpg;;;379430
+The Witcher 3: Wild Hunt;rpg;witcher3.exe;;292030
+Baldur's Gate 3;rpg;bg3.exe;;1086940
+Divinity: Original Sin 2;rpg;;;435150
+Dragon Age: The Veilguard;rpg;;;1845910
+Mass Effect Legendary Edition;rpg;;;1328670
+Diablo IV;rpg;Diablo IV.exe;;2344520
+Diablo II: Resurrected;rpg;;;2536520
 Diablo III;rpg
-Path of Exile 2;rpg;PathOfExile.exe
-Path of Exile;rpg;PathOfExile_x64.exe
-Last Epoch;rpg
-Lost Ark;mmo;LOSTARK.exe;eac
-Grim Dawn;rpg
-Monster Hunter Wilds;action;MonsterHunterWilds.exe
-Monster Hunter: World;action;MonsterHunterWorld.exe
-Monster Hunter Rise;action
-Black Myth: Wukong;action;b1-Win64-Shipping.exe
-Lies of P;action
-Lords of the Fallen;action
-Sekiro: Shadows Die Twice;action;sekiro.exe
-Dark Souls III;action;DarkSoulsIII.exe
-Dark Souls: Remastered;action
-Elden Ring Nightreign;action;nightreign.exe;eac
-Armored Core VI: Fires of Rubicon;action
-Stellar Blade;action
-God of War Ragnarök;action;GoWR.exe
-God of War;action;GoW.exe
-Ghost of Tsushima;action;GhostOfTsushima.exe
-Horizon Forbidden West;action;HorizonForbiddenWest.exe
-Horizon Zero Dawn Remastered;action
-Marvel's Spider-Man 2;action
-Marvel's Spider-Man Remastered;action;Spider-Man.exe
-Marvel's Spider-Man: Miles Morales;action
-Days Gone;action;DaysGone.exe
-Death Stranding;action
-Death Stranding 2;action
-Uncharted: Legacy of Thieves Collection;action
-Ratchet & Clank: Rift Apart;action
-Returnal;action
-Final Fantasy VII Rebirth;rpg
-Final Fantasy VII Remake Intergrade;rpg
-Final Fantasy XVI;rpg
-Final Fantasy XIV Online;mmo;ffxiv_dx11.exe
-Persona 5 Royal;rpg
-Metaphor: ReFantazio;rpg
-Like a Dragon: Infinite Wealth;rpg
-Yakuza 0;action
-Devil May Cry 5;action
-Resident Evil 4;horror;re4.exe
-Resident Evil Village;horror;re8.exe
-Resident Evil 2;horror;re2.exe
-Resident Evil Requiem;horror
-Silent Hill 2;horror
-Silent Hill f;horror
+Path of Exile 2;rpg;PathOfExile.exe;;2694490
+Path of Exile;rpg;PathOfExile_x64.exe;;238960
+Last Epoch;rpg;;;899770
+Lost Ark;mmo;LOSTARK.exe;eac;1599340
+Grim Dawn;rpg;;;219990
+Monster Hunter Wilds;action;MonsterHunterWilds.exe;;2246340
+Monster Hunter: World;action;MonsterHunterWorld.exe;;582010
+Monster Hunter Rise;action;;;1446780
+Black Myth: Wukong;action;b1-Win64-Shipping.exe;;2358720
+Lies of P;action;;;1627720
+Lords of the Fallen;action;;;1501750
+Sekiro: Shadows Die Twice;action;sekiro.exe;;814380
+Dark Souls III;action;DarkSoulsIII.exe;;374320
+Dark Souls: Remastered;action;;;570940
+Elden Ring Nightreign;action;nightreign.exe;eac;2622380
+Armored Core VI: Fires of Rubicon;action;;;1888160
+Stellar Blade;action;;;3489700
+God of War Ragnarök;action;GoWR.exe;;2322010
+God of War;action;GoW.exe;;1593500
+Ghost of Tsushima;action;GhostOfTsushima.exe;;2215430
+Horizon Forbidden West;action;HorizonForbiddenWest.exe;;2420110
+Horizon Zero Dawn Remastered;action;;;2561580
+Marvel's Spider-Man 2;action;;;2651280
+Marvel's Spider-Man Remastered;action;Spider-Man.exe;;1817070
+Marvel's Spider-Man: Miles Morales;action;;;1817190
+Days Gone;action;DaysGone.exe;;1259420
+Death Stranding;action;;;3280350
+Death Stranding 2;action;;;3280350
+Uncharted: Legacy of Thieves Collection;action;;;1659420
+Ratchet & Clank: Rift Apart;action;;;1895880
+Returnal;action;;;1649240
+Final Fantasy VII Rebirth;rpg;;;2909400
+Final Fantasy VII Remake Intergrade;rpg;;;1462040
+Final Fantasy XVI;rpg;;;2515020
+Final Fantasy XIV Online;mmo;ffxiv_dx11.exe;;39210
+Persona 5 Royal;rpg;;;1687950
+Metaphor: ReFantazio;rpg;;;2679460
+Like a Dragon: Infinite Wealth;rpg;;;2072450
+Yakuza 0;action;;;2988580
+Devil May Cry 5;action;;;601150
+Resident Evil 4;horror;re4.exe;;2050650
+Resident Evil Village;horror;re8.exe;;1196590
+Resident Evil 2;horror;re2.exe;;883710
+Resident Evil Requiem;horror;;;3764200
+Silent Hill 2;horror;;;2124490
+Silent Hill f;horror;;;2947440
 Alan Wake 2;horror
-Dead Space;horror
-Dead Island 2;action
-Dying Light 2 Stay Human;action;DyingLightGame_x64_rwdi.exe
-Dying Light: The Beast;action
-Dying Light;action
-Dead by Daylight;horror;DeadByDaylight-Win64-Shipping.exe;eac
-Texas Chain Saw Massacre;horror
-Outlast Trials;horror
-Content Warning;horror
-R.E.P.O.;horror;REPO.exe
-Lockdown Protocol;coop
-Devour;horror
-The Dark Pictures: House of Ashes;horror
-Until Dawn;horror
-Amnesia: The Bunker;horror
-Five Nights at Freddy's: Security Breach;horror
-Poppy Playtime;horror
-Escape the Backrooms;horror
-Granny;horror
-Ghost Watchers;horror
-Demonologist;horror
-Pacify;horror
-Labyrinthine;horror
-Sons of the Forest: Co-op;survival
+Dead Space;horror;;;1693980
+Dead Island 2;action;;;934700
+Dying Light 2 Stay Human;action;DyingLightGame_x64_rwdi.exe;;534380
+Dying Light: The Beast;action;;;3008130
+Dying Light;action;;;239140
+Dead by Daylight;horror;DeadByDaylight-Win64-Shipping.exe;eac;381210
+Texas Chain Saw Massacre;horror;;;1433140
+Outlast Trials;horror;;;1304930
+Content Warning;horror;;;2881650
+R.E.P.O.;horror;REPO.exe;;3241660
+Lockdown Protocol;coop;;;2780980
+Devour;horror;;;1274570
+The Dark Pictures: House of Ashes;horror;;;1281590
+Until Dawn;horror;;;2172010
+Amnesia: The Bunker;horror;;;1944430
+Five Nights at Freddy's: Security Breach;horror;;;747660
+Poppy Playtime;horror;;;1721470
+Escape the Backrooms;horror;;;1943950
+Granny;horror;;;962400
+Ghost Watchers;horror;;;1850740
+Demonologist;horror;;;1929610
+Pacify;horror;;;967050
+Labyrinthine;horror;;;1302240
 World of Warcraft;mmo;Wow.exe
-Guild Wars 2;mmo;Gw2-64.exe
-Black Desert;mmo;BlackDesert64.exe
-Throne and Liberty;mmo
-New World: Aeternum;mmo
-RuneScape;mmo
-Old School RuneScape;mmo
-Albion Online;mmo
-Star Wars: The Old Republic;mmo
-Blue Protocol: Star Resonance;mmo
-Wuthering Waves;rpg
+Guild Wars 2;mmo;Gw2-64.exe;;1284210
+Black Desert;mmo;BlackDesert64.exe;;582660
+Throne and Liberty;mmo;;;2429640
+New World: Aeternum;mmo;;;1063730
+RuneScape;mmo;;;1343400
+Old School RuneScape;mmo;;;1343370
+Albion Online;mmo;;;761890
+Star Wars: The Old Republic;mmo;;;1286830
+Blue Protocol: Star Resonance;mmo;;;3681810
+Wuthering Waves;rpg;;;3513350
 Genshin Impact;rpg;GenshinImpact.exe
 Honkai: Star Rail;rpg;StarRail.exe
-Zenless Zone Zero;action;ZenlessZoneZero.exe
-Tower of Fantasy;rpg
-Fortnite LEGO;survival
+Zenless Zone Zero;action;ZenlessZoneZero.exe;;4162040
+Tower of Fantasy;rpg;;;2064650
 LEGO Fortnite;survival
-Fall Guys;indie;FallGuys_client_game.exe;eac
-Stumble Guys;indie
-Among Us;indie;Among Us.exe
-Lethal Company 2;horror
-It Takes Two;coop;ItTakesTwo.exe
-Split Fiction;coop
-A Way Out;coop
-Overcooked! 2;coop
-Moving Out 2;coop
-Unrailed 2;coop
-Pummel Party;coop
-Human: Fall Flat;coop;Human.exe
-Gang Beasts;coop
-Party Animals;coop
-Chained Together;coop
-Only Up!;platformer
-Getting Over It;platformer
-Hollow Knight;platformer
-Hollow Knight: Silksong;platformer
-Celeste;platformer
-Ori and the Will of the Wisps;platformer
-Ori and the Blind Forest;platformer
-Cuphead;platformer
-Hades II;indie
-Hades;indie
-Dead Cells;indie
-Vampire Survivors;indie
-Balatro;indie;Balatro.exe
-Slay the Spire 2;indie
-Slay the Spire;indie
-Risk of Rain 2;indie
-Risk of Rain Returns;indie
-Brotato;indie
-Enter the Gungeon;indie
-The Binding of Isaac: Rebirth;indie
-Stardew Valley;indie;Stardew Valley.exe
-Fields of Mistria;indie
-Coral Island;indie
-Palia;indie
-Disney Dreamlight Valley;indie
-Sims 4;sim;TS4_x64.exe
-The Sims 4;sim;TS4_x64.exe
-inZOI;sim
-Paralives;sim
-Undertale;indie
-Deltarune;indie
-Cult of the Lamb;indie
-Dave the Diver;indie
-Sea of Stars;rpg
-Pizza Tower;platformer
-Tunic;indie
-Outer Wilds;puzzle
-Portal 2;puzzle;portal2.exe
-The Talos Principle 2;puzzle
-Viewfinder;puzzle
-Superliminal;puzzle
-Firewatch;indie
-Inside;puzzle
-Little Nightmares III;horror
-Little Nightmares II;horror
-Limbo;puzzle
-Unpacking;puzzle
-Minecraft Dungeons;action
-Minecraft Legends;strategy
+Fall Guys;indie;FallGuys_client_game.exe;eac;1097150
+Stumble Guys;indie;;;1677740
+Among Us;indie;Among Us.exe;;945360
+It Takes Two;coop;ItTakesTwo.exe;;1426210
+Split Fiction;coop;;;2001120
+A Way Out;coop;;;1222700
+Overcooked! 2;coop;;;728880
+Moving Out 2;coop;;;1641700
+Unrailed 2;coop;;;2211170
+Pummel Party;coop;;;880940
+Human: Fall Flat;coop;Human.exe;;477160
+Gang Beasts;coop;;;285900
+Party Animals;coop;;;1260320
+Chained Together;coop;;;2567870
+Only Up!;platformer;;;2842590
+Getting Over It;platformer;;;240720
+Hollow Knight;platformer;;;367520
+Hollow Knight: Silksong;platformer;;;1030300
+Celeste;platformer;;;504230
+Ori and the Will of the Wisps;platformer;;;1057090
+Ori and the Blind Forest;platformer;;;261570
+Cuphead;platformer;;;268910
+Hades II;indie;;;1145350
+Hades;indie;;;1145360
+Dead Cells;indie;;;588650
+Vampire Survivors;indie;;;1794680
+Balatro;indie;Balatro.exe;;2379780
+Slay the Spire 2;indie;;;2868840
+Slay the Spire;indie;;;646570
+Risk of Rain 2;indie;;;632360
+Risk of Rain Returns;indie;;;1337520
+Brotato;indie;;;1942280
+Enter the Gungeon;indie;;;311690
+The Binding of Isaac: Rebirth;indie;;;250900
+Stardew Valley;indie;Stardew Valley.exe;;413150
+Fields of Mistria;indie;;;2142790
+Coral Island;indie;;;1158160
+Palia;indie;;;2707930
+Disney Dreamlight Valley;indie;;;1401590
+The Sims 4;sim;TS4_x64.exe;;1222670
+inZOI;sim;;;2456740
+Paralives;sim;;;1118520
+Undertale;indie;;;391540
+Deltarune;indie;;;1671210
+Cult of the Lamb;indie;;;1313140
+Dave the Diver;indie;;;1868140
+Sea of Stars;rpg;;;1244090
+Pizza Tower;platformer;;;2231450
+Tunic;indie;;;553420
+Outer Wilds;puzzle;;;753640
+Portal 2;puzzle;portal2.exe;;620
+The Talos Principle 2;puzzle;;;835960
+Viewfinder;puzzle;;;1382070
+Superliminal;puzzle;;;1049410
+Firewatch;indie;;;383870
+Inside;puzzle;;;304430
+Little Nightmares III;horror;;;1392860
+Little Nightmares II;horror;;;860510
+Limbo;puzzle;;;48000
+Unpacking;puzzle;;;1135690
+Minecraft Dungeons;action;;;1672970
+Minecraft Legends;strategy;;;1928870
 Minecraft Bedrock;survival;Minecraft.Windows.exe
-Starcraft Remastered;strategy
 Halo Wars 2;strategy
-Grounded: Fully Yoked;survival
-Psychonauts 2;platformer
-Pentiment;indie
-As Dusk Falls;indie
-Ara Fell;rpg
-Lies Beneath;horror
-Planet of Lana;platformer
-Cocoon;puzzle
-Chants of Sennaar;puzzle
-Jusant;platformer
-Dredge;indie
-Venba;indie
-Lies of P: Overture;action
-Hollow Cocoon;horror
-Dragon Quest XI S;rpg
-Octopath Traveler II;rpg
-Star Wars Jedi: Survivor;action
-Star Wars Outlaws;openworld
-Star Wars Battlefront II;fps
-Hogwarts Legacy 2;openworld
-Marvel's Guardians of the Galaxy;action
-Marvel's Midnight Suns;strategy
-The Callisto Protocol;horror
-Avatar: Frontiers of Pandora;openworld
-Prince of Persia: The Lost Crown;platformer
-Immortals of Aveum;fps
-Rise of the Tomb Raider;action
-Shadow of the Tomb Raider;action
-Control;action;Control_DX12.exe
-Quantum Break;action
-Sniper Elite 5;tactical
-Sniper Ghost Warrior Contracts 2;tactical
-Ghost Recon Breakpoint;tactical
-Ghost Recon Wildlands;tactical
-The Division 2;tactical;TheDivision2.exe;eac
-Skull and Bones;action
-Palworld: Feybreak;survival
-Schedule 1;sim
-Bodycam;tactical
-Unrecord;tactical
-Gray Zone Warfare;tactical;GZW.exe;eac
-SCUM;survival;SCUM.exe;battleye
-Miscreated;survival
-Unturned;survival;Unturned.exe;battleye
-Garry's Mod;indie;gmod.exe;vac
-Rust Console;survival
-Valheim Ashlands;survival
-Kenshi;rpg
-Mount & Blade: Warband;strategy
-Rimworld Odyssey;strategy
-Dwarf Fortress;strategy
-Oxygen Not Included;building
-Prison Architect;building
-Planet Crafter 2;survival
-Captain of Industry;building
-Shapez 2;building
-Mindustry;building
-Teardown;indie;teardown.exe
-Totally Accurate Battle Simulator;indie
-Goat Simulator 3;indie
-Untitled Goose Game;indie
-Phasmophobia VR;horror
-Beat Saber;indie
-Half-Life: Alyx;fps
-Half-Life 2;fps;hl2.exe
-Counter-Strike: Source;fps;cstrike.exe;vac
-Counter-Strike 1.6;fps;hl.exe;vac
-Black Squad;fps
-Combat Arms;fps
-Apex Legends Mobile;br
-PUBG Lite;br
-Super Animal Royale;br
+Psychonauts 2;platformer;;;607080
+Pentiment;indie;;;1205520
+As Dusk Falls;indie;;;1341820
+Planet of Lana;platformer;;;1608230
+Cocoon;puzzle;;;1497440
+Chants of Sennaar;puzzle;;;1931770
+Jusant;platformer;;;1977170
+Dredge;indie;;;1562430
+Venba;indie;;;1491670
+Dragon Quest XI S;rpg;;;1295510
+Octopath Traveler II;rpg;;;1971650
+Star Wars Jedi: Survivor;action;;;1774580
+Star Wars Outlaws;openworld;;;2842040
+Star Wars Battlefront II;fps;;;1237950
+Marvel's Guardians of the Galaxy;action;;;1088850
+Marvel's Midnight Suns;strategy;;;368260
+The Callisto Protocol;horror;;;1544020
+Avatar: Frontiers of Pandora;openworld;;;2840770
+Prince of Persia: The Lost Crown;platformer;;;2751000
+Immortals of Aveum;fps;;;2009100
+Rise of the Tomb Raider;action;;;391220
+Shadow of the Tomb Raider;action;;;750920
+Control;action;Control_DX12.exe;;3669870
+Quantum Break;action;;;474960
+Sniper Elite 5;tactical;;;1029690
+Sniper Ghost Warrior Contracts 2;tactical;;;1338770
+Ghost Recon Breakpoint;tactical;;;2231380
+Ghost Recon Wildlands;tactical;;;460930
+The Division 2;tactical;TheDivision2.exe;eac;2221490
+Skull and Bones;action;;;2853730
+Bodycam;tactical;;;2406770
+Unrecord;tactical;;;2381520
+Gray Zone Warfare;tactical;GZW.exe;eac;2479810
+SCUM;survival;SCUM.exe;battleye;513710
+Miscreated;survival;;;299740
+Unturned;survival;Unturned.exe;battleye;304930
+Garry's Mod;indie;gmod.exe;vac;4000
+Kenshi;rpg;;;233860
+Mount & Blade: Warband;strategy;;;48700
+Dwarf Fortress;strategy;;;975370
+Oxygen Not Included;building;;;457140
+Prison Architect;building;;;233450
+Captain of Industry;building;;;1594320
+Shapez 2;building;;;2162800
+Mindustry;building;;;1127400
+Teardown;indie;teardown.exe;;1167630
+Totally Accurate Battle Simulator;indie;;;508440
+Goat Simulator 3;indie;;;850190
+Untitled Goose Game;indie;;;837470
+Beat Saber;indie;;;620980
+Half-Life: Alyx;fps;;;546560
+Half-Life 2;fps;hl2.exe;;220
+Counter-Strike: Source;fps;cstrike.exe;vac;240
+Counter-Strike 1.6;fps;hl.exe;vac;10
+Black Squad;fps;;;550650
+Combat Arms;fps;;;905640
+Super Animal Royale;br;;;843380
 Realm Royale;br
-Spellbreak;br
-Farlight 84;br
-Fortnite Ballistic;tactical
+Farlight 84;br;;;1928420
+# --- 26.11.2 additions ---
+Counter-Strike: Global Offensive;fps;csgo.exe;vac
+Call of Duty: Modern Warfare II;fps;cod.exe;ricochet;3595230
+Call of Duty: Black Ops Cold War;fps;;;1985810
+Call of Duty: Vanguard;fps;;;1985820
+Call of Duty: WWII;fps;;;476600
+Battlefield 4;fps;bf4.exe;;1238860
+Battlefield 3;fps;;;1238820
+Medal of Honor: Above and Beyond;fps;;;1402320
+Sniper Elite: Resistance;tactical;;;2169200
+Zero Hour;tactical;;;1359090
+Ground Branch;tactical;;;16900
+Operation: Harsh Doorstop;tactical;;;736590
+Six Days in Fallujah;tactical;;;1548850
+World War 3;fps
+Post Scriptum;tactical;;;1189650
+Isonzo;fps;;;1556790
+Verdun;fps;;;242860
+Rising Storm 2: Vietnam;fps;;;418460
+Day of Infamy;fps;;;447820
+Day of Defeat: Source;fps;;;300
+Black Mesa;fps;;;362890
+Half-Life;fps;;;70
+Portal;puzzle;;;400
+Quake Champions;fps;;;611500
+Quake II;fps;;;2320
+Unreal Tournament;fps
+Diabotical Rogue;fps;;;2805060
+Krunker;fps
+Shatterline;fps;;;2087030
+Turbo Overkill;fps;;;1328350
+Ultrakill;fps;;;1229490
+Dusk;fps;;;519860
+Boltgun;fps
+Prodeus;fps;;;964800
+Trepang2;fps;;;1164940
+Selaco;fps;;;1592280
+Mullet Mad Jack;fps;;;2902110
+The Witcher 2;rpg;;;20920
+Dragon Age: Inquisition;rpg;;;1222690
+Pillars of Eternity II;rpg;;;560130
+Pathfinder: Wrath of the Righteous;rpg;;;1184370
+Wasteland 3;rpg;;;719040
+Disco Elysium;rpg;;;632470
+Divinity: Original Sin Enhanced Edition;rpg;;;373420
+Dragon's Dogma 2;rpg;;;2054970
+Nioh 2;action;;;1325200
+Wo Long: Fallen Dynasty;action;;;1448440
+Rise of the Ronin;action;;;1340990
+Code Vein;action;;;678960
+Remnant II;action;Remnant2.exe;;1282100
+Remnant: From the Ashes;action;;;617290
+The First Berserker: Khazan;action;;;2680010
+Lost Soul Aside;action;;;3378960
+Bleak Faith: Forsaken;action;;;1173220
+Mortal Shell;action;;;1110910
+Thymesia;action;;;1343240
+Star Wars Jedi: Fallen Order;action;;;1172380
+Batman: Arkham Knight;action;;;208650
+Batman: Arkham City;action;;;200260
+Middle-earth: Shadow of War;action;;;356190
+Sifu;fighting;;;2138710
+Absolver;fighting;;;473690
+Naruto to Boruto: Shinobi Striker;fighting;;;633230
+Jump Force;fighting
+Soulcalibur VI;fighting;;;544750
+The King of Fighters XV;fighting;;;1498570
+Granblue Fantasy Versus: Rising;fighting;;;2157560
+Nickelodeon All-Star Brawl 2;fighting;;;2017080
+Rivals of Aether II;fighting;;;2217000
+Stick Fight: The Game;indie;;;674940
+Lethal League Blaze;sports;;;553310
+Golf It!;sports;;;571740
+Totally Reliable Delivery Service;coop;;;1011670
+Bomb Rush Cyberfunk;platformer;;;1353230
+Jet Set Radio;platformer
+Sonic Frontiers;platformer;;;1237320
+Sonic Superstars;platformer;;;2022670
+Crash Bandicoot 4: It's About Time;platformer;;;1378990
+Spyro Reignited Trilogy;platformer;;;996580
+A Hat in Time;platformer;;;253230
+Astro Bot;platformer
+Unravel Two;coop;;;1225570
+Biped;coop;;;1071870
+We Were Here Together;coop;;;865360
+We Were Here Forever;coop;;;1341290
+Pico Park;coop;;;1509960
+Lovers in a Dangerous Spacetime;coop;;;252110
+Overcooked! All You Can Eat;coop;;;1243830
+PlateUp!;coop;;;1599600
+Cook, Serve, Delicious! 3?!;indie;;;1000030
+Witch It;coop;;;559650
+Prop Hunt;coop;;;1509230
+Liar's Bar;coop;;;3097560
+Buckshot Roulette;indie;;;2835570
+Inscryption;indie;;;1092790
+Cult of the Lamb: Unholy Alliance;indie
+Spiritfarer;indie;;;972660
+Potion Craft;indie;;;1210320
+Wylde Flowers;indie;;;1896700
+Sun Haven;indie;;;1432860
+My Time at Sandrock;rpg;;;1084600
+My Time at Portia;rpg;;;666140
+Littlewood;indie;;;894940
+Ooblets;indie;;;593150
+Slime Rancher 2;indie;;;1657630
+Slime Rancher;indie;;;433340
+Kingdom Two Crowns;strategy;;;701160
+Thronefall;strategy;;;2239150
+Bad North;strategy;;;688420
+Northgard;strategy;;;4487060
+Dorfromantik;puzzle;;;1455840
+Islanders;building;;;1046030
+Townscaper;building;;;1291340
+Tiny Glade;building;;;2198150
+Terra Nil;building;;;1593030
+Frostpunk: The Last Autumn;strategy;;;1146960
+They Are Billions;strategy;;;644930
+Diplomacy is Not an Option;strategy;;;1272320
+Songs of Conquest;strategy;;;867210
+Heroes of Might and Magic III;strategy;;;4921760
+Endless Legend 2;strategy;;;3407390
+Humankind;strategy;;;1124300
+Old World;strategy;;;597180
+Galactic Civilizations IV;strategy;;;1357210
+XCOM 2;strategy;;;268500
+Phoenix Point;strategy;;;839770
+Into the Breach;strategy;;;590380
+Darkest Dungeon II;rpg;;;1940340
+Darkest Dungeon;rpg;;;262060
+Battle Brothers;strategy;;;365360
+Wartales;rpg;;;1527950
+Iron Harvest;strategy;;;826630
+Homeworld 3;strategy;;;1840080
+Sins of a Solar Empire II;strategy;;;1575940
+Supreme Commander: Forged Alliance;strategy;;;9420
+Beyond All Reason;strategy
+Stormgate;strategy;;;2012510
+Tempest Rising;strategy;;;1486920
+Dune: Spice Wars;strategy;;;1605220
+Workers & Resources;building;;;5303130
+Transport Fever 2;building;;;1066780
+OpenTTD;building;;;1536610
+Railway Empire 2;building;;;1644320
+Parkitect;building;;;453090
+Jurassic World Evolution 2;building;;;1244460
+Planet Coaster;building;;;493340
+Zoo Tycoon;building;;;613880
+Prison Architect 2;building;;;1257610
+Software Inc.;sim;;;362620
+Game Dev Tycoon;sim;;;239820
+Mad Games Tycoon 2;sim;;;1342330
+Startup Company;sim;;;606800
+PC Building Simulator 2;sim
+PC Building Simulator;sim;;;621060
+Hardware Tycoon;sim;;;4490710
+Lawn Mowing Simulator;sim;;;1480560
+Farmer's Life;sim;;;1137750
+Ranch Simulator 2;sim
+Barbershop Simulator;sim;;;2109850
+Tavern Manager Simulator;sim;;;2756770
+Bakery Simulator;sim;;;1031120
+Food Truck Simulator;sim;;;1160920
+Pizza Simulator;sim
+Fast Food Simulator;coop;;;2916430
+Bar Simulator;sim;;;4653610
+Mining Mechanic;sim
+Car Detailing Simulator;sim;;;1433570
+Diesel Brothers: Truck Building Simulator;sim
+Truck Mechanic: Dangerous Paths;sim;;;995680
+Jalopy;sim;;;446020
+Drive Beyond Horizons;sim;;;2625420
+Cattle and Crops;sim
+Pure Farming 2018;sim;;;534370
+Real Farm;sim;;;714170
+Tank Mechanic Simulator;sim;;;407130
+Airport CEO;building;;;673610
+Flight Simulator X;sim
+X-Plane 12;sim;X-Plane.exe;;2014780
+DCS World;sim;DCS.exe;;223750
+IL-2 Sturmovik: Great Battles;sim
+Ace Combat 7: Skies Unknown;action;;;502500
+Elite Dangerous;sim;EliteDangerous64.exe;;359320
+Star Citizen;sim;StarCitizen.exe;eac
+EVE Online;mmo;;;8500
+X4: Foundations;sim;;;392160
+Kerbal Space Program;sim;KSP_x64.exe;;220200
+Space Engineers;building;SpaceEngineers.exe;;244850
+Space Engineers 2;building;;;1133870
+Empyrion - Galactic Survival;survival
+Avorion;building;;;445220
+Stationeers;survival;;;544550
+From the Depths;building;;;268650
+Stormworks: Build and Rescue;sim;;;573090
+Besiege;building;;;346010
+Poly Bridge 3;puzzle;;;1850160
+Scrap Mechanic;building;;;387990
+Brick Rigs;sim;;;552100
+Trailmakers;building;;;585420
+Universe Sandbox;sim;;;230290
+Spore;sim;;;17390
+The Sims 3;sim;;;47890
+SimCity 4;building;;;24780
+RollerCoaster Tycoon 3;building;;;1368820
+Need for Speed Most Wanted;racing;;;1262560
+Need for Speed Payback;racing;;;1262580
+Need for Speed Rivals;racing;;;1262600
+Burnout Paradise Remastered;racing;;;1238080
+Dirt Rally 2.0;racing;;;690790
+DiRT 5;racing;;;1038250
+GRID Legends;racing;;;1307710
+Project CARS 2;racing
+rFactor 2;racing;;;365960
+Automobilista 2;racing;;;1066890
+RaceRoom Racing Experience;racing;;;211500
+Le Mans Ultimate;racing;;;2399420
+MotoGP 25;racing
+Ride 5;racing;;;1650010
+MX vs ATV Legends;racing;;;1205970
+Monster Jam Showdown;racing;;;2350280
+Descenders;sports;;;681280
+Lonely Mountains: Downhill;sports;;;711540
+Art of Rally;racing;;;550320
+Rennsport;racing;;;2077750
+Tokyo Xtreme Racer;racing;;;2634950
+JDM: Japanese Drift Master;racing;;;1153410
+Drift86;racing;;;1070580
+Static Shift Racing;racing
+Wreckreation;racing;;;1594040
+Turbo Golf Racing;racing;;;1324350
+Pro Evolution Soccer 2021;sports
+FIFA 23;sports
+Football Manager 2023;strategy;;;2017220
+Basketball GM;sports
+Cricket 24;sports;;;2358260
+Rugby 25;sports;;;2340870
+WWE 2K25;fighting;;;2878960
+UFC 5;fighting
+Undisputed;fighting;;;1451190
+Aim Lab;fps;AimLab_tb.exe
+KovaaK's;fps;FPSAimTrainer-Win64-Shipping.exe;;824270
+osu!;indie;osu!.exe
+Geometry Dash;platformer;GeometryDash.exe;;322170
+Cookie Clicker;indie;;;1454400
+Bloons TD 6;strategy;BloonsTD6.exe;;960090
+Plants vs. Zombies GOTY;strategy;;;3590
+Clash of Clans;strategy
+Brawl Stars;fps
+Free Fire;br
+Mobile Legends: Bang Bang;moba
+PUBG Mobile;br
+Call of Duty: Mobile;fps
+Asphalt Legends Unite;racing
+Honor of Kings;moba
+League of Legends: Wild Rift;moba
+Arknights: Endfield;rpg;;;4732690
+Ananta;rpg;;;4814120
+Neverness to Everness;rpg
+Where Winds Meet;rpg;;;3564740
+Infinity Nikki;rpg;;;3164330
+Snowbreak: Containment Zone;fps;;;2668080
+The Division Resurgence;tactical;;;3749720
+Strinova;fps;;;1282270
+Off The Grid;br;;;3659280
+Mecha Break;action;;;2452280
+Wildgate;fps;;;3504780
+Arc Raiders;tactical;PioneerGame.exe;eac;1808500
+Marathon;fps;;;3065800
+Exoborne;tactical;;;2705130
+Ashes of Creation;mmo;;;4124950
+Pax Dei;mmo;;;1995520
+Corepunk;mmo
+Mortal Online 2;mmo;;;1170950
+Path of Titans;survival
+The Isle;survival;;;376210
+Beasts of Bermuda;survival;;;719890
+Last Oasis;survival;;;903950
+Fractured Online;mmo
+Lineage II;mmo
+Aion;mmo;;;3393110
+Tera;mmo;;;384150
+Blade & Soul NEO;mmo;;;3669060
+MapleStory;mmo;;;216150
+Dofus;mmo
+Ragnarok Online;mmo;;;215100
+Silkroad Online;mmo
+

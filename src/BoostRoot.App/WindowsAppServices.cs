@@ -49,6 +49,7 @@ public sealed class WindowsAppServices : IAppServices
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(30) };
     private HardwareInfo? _lastHardware;
     private readonly ProfileApplier _applier;
+    private readonly SafeFileEditor _editor;
     private readonly Core.Gpu.GpuProfileChanger _gpu;
     /// <summary>Set by the app: starts the in-game session (overlay, hotkeys, clips, 4:3) after a boost.</summary>
     public Action<CatalogEntry, AppSettings>? SessionStarter { get; set; }
@@ -62,7 +63,7 @@ public sealed class WindowsAppServices : IAppServices
         _profilesDir = Path.Combine(AppContext.BaseDirectory, "profiles");
 
         _journal = new Journal(_fs, Path.Combine(shared, "journal"));
-        var editor = new SafeFileEditor(_fs, _journal, Path.Combine(shared, "backup"));
+        var editor = _editor = new SafeFileEditor(_fs, _journal, Path.Combine(shared, "backup"));
         var applier = _applier = new ProfileApplier(new PathResolver(_fs, p => WindowsEnvironment.Expand(ExpandGameVars(p))), editor);
         var registryChanger = _registryChanger = new RegistryChanger(_registry, _journal);
         var powerChanger = new PowerPlanChanger(new WindowsPowerPlans(), _journal);
@@ -402,7 +403,9 @@ public sealed class WindowsAppServices : IAppServices
         await _coverGate.WaitAsync(ct);
         try
         {
-            var appId = e.Profile?.Detect.TryGetValue("steam", out var a) == true ? a : e.Game?.Source == "steam" ? e.Game.SourceId : null;
+            var appId = e.Profile?.Detect.TryGetValue("steam", out var a) == true ? a
+                : e.Game?.Source == "steam" ? e.Game.SourceId
+                : e.Profile?.Detect.TryGetValue(GameLibrary.CoverKey, out var c) == true ? c : null;
             if (appId is not null && appId.All(char.IsAsciiDigit) && LocalSteamCover(appId) is { } local)
             {
                 File.Copy(local, target, true);
@@ -609,5 +612,36 @@ public sealed class WindowsAppServices : IAppServices
     {
         get => File.Exists(BenchFile) && int.TryParse(File.ReadAllText(BenchFile), out var v) ? v : null;
         set { Directory.CreateDirectory(UserDataDir); File.WriteAllText(BenchFile, value?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? ""); }
+    }
+
+    public int ApplyCs2Crosshair(BoostRoot.Core.Crosshair.CrosshairDesign design)
+    {
+        if (IsGameRunning(["cs2.exe"])) throw new InvalidOperationException(Loc.I["boost.gameRunning"]);
+        if (_registry.GetValue(Core.Platform.RegistryHive.CurrentUser, @"Software\Valve\Steam", "SteamPath")?.Data is not string root) return 0;
+        var userdata = Path.Combine(root.Replace('/', '\\'), "userdata");
+        if (!Directory.Exists(userdata)) return 0;
+        var op = $"crosshair-cs2-{DateTime.UtcNow:yyyyMMddHHmmss}";
+        var convars = design.ToSourceConvars();
+        var n = 0;
+        foreach (var acc in Directory.EnumerateDirectories(userdata))
+        {
+            var cfg = Path.Combine(acc, "730", "local", "cfg");
+            if (!Directory.Exists(cfg)) continue;
+            foreach (var file in Directory.EnumerateFiles(cfg, "cs2_user_convars_*.vcfg"))
+            {
+                try
+                {
+                    var r = _editor.Apply(op, file, text =>
+                    {
+                        var doc = Core.Config.ConfigFormats.Get("keyvalues").Parse(text);
+                        foreach (var (k, v) in convars) doc.Set("config/convars/" + k, v);
+                        return doc.Serialize();
+                    }, "CS2 crosshair");
+                    if (r.Success) n++;
+                }
+                catch (ArgumentException) { }
+            }
+        }
+        return n;
     }
 }

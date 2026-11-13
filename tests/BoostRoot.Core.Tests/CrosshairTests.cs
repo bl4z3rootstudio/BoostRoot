@@ -9,7 +9,7 @@ public class CrosshairTests
     public void Valorant_DefaultLikeDesign_ProducesShortCode()
     {
         var d = new CrosshairDesign(Color: "#00FFFF", Inner: new(true, 2, 6, 3, 0.8), Outer: new(false));
-        Assert.Equal("0;P;c;5;1b;0", d.ToValorantCode());
+        Assert.Equal("0;P;c;5;0f;0;1b;0", d.ToValorantCode());
     }
 
     [Fact]
@@ -107,5 +107,56 @@ public class LibraryTests
         var auto = Assert.Single(cat, e => e.Profile?.Id.StartsWith("auto-", StringComparison.Ordinal) == true);
         Assert.Equal("dir:C:/Steam/steamapps/common/SNI", auto.Profile!.Detect["process"]);
         Assert.Empty(BoostRoot.Core.Profiles.ProfileValidator.Validate(auto.Profile));
+    }
+}
+
+public class CrosshairDetailTests
+{
+    [Fact]
+    public void Valorant_ErrorsAndVerticalLength_RoundTrip()
+    {
+        var d = new BoostRoot.Core.Crosshair.CrosshairDesign(Color: "#FFFFFF",
+            Inner: new(true, 2, 4, 3, 1, VerticalLength: 7, MovementError: true, FiringError: false),
+            Outer: new(true, 2, 2, 10, 0.35, MovementError: false, FiringError: false));
+        var code = d.ToValorantCode();
+        Assert.Contains("0v;7;0g;1", code);
+        Assert.Contains("0m;1", code);
+        Assert.Contains("0f;0", code);
+        Assert.Contains("1m;0;1f;0", code);
+        var back = BoostRoot.Core.Crosshair.CrosshairDesign.FromValorantCode(code)!;
+        Assert.Equal(d.InnerLines, back.InnerLines with { Opacity = d.InnerLines.Opacity });
+        Assert.False(back.OuterLines.MovementError);
+    }
+
+    [Fact]
+    public void Source_TStyle_AndConvars()
+    {
+        var d = new BoostRoot.Core.Crosshair.CrosshairDesign(HideTop: true);
+        var cv = d.ToSourceConvars();
+        Assert.Equal("1", cv["cl_crosshair_t"]);
+        Assert.Equal("4", cv["cl_crosshairstyle"]);
+    }
+
+    [Fact]
+    public void Cs2ApplyFromStudio_AndOverlayUsesDesign()
+    {
+        var svc = ViewModelTests.Services();
+        var main = new MainViewModel(svc);
+        main.Crosshair.HideTop = true;
+        main.Crosshair.ApplyCs2();
+        Assert.True(svc.Cs2Applied!.HideTop);
+        main.Crosshair.Export(main.Crosshair.Targets.First(t => t.Target.Id == "overlay"));
+        Assert.True(svc.Saved.OverlayCrosshair.HideTop);
+    }
+
+    [Fact]
+    public void KeyValues_AddsConvarToCs2File()
+    {
+        const string text = "\"config\"\n{\n\t\"convars\"\n\t{\n\t\t\"cl_crosshairsize\"\t\t\"5\"\n\t}\n}\n";
+        var doc = BoostRoot.Core.Config.ConfigFormats.Get("keyvalues").Parse(text);
+        foreach (var (k, v) in new BoostRoot.Core.Crosshair.CrosshairDesign().ToSourceConvars()) doc.Set("config/convars/" + k, v);
+        var outText = doc.Serialize();
+        Assert.Contains("\"cl_crosshairsize\"\t\t\"3\"", outText);
+        Assert.Contains("\"cl_crosshaircolor_r\"", outText);
     }
 }

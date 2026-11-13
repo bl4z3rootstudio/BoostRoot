@@ -312,5 +312,19 @@
   "bench.resultPrev": "BoostRoot Puanı: {0} (öncekine göre %{1})",
   "bench.failed": "Benchmark yarıda kaldı (sıcaklık ya da hata)",
   "metric.ping": "Ping",
-  "metric.time": "Saat"
+  "metric.time": "Saat",
+  "settings.closeAppsNote": "Boost'a basınca işaretlediklerin kapanır. Şu an açık olanlar en üstte.",
+  "settings.appRunning": "● şu an açık",
+  "ch.vertical": "Dikey uzunluk ayrı",
+  "ch.verticalLen": "Dikey uzunluk",
+  "ch.moveErr": "Hareket hatası (koşarken açılır)",
+  "ch.fireErr": "Ateş hatası (ateş ederken açılır)",
+  "ch.hideTop": "Üst çizgiyi gizle (T nişangâh)",
+  "ch.roundDot": "Yuvarlak nokta",
+  "ch.dotOpacity": "Nokta opaklığı",
+  "ch.cs2Apply": "CS2'ye doğrudan uygula",
+  "ch.cs2Applied": "CS2 nişangâhı {0} Steam hesabına yazıldı — CS2'yi aç, hazır ✓",
+  "ch.cs2NotFound": "CS2 ayar dosyası bulunamadı (CS2'yi bir kez açıp kapat) ya da CS2 açık.",
+  "ch.valorantHow": "VALORANT: Ayarlar → Nişangâh → \"Profil kodunu içe aktar\" (⬇ simgesi) → Ctrl+V → İçe aktar. Nişangâhın birebir aynısı oyunda olur.",
+  "ch.layout": "Görünüm"
 }

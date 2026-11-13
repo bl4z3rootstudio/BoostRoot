@@ -99,6 +99,8 @@ public sealed class FakeAppServices : IAppServices
     public List<BoostRoot.Core.Crosshair.CrosshairDesign> Crosshairs { get; set; } = [];
     public IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> LoadCrosshairs() => Crosshairs;
     public void SaveCrosshairs(IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> designs) => Crosshairs = [.. designs];
+    public BoostRoot.Core.Crosshair.CrosshairDesign? Cs2Applied { get; private set; }
+    public int ApplyCs2Crosshair(BoostRoot.Core.Crosshair.CrosshairDesign design) { Cs2Applied = design; return 1; }
 }
 
 public sealed class FakeFrames : IFrameSource

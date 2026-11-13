@@ -106,7 +106,7 @@ public sealed class GameSession : IDisposable
 
     private void ToggleCrosshair()
     {
-        if (_crosshair is null) { _crosshair = new CrosshairOverlay(_settings.CrosshairOrDefault); _crosshair.Show(); }
+        if (_crosshair is null) { _crosshair = new CrosshairOverlay(_settings.OverlayCrosshair); _crosshair.Show(); }
         else { _crosshair.Close(); _crosshair = null; }
     }
 

@@ -30,6 +30,32 @@ public sealed partial class MetricToggleViewModel(string key, bool on, Action ch
     partial void OnIsOnChanged(bool value) => changed();
 }
 
+public sealed partial class AppChoiceViewModel(string process, string name, bool running, bool chosen, Action changed) : ObservableObject
+{
+    public string Process { get; } = process;
+    public string Name { get; } = name;
+    public bool IsRunning { get; } = running;
+    public string Initial => Name.Length > 0 ? Name[..1].ToUpperInvariant() : "?";
+    [ObservableProperty] public partial bool IsChecked { get; set; } = chosen;
+    partial void OnIsCheckedChanged(bool value) => changed();
+}
+
+/// <summary>Apps people usually want closed while gaming (process name, display name).</summary>
+public static class AppCatalog
+{
+    public static IReadOnlyList<(string Process, string Name)> Known { get; } =
+    [
+        ("chrome", "Google Chrome"), ("msedge", "Microsoft Edge"), ("opera", "Opera / Opera GX"), ("firefox", "Firefox"), ("brave", "Brave"),
+        ("spotify", "Spotify"), ("Discord", "Discord"), ("steamwebhelper", "Steam (tarayıcı parçası)"), ("EpicGamesLauncher", "Epic Games Launcher"),
+        ("EADesktop", "EA app"), ("upc", "Ubisoft Connect"), ("Battle.net", "Battle.net"), ("GalaxyClient", "GOG Galaxy"), ("OneDrive", "OneDrive"),
+        ("ms-teams", "Microsoft Teams"), ("WhatsApp", "WhatsApp"), ("Telegram", "Telegram"), ("Zoom", "Zoom"), ("Slack", "Slack"),
+        ("Creative Cloud", "Adobe Creative Cloud"), ("Dropbox", "Dropbox"), ("GoogleDriveFS", "Google Drive"), ("qbittorrent", "qBittorrent"),
+        ("uTorrent", "µTorrent"), ("wallpaper64", "Wallpaper Engine"), ("Notion", "Notion"), ("Figma", "Figma"), ("obs64", "OBS Studio"),
+    ];
+
+    public static string Friendly(string process) => Known.FirstOrDefault(k => k.Process.Equals(process, StringComparison.OrdinalIgnoreCase)).Name ?? process;
+}
+
 public sealed partial class SettingsViewModel : ObservableObject
 {
     private readonly IAppServices _services;
@@ -67,15 +93,31 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty] public partial string ClipFolder { get; set; }
     [ObservableProperty] public partial string DiscordWebhook { get; set; }
     [ObservableProperty] public partial bool AutoUndo { get; set; }
+    private bool _appsLoadPending;
+    /// <summary>Called when the settings page opens.</summary>
+    public void EnsureAppsLoaded() { if (_appsLoadPending) { _appsLoadPending = false; LoadRunningApps(); } }
     public System.Collections.ObjectModel.ObservableCollection<string> RunningApps { get; } = [];
+    public System.Collections.ObjectModel.ObservableCollection<AppChoiceViewModel> AppChoices { get; } = [];
 
+    /// <summary>Known launchers/apps + whatever is open right now, each with a checkbox (no typing).</summary>
     [RelayCommand]
     public void LoadRunningApps()
     {
-        RunningApps.Clear();
-        var have = (CloseList ?? "").Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        foreach (var a in _services.RunningApps().Where(a => !have.Contains(a))) RunningApps.Add(a);
+        var chosen = (CloseList ?? "").Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var running = _services.RunningApps().ToHashSet(StringComparer.OrdinalIgnoreCase);
+        AppChoices.Clear();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (proc, name) in AppCatalog.Known.Concat(running.Select(r => (r, AppCatalog.Friendly(r)))).Concat(chosen.Select(c => (c, AppCatalog.Friendly(c)))))
+        {
+            if (!seen.Add(proc)) continue;
+            AppChoices.Add(new AppChoiceViewModel(proc, name, running.Contains(proc), chosen.Contains(proc), SyncCloseList));
+        }
+        var ordered = AppChoices.OrderByDescending(a => a.IsRunning).ThenByDescending(a => a.IsChecked).ThenBy(a => a.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
+        AppChoices.Clear();
+        foreach (var a in ordered) AppChoices.Add(a);
     }
+
+    private void SyncCloseList() => CloseList = string.Join(", ", AppChoices.Where(a => a.IsChecked).Select(a => a.Process));
 
     [RelayCommand]
     public void AddToCloseList(string app)
@@ -100,6 +142,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         var k = s.ClipsOrDefault;
         (ReplayEnabled, ReplaySeconds, ClipHeight, ClipFps, ClipAudio, ClipFolder, DiscordWebhook) = (k.ReplayEnabled, k.ReplaySeconds, k.Height, k.Fps, k.Audio, k.Folder ?? "", k.DiscordWebhook ?? "");
         AutoUndo = s.AutoUndo;
+        _appsLoadPending = true;
         Metrics = [.. AppSettings.AllMetrics.Select(m => new MetricToggleViewModel(m, s.Metrics.Contains(m), Save))];
         Loc.I.SetLanguage(s.Language);
         _ready = true;
@@ -120,6 +163,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         CloseList = [.. (CloseList ?? "").Split([',', ';', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],
         OverlayMetrics = [.. Metrics.Where(m => m.IsOn).Select(m => m.Key)],
         OverlayCorner = OverlayCorner ?? "tl",
+        CrosshairDesign = _base.CrosshairDesign is { } cd && cd.Color == CrosshairColor && cd.Dot == CrosshairDot && cd.Outline == CrosshairOutline ? cd : null,
         Crosshair = new CrosshairSettings(CrosshairEnabled, CrosshairColor ?? "#00FF66", Math.Clamp(CrosshairSize, 0, 40), Math.Clamp(CrosshairThickness, 1, 10), Math.Clamp(CrosshairGap, 0, 30), CrosshairDot, CrosshairOutline),
         Clips = new ClipSettings(ReplayEnabled, ReplaySeconds, ClipHeight, ClipFps, string.IsNullOrWhiteSpace(ClipFolder) ? null : ClipFolder, ClipAudio ?? "system", string.IsNullOrWhiteSpace(DiscordWebhook) ? null : DiscordWebhook.Trim()),
     };
@@ -129,6 +173,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         var o = d.ToOverlay();
         (CrosshairColor, CrosshairSize, CrosshairThickness, CrosshairGap, CrosshairDot, CrosshairOutline) = (o.Color, o.Size, o.Thickness, o.Gap, o.Dot, o.Outline);
         CrosshairEnabled = true;
+        Update(s => s with { CrosshairDesign = d });
     }
 
     /// <summary>Called by other screens (e.g. 4:3 toggle on Home) so all settings stay in one place.</summary>
@@ -247,6 +292,7 @@ public sealed partial class MainViewModel : ObservableObject
         CurrentPage = item.Page;
         if (item.Page == Tools && Tools.Junk.Count == 0) _ = Tools.LoadCommand.ExecuteAsync(null);
         if (item.Page == Clips) Clips.Refresh();
+        if (item.Page == Settings) Settings.EnsureAppsLoaded();
         if (item.Page == Fps) Fps.Reload();
     }
 }

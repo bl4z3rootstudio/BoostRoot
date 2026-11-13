@@ -106,45 +106,19 @@ public sealed class StatsOverlay : OverlayWindowBase
     }
 }
 
-/// <summary>Custom crosshair drawn above the game (click-through, excluded from capture).</summary>
+/// <summary>Your Crosshair Studio design drawn above any game (click-through, excluded from capture).</summary>
 public sealed class CrosshairOverlay : OverlayWindowBase
 {
-    public CrosshairOverlay(CrosshairSettings c) => Content = new CrosshairShape(c);
+    public CrosshairOverlay(BoostRoot.Core.Crosshair.CrosshairDesign d)
+    {
+        var extent = (Math.Max(d.InnerLines.Offset + Math.Max(d.InnerLines.Length, d.InnerLines.VLength), d.OuterLines.Show ? d.OuterLines.Offset + Math.Max(d.OuterLines.Length, d.OuterLines.VLength) : 0) + d.OutlineThickness + 4) * 2;
+        Content = new BoostRoot.App.Controls.CrosshairPreview { Design = d, Zoom = 1, Transparent = true, Width = extent, Height = extent };
+    }
 
     protected override void Place()
     {
         var s = Screen0;
         Position = new PixelPoint(s.X + (s.Width - (int)(Bounds.Width * RenderScaling)) / 2, s.Y + (s.Height - (int)(Bounds.Height * RenderScaling)) / 2);
-    }
-
-    private sealed class CrosshairShape(CrosshairSettings c) : Control
-    {
-        private readonly int _extent = (c.Size + c.Gap + 2) * 2 + c.Thickness;
-        protected override Size MeasureOverride(Size availableSize) => new(_extent, _extent);
-
-        public override void Render(DrawingContext ctx)
-        {
-            var color = Color.TryParse(c.Color, out var col) ? col : Colors.Lime;
-            var mid = _extent / 2.0;
-            var outline = new Pen(Brushes.Black, c.Thickness + 2);
-            var pen = new Pen(new SolidColorBrush(color), c.Thickness);
-            (Point, Point)[] arms =
-            [
-                (new(mid, mid - c.Gap), new(mid, mid - c.Gap - c.Size)), (new(mid, mid + c.Gap), new(mid, mid + c.Gap + c.Size)),
-                (new(mid - c.Gap, mid), new(mid - c.Gap - c.Size, mid)), (new(mid + c.Gap, mid), new(mid + c.Gap + c.Size, mid)),
-            ];
-            if (c.Size > 0)
-            {
-                if (c.Outline) foreach (var (a, b) in arms) ctx.DrawLine(outline, a, b);
-                foreach (var (a, b) in arms) ctx.DrawLine(pen, a, b);
-            }
-            if (c.Dot)
-            {
-                var r = Math.Max(1, c.Thickness);
-                if (c.Outline) ctx.DrawEllipse(Brushes.Black, null, new Point(mid, mid), r + 1, r + 1);
-                ctx.DrawEllipse(new SolidColorBrush(color), null, new Point(mid, mid), r, r);
-            }
-        }
     }
 }
 
