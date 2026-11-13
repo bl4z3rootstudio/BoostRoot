@@ -56,6 +56,14 @@ public static class AppCatalog
     public static string Friendly(string process) => Known.FirstOrDefault(k => k.Process.Equals(process, StringComparison.OrdinalIgnoreCase)).Name ?? process;
 }
 
+public sealed partial class AccentChoiceViewModel(string key, string hex, bool selected) : ObservableObject
+{
+    public string Key { get; } = key;
+    public string Hex { get; } = hex;
+    public string Name => Loc.I["accent." + Key];
+    [ObservableProperty] public partial bool IsSelected { get; set; } = selected;
+}
+
 public sealed partial class SettingsViewModel : ObservableObject
 {
     private readonly IAppServices _services;
@@ -93,6 +101,17 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty] public partial string ClipFolder { get; set; }
     [ObservableProperty] public partial string DiscordWebhook { get; set; }
     [ObservableProperty] public partial bool AutoUndo { get; set; }
+    [ObservableProperty] public partial string Accent { get; set; }
+    [ObservableProperty] public partial bool TrayIcon { get; set; }
+    public IReadOnlyList<AccentChoiceViewModel> Accents { get; }
+
+    [RelayCommand]
+    public void SetAccent(string key)
+    {
+        Accent = AccentPalette.Get(key).Key;
+        foreach (var a in Accents) a.IsSelected = a.Key == Accent;
+        AccentPalette.Raise(Accent);
+    }
     private bool _appsLoadPending;
     /// <summary>Called when the settings page opens.</summary>
     public void EnsureAppsLoaded() { if (_appsLoadPending) { _appsLoadPending = false; LoadRunningApps(); } }
@@ -142,6 +161,9 @@ public sealed partial class SettingsViewModel : ObservableObject
         var k = s.ClipsOrDefault;
         (ReplayEnabled, ReplaySeconds, ClipHeight, ClipFps, ClipAudio, ClipFolder, DiscordWebhook) = (k.ReplayEnabled, k.ReplaySeconds, k.Height, k.Fps, k.Audio, k.Folder ?? "", k.DiscordWebhook ?? "");
         AutoUndo = s.AutoUndo;
+        Accent = AccentPalette.Get(s.Accent).Key;
+        TrayIcon = s.TrayIcon;
+        Accents = [.. AccentPalette.All.Select(a => new AccentChoiceViewModel(a.Key, a.Hex, a.Key == Accent))];
         _appsLoadPending = true;
         Metrics = [.. AppSettings.AllMetrics.Select(m => new MetricToggleViewModel(m, s.Metrics.Contains(m), Save))];
         Loc.I.SetLanguage(s.Language);
@@ -158,7 +180,7 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     public AppSettings Current => _base with
     {
-        AutoUndo = AutoUndo,
+        AutoUndo = AutoUndo, Accent = Accent ?? "purple", TrayIcon = TrayIcon,
         Language = Language ?? "tr", Sounds = Sounds, Animations = Animations, Offline = Offline,
         CloseList = [.. (CloseList ?? "").Split([',', ';', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],
         OverlayMetrics = [.. Metrics.Where(m => m.IsOn).Select(m => m.Key)],

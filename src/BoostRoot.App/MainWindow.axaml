@@ -76,7 +76,7 @@
       </StackPanel>
     </Grid>
     <!-- Update banner -->
-    <Border DockPanel.Dock="Top" IsVisible="{Binding Update, Converter={x:Static ObjectConverters.IsNotNull}}" Background="#2A1650" BorderBrush="#A855F7" BorderThickness="0,0,0,1" Padding="16,8">
+    <Border DockPanel.Dock="Top" IsVisible="{Binding Update, Converter={x:Static ObjectConverters.IsNotNull}}" Background="#2A1650" BorderBrush="{StaticResource Accent}" BorderThickness="0,0,0,1" Padding="16,8">
       <Grid ColumnDefinitions="*,Auto,Auto">
         <StackPanel VerticalAlignment="Center">
           <TextBlock FontWeight="SemiBold" Text="{Binding UpdateText}" />

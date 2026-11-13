@@ -195,8 +195,13 @@ public sealed class WindowsAppServices : IAppServices
         return AppSettings.Default;
     }
 
-    public void SaveSettings(AppSettings settings) =>
+    public event Action<AppSettings>? SettingsChanged;
+
+    public void SaveSettings(AppSettings settings)
+    {
         _fs.WriteAllBytesAtomic(_settingsPath, System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(settings, AppJsonContext.Default.AppSettings)));
+        SettingsChanged?.Invoke(settings);
+    }
 
     public string? LastBoostOperation(string profileId) =>
         _journal.ReadAll().Where(e => !e.Reverted && e.OperationId.StartsWith($"boost-{profileId}-", StringComparison.Ordinal))
@@ -705,8 +710,12 @@ public sealed class WindowsAppServices : IAppServices
         var dvr = _registry.GetValue(Core.Platform.RegistryHive.CurrentUser, @"System\GameConfigStore", "GameDVR_Enabled")?.Data;
         var dvrOn = dvr == "1";
         items.Add(new("pf.gamebar", !dvrOn, dvrOn ? Loc.I["pf.gamebarFix"] : "✓"));
+        var bat = BoostRoot.Platform.Windows.PowerAndSound.Battery();
+        if (bat.HasBattery) items.Add(new("pf.battery", !bat.HurtsFps, bat.HurtsFps ? Loc.I.Format("pf.batteryFix", bat.Percent ?? 0) : Loc.I["pf.batteryOk"]));
         return items;
     }
+
+    public void PlayBoostSound() => BoostRoot.Platform.Windows.PowerAndSound.PlayBoost();
 
     public async Task<IReadOnlyList<AppUpdate>> ScanAppUpdatesAsync(CancellationToken ct)
     {

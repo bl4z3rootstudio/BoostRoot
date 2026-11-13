@@ -252,5 +252,15 @@
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="Transitions"><Transitions><BrushTransition Property="Background" Duration="0:0:0.2" /><BrushTransition Property="BorderBrush" Duration="0:0:0.2" /></Transitions></Setter>
   </Style>
-  <Style Selector="Border.appRow.on"><Setter Property="Background" Value="#2A1650" /><Setter Property="BorderBrush" Value="#A855F7" /></Style>
+  <Style Selector="Border.appRow.on"><Setter Property="Background" Value="#2A1650" /><Setter Property="BorderBrush" Value="{StaticResource Accent}" /></Style>
+  <Style Selector="Button.swatch:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{TemplateBinding Background}" />
+    <Setter Property="BorderBrush" Value="White" />
+  </Style>
+  <Style Selector="Button.swatch">
+    <Setter Property="Transitions"><Transitions><TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" /></Transitions></Setter>
+  </Style>
+  <Style Selector="Button.swatch:pointerover">
+    <Setter Property="RenderTransform" Value="scale(1.12)" />
+  </Style>
 </Styles>

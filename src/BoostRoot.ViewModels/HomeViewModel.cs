@@ -283,6 +283,7 @@ public sealed partial class HomeViewModel : ObservableObject
                 Status = notFound ? Loc.I["boost.notFound"] : Loc.I["boost.done"] + " ✓";
                 StatusIsError = notFound;
                 AskLaunch = !notFound;
+                if (!notFound && _settings.Sounds) _services.PlayBoostSound();
             }
             else
             {

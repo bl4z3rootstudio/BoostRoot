@@ -93,7 +93,7 @@
               <Ellipse.RenderTransform><ScaleTransform /></Ellipse.RenderTransform>
               <Ellipse.Fill>
                 <RadialGradientBrush>
-                  <GradientStop Color="#C084FC" Offset="0.55" />
+                  <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.55" />
                   <GradientStop Color="#00A855F7" Offset="1" />
                 </RadialGradientBrush>
               </Ellipse.Fill>
@@ -104,7 +104,7 @@
               <Ellipse.Stroke>
                 <ConicGradientBrush>
                   <GradientStop Color="#F0ABFC" Offset="0" />
-                  <GradientStop Color="#A855F7" Offset="0.35" />
+                  <GradientStop Color="{DynamicResource AccentColor}" Offset="0.35" />
                   <GradientStop Color="#3B1F66" Offset="0.7" />
                   <GradientStop Color="#F0ABFC" Offset="1" />
                 </ConicGradientBrush>
@@ -114,7 +114,7 @@
             <Ellipse Width="180" Height="180">
               <Ellipse.Fill>
                 <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                  <GradientStop Color="#9333EA" Offset="0" />
+                  <GradientStop Color="{DynamicResource AccentColor}" Offset="0" />
                   <GradientStop Color="#5B21B6" Offset="0.6" />
                   <GradientStop Color="#2E1065" Offset="1" />
                 </LinearGradientBrush>
@@ -163,7 +163,7 @@
                       </LinearGradientBrush>
                     </Grid.Background>
                     <TextBlock Text="{Binding Genre}" FontSize="16" Opacity="0.5" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Top" />
-                    <TextBlock Text="{Binding Initials}" FontFamily="{StaticResource HeadFont}" FontSize="44" FontWeight="Bold" Foreground="#C084FC" Opacity="0.9"
+                    <TextBlock Text="{Binding Initials}" FontFamily="{StaticResource HeadFont}" FontSize="44" FontWeight="Bold" Foreground="{StaticResource AccentLight}" Opacity="0.9"
                                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-30,0,0" />
                   </Grid>
                   <Image Source="{Binding Cover, Converter={x:Static local:CoverConverter.Instance}}" Stretch="UniformToFill" IsVisible="{Binding HasCover}" />

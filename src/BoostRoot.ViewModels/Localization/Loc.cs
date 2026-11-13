@@ -8,7 +8,7 @@ namespace BoostRoot.ViewModels.Localization;
 public sealed class Loc : INotifyPropertyChanged
 {
     // Order matters: Languages must be initialised before the singleton constructor reads it.
-    public static IReadOnlyList<string> Languages { get; } = ["tr", "en"];
+    public static IReadOnlyList<string> Languages { get; } = ["tr", "en", "az", "de", "ru", "es", "pt"];
     public static Loc I { get; } = new();
 
     private readonly Dictionary<string, IReadOnlyDictionary<string, string>> _tables = new(StringComparer.Ordinal);
@@ -41,7 +41,8 @@ public sealed class Loc : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Language)));
     }
 
-    public string this[string key] => _current.TryGetValue(key, out var v) ? v : key;
+    public string this[string key] => _current.TryGetValue(key, out var v) ? v
+        : _tables["en"].TryGetValue(key, out var e) ? e : key;
     public bool Has(string key) => _current.ContainsKey(key);
 
     public string Format(string key, params object[] args) => string.Format(CultureInfo.CurrentCulture, this[key], args);

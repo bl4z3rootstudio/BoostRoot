@@ -386,5 +386,20 @@
   "upd.gpuOk": "{0} — sürücü güncel ({1} gün)",
   "upd.openGpu": "Resmi sürücüyü indir",
   "bug.report": "Hata bildir",
-  "bug.tip": "Bir şey ters gittiyse hazır bir hata raporu sayfası açar; göndermek senin elinde."
+  "bug.tip": "Bir şey ters gittiyse hazır bir hata raporu sayfası açar; göndermek senin elinde.",
+  "accent.purple": "Mor",
+  "accent.blue": "Mavi",
+  "accent.green": "Yeşil",
+  "accent.red": "Kırmızı",
+  "accent.orange": "Turuncu",
+  "accent.pink": "Pembe",
+  "settings.accent": "Tema rengi",
+  "settings.tray": "Sistem tepsisi simgesi",
+  "settings.trayDesc": "Saatin yanında simge; pencereyi kapatınca BoostRoot tepside çalışmaya devam eder.",
+  "pf.battery": "Güç kaynağı",
+  "pf.batteryFix": "Pilde çalışıyor (%{0}) — şarjı tak, laptop pilde FPS'i kısar",
+  "pf.batteryOk": "Şarja takılı",
+  "tray.show": "BoostRoot'u aç",
+  "tray.exit": "Çıkış",
+  "tray.tip": "BoostRoot çalışıyor"
 }

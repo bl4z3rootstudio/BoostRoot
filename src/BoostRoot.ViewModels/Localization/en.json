@@ -386,5 +386,20 @@
   "upd.gpuOk": "{0} — driver is up to date ({1} days)",
   "upd.openGpu": "Download official driver",
   "bug.report": "Report a bug",
-  "bug.tip": "Opens a ready-made bug report page; sending it is up to you."
+  "bug.tip": "Opens a ready-made bug report page; sending it is up to you.",
+  "accent.purple": "Purple",
+  "accent.blue": "Blue",
+  "accent.green": "Green",
+  "accent.red": "Red",
+  "accent.orange": "Orange",
+  "accent.pink": "Pink",
+  "settings.accent": "Theme colour",
+  "settings.tray": "System tray icon",
+  "settings.trayDesc": "Icon next to the clock; closing the window keeps BoostRoot running in the tray.",
+  "pf.battery": "Power source",
+  "pf.batteryFix": "On battery ({0}%) — plug in, laptops cap FPS on battery",
+  "pf.batteryOk": "Plugged in",
+  "tray.show": "Open BoostRoot",
+  "tray.exit": "Exit",
+  "tray.tip": "BoostRoot is running"
 }

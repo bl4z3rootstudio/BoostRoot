@@ -3,6 +3,7 @@
              xmlns:vm="using:BoostRoot.ViewModels"
              xmlns:loc="using:BoostRoot.ViewModels.Localization"
              xmlns:v="using:BoostRoot.App.Views"
+             xmlns:app="using:BoostRoot.App"
              x:Class="BoostRoot.App.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
   <ScrollViewer>
@@ -11,7 +12,31 @@
       <Border Classes="card">
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock VerticalAlignment="Center" Text="{Binding [settings.language], Source={x:Static loc:Loc.I}}" />
-          <ComboBox Grid.Column="1" ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" MinWidth="120" />
+          <ComboBox Grid.Column="1" ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" MinWidth="160">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="x:String">
+                <TextBlock Text="{Binding Converter={x:Static app:LanguageNameConverter.Instance}}" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </Grid>
+      </Border>
+      <Border Classes="card">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock VerticalAlignment="Center" Text="{Binding [settings.accent], Source={x:Static loc:Loc.I}}" />
+          <ItemsControl Grid.Column="1" ItemsSource="{Binding Accents}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="8" /></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:AccentChoiceViewModel">
+                <Button Classes="swatch" Width="30" Height="30" CornerRadius="15" Padding="0" ToolTip.Tip="{Binding Name}"
+                        Background="{Binding Hex, Converter={x:Static app:HexBrushConverter.Instance}}"
+                        BorderThickness="{Binding IsSelected, Converter={x:Static app:SelectedBorderConverter.Instance}}" BorderBrush="White"
+                        Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).SetAccentCommand}" CommandParameter="{Binding Key}" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
         </Grid>
       </Border>
       <Border Classes="card">
@@ -19,6 +44,8 @@
           <ToggleSwitch IsChecked="{Binding Sounds}" Content="{Binding [settings.sounds], Source={x:Static loc:Loc.I}}" />
           <ToggleSwitch IsChecked="{Binding Animations}" Content="{Binding [settings.animations], Source={x:Static loc:Loc.I}}" />
           <ToggleSwitch IsChecked="{Binding Offline}" Content="{Binding [settings.offline], Source={x:Static loc:Loc.I}}" />
+          <ToggleSwitch IsChecked="{Binding TrayIcon}" Content="{Binding [settings.tray], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [settings.trayDesc], Source={x:Static loc:Loc.I}}" />
         </StackPanel>
       </Border>
       <Border Classes="card">

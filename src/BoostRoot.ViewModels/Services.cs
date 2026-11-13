@@ -29,7 +29,9 @@ public sealed record AppSettings(
     bool FirstRunDone = false,
     IReadOnlyList<string>? Favorites = null,
     bool AutoUndo = false,
-    BoostRoot.Core.Crosshair.CrosshairDesign? CrosshairDesign = null)
+    BoostRoot.Core.Crosshair.CrosshairDesign? CrosshairDesign = null,
+    string Accent = "purple",
+    bool TrayIcon = true)
 {
     /// <summary>What the overlay draws: the Studio design if one was chosen, else the simple settings.</summary>
     public BoostRoot.Core.Crosshair.CrosshairDesign OverlayCrosshair => CrosshairDesign ?? new(Color: CrosshairOrDefault.Color, Outline: CrosshairOrDefault.Outline, Dot: CrosshairOrDefault.Dot,
@@ -136,6 +138,8 @@ public interface IAppServices
     bool KillProcess(int pid);
     /// <summary>"Ready to play?" checks.</summary>
     IReadOnlyList<PreflightItem> Preflight(AppSettings settings);
+    /// <summary>Short chime after a successful boost (only called when Sounds is on).</summary>
+    void PlayBoostSound() { }
 
     // Update Center
     Task<IReadOnlyList<AppUpdate>> ScanAppUpdatesAsync(CancellationToken ct);
