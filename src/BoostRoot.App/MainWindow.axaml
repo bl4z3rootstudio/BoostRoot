@@ -78,7 +78,14 @@
         <Button Grid.Column="2" Classes="primary" Command="{Binding InstallUpdateCommand}" IsEnabled="{Binding !IsUpdating}" Content="{Binding [update.install], Source={x:Static loc:Loc.I}}" />
       </Grid>
     </Border>
-    <ContentControl Content="{Binding CurrentPage}" />
+    <TransitioningContentControl Content="{Binding CurrentPage}">
+      <TransitioningContentControl.PageTransition>
+        <CompositePageTransition>
+          <CrossFade Duration="0:0:0.22" />
+          <PageSlide Duration="0:0:0.22" Orientation="Vertical" SlideInEasing="CubicEaseOut" SlideOutEasing="CubicEaseIn" />
+        </CompositePageTransition>
+      </TransitioningContentControl.PageTransition>
+    </TransitioningContentControl>
   </DockPanel>
   <!-- First run -->
   <Border IsVisible="{Binding ShowWelcome}" Background="#E60B0912">

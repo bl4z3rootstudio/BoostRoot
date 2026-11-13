@@ -55,7 +55,16 @@
           <!-- Status + post-boost actions -->
           <Border Classes="card" IsVisible="{Binding Status, Converter={x:Static ObjectConverters.IsNotNull}}" Padding="14,10" MaxWidth="620" HorizontalAlignment="Left">
             <StackPanel Spacing="10">
-              <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="{StaticResource Text}" />
+              <TextBlock Classes="pop" Text="{Binding Status}" TextWrapping="Wrap" FontWeight="SemiBold" Foreground="{StaticResource Text}" />
+              <ItemsControl ItemsSource="{Binding ResultSteps}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:StepRow">
+                    <TextBlock Classes="pop" Margin="0,2" TextWrapping="Wrap">
+                      <Run Text="{Binding Icon}" Foreground="{StaticResource Good}" /><Run Text="  " /><Run Text="{Binding Text}" />
+                    </TextBlock>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
               <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding AskLaunch}">
                 <TextBlock VerticalAlignment="Center" Classes="muted" Text="{Binding [boost.launchAsk], Source={x:Static loc:Loc.I}}" />
                 <Button Classes="primary" Command="{Binding LaunchCommand}" Content="{Binding [boost.launchYes], Source={x:Static loc:Loc.I}}" />
@@ -67,11 +76,51 @@
                   IsVisible="{Binding LastOperation, Converter={x:Static ObjectConverters.IsNotNull}}"
                   Content="{Binding [boost.undo], Source={x:Static loc:Loc.I}}" />
         </StackPanel>
-        <Button Grid.Column="1" Classes="boost" Margin="32,0,0,0" Command="{Binding BoostCommand}">
-          <Panel>
-            <TextBlock Text="{Binding [home.boost], Source={x:Static loc:Loc.I}}" IsVisible="{Binding !IsBusy}" />
-            <ProgressBar IsIndeterminate="True" Width="120" IsVisible="{Binding IsBusy}" Foreground="{StaticResource Accent}" />
-          </Panel>
+        <Button Grid.Column="1" Classes="boost" Margin="32,0,0,0" Command="{Binding BoostCommand}" ToolTip.Tip="{Binding [home.boostTip], Source={x:Static loc:Loc.I}}">
+          <Grid Width="240" Height="240">
+            <!-- breathing glow -->
+            <Ellipse Classes="orbGlow" Width="230" Height="230" RenderTransformOrigin="50%,50%">
+              <Ellipse.RenderTransform><ScaleTransform /></Ellipse.RenderTransform>
+              <Ellipse.Fill>
+                <RadialGradientBrush>
+                  <GradientStop Color="#C084FC" Offset="0.55" />
+                  <GradientStop Color="#00A855F7" Offset="1" />
+                </RadialGradientBrush>
+              </Ellipse.Fill>
+            </Ellipse>
+            <!-- rotating gradient ring -->
+            <Ellipse Classes="orbRing" Classes.fast="{Binding IsBusy}" Width="196" Height="196" StrokeThickness="5" RenderTransformOrigin="50%,50%">
+              <Ellipse.RenderTransform><RotateTransform /></Ellipse.RenderTransform>
+              <Ellipse.Stroke>
+                <ConicGradientBrush>
+                  <GradientStop Color="#F0ABFC" Offset="0" />
+                  <GradientStop Color="#A855F7" Offset="0.35" />
+                  <GradientStop Color="#3B1F66" Offset="0.7" />
+                  <GradientStop Color="#F0ABFC" Offset="1" />
+                </ConicGradientBrush>
+              </Ellipse.Stroke>
+            </Ellipse>
+            <!-- core -->
+            <Ellipse Width="180" Height="180">
+              <Ellipse.Fill>
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                  <GradientStop Color="#9333EA" Offset="0" />
+                  <GradientStop Color="#5B21B6" Offset="0.6" />
+                  <GradientStop Color="#2E1065" Offset="1" />
+                </LinearGradientBrush>
+              </Ellipse.Fill>
+            </Ellipse>
+            <Ellipse Width="180" Height="180" StrokeThickness="1" Stroke="#40FFFFFF" />
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="2" IsVisible="{Binding !IsBusy}">
+              <PathIcon Classes="rocket" Width="40" Height="40" Foreground="White" Data="M12 2c3 2 5 6 5 10l2 3-3 1-1 3h-6l-1-3-3-1 2-3c0-4 2-8 5-10zm0 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z">
+                <PathIcon.RenderTransform><TranslateTransform /></PathIcon.RenderTransform>
+              </PathIcon>
+              <TextBlock Text="{Binding [home.boost], Source={x:Static loc:Loc.I}}" FontFamily="{StaticResource HeadFont}" FontSize="34" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" LetterSpacing="2" />
+            </StackPanel>
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6" IsVisible="{Binding IsBusy}">
+              <TextBlock Text="{Binding [boost.running], Source={x:Static loc:Loc.I}}" FontSize="16" FontWeight="SemiBold" Foreground="White" HorizontalAlignment="Center" />
+            </StackPanel>
+          </Grid>
         </Button>
       </Grid>
     </Border>
@@ -95,7 +144,19 @@
                       ToolTip.Tip="{Binding Name}"
                       Command="{Binding $parent[UserControl].((vm:HomeViewModel)DataContext).SelectCommand}" CommandParameter="{Binding}">
                 <Grid>
-                  <Image Source="{Binding Cover, Converter={x:Static local:CoverConverter.Instance}}" Stretch="UniformToFill" />
+                  <!-- generated cover when no art is available -->
+                  <Grid IsVisible="{Binding !HasCover}">
+                    <Grid.Background>
+                      <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Color="#2A1650" Offset="0" />
+                        <GradientStop Color="#120F1F" Offset="1" />
+                      </LinearGradientBrush>
+                    </Grid.Background>
+                    <TextBlock Text="{Binding Genre}" FontSize="16" Opacity="0.5" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                    <TextBlock Text="{Binding Initials}" FontFamily="{StaticResource HeadFont}" FontSize="44" FontWeight="Bold" Foreground="#C084FC" Opacity="0.9"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-30,0,0" />
+                  </Grid>
+                  <Image Source="{Binding Cover, Converter={x:Static local:CoverConverter.Instance}}" Stretch="UniformToFill" IsVisible="{Binding HasCover}" />
                   <Border VerticalAlignment="Bottom" Background="#B30B0A12" Padding="10,8">
                     <StackPanel>
                       <TextBlock Text="{Binding Name}" FontFamily="{StaticResource HeadFont}" FontWeight="Bold" FontSize="14" TextTrimming="CharacterEllipsis" />

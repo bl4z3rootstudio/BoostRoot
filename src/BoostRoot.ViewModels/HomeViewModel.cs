@@ -13,7 +13,19 @@ public sealed partial class GameCardViewModel(CatalogEntry entry, string? cover)
     public CatalogEntry Entry { get; } = entry;
     public string Name => Entry.DisplayName;
     public bool IsInstalled => Entry.IsInstalled;
-    public string? Cover { get; } = cover;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasCover))] public partial string? Cover { get; set; } = cover;
+    public bool HasCover => Cover is not null;
+    /// <summary>Generated cover text when no art exists: "Counter-Strike 2" → "CS2", "Elden Ring" → "ER".</summary>
+    public string Initials { get; } = MakeInitials(entry.DisplayName);
+    public string Genre => Entry.Profile?.Competitive == true ? "⚔" : "🎮";
+
+    private static string MakeInitials(string name)
+    {
+        var words = name.Split([' ', '-', ':', '.'], StringSplitOptions.RemoveEmptyEntries).Where(w => char.IsLetterOrDigit(w[0])).ToArray();
+        if (words.Length == 0) return "?";
+        if (words.Length == 1) return words[0].Length <= 4 ? words[0].ToUpperInvariant() : words[0][..2].ToUpperInvariant();
+        return string.Concat(words.Take(3).Select(w => char.IsDigit(w[0]) ? w : char.ToUpperInvariant(w[0]).ToString()));
+    }
     /// <summary>Stable tint per game for the cover placeholder.</summary>
     public string Tint { get; } = Palette[Math.Abs(StableHash(entry.DisplayName)) % Palette.Length];
     [ObservableProperty] public partial bool IsSelected { get; set; }
@@ -34,9 +46,39 @@ public sealed partial class LevelOptionViewModel(BoostLevel level) : ObservableO
 
 public sealed record ChangeRow(string Text, string Impact, bool High);
 
+/// <summary>One line of the boost result: what actually happened in each step.</summary>
+public sealed record StepRow(string Icon, string Text, bool Ok);
+
 public sealed partial class HomeViewModel : ObservableObject
 {
     public ObservableCollection<ChangeRow> Changes { get; } = [];
+    public ObservableCollection<StepRow> ResultSteps { get; } = [];
+
+    /// <summary>Turns step results into plain sentences, so "0 settings changed" is never the whole story.</summary>
+    public static IEnumerable<StepRow> Describe(BoostRoot.Core.Boost.BoostResult r, BoostRoot.Core.Profiles.GameProfile p)
+    {
+        foreach (var st in r.Steps)
+        {
+            var ok = st.Status != BoostRoot.Core.Boost.StepStatus.Failed;
+            yield return st.StepId switch
+            {
+                "game-settings" when p.Group == "B" || p.Configs.Count == 0 => new StepRow("🎮", Loc.I["step.gameGuide"], true),
+                "game-settings" when !ok => new StepRow("⚠", Loc.I["step.gameFailed"], false),
+                "game-settings" when st.Changes == 0 => new StepRow("✓", Loc.I["step.gameAlready"], true),
+                "game-settings" => new StepRow("✓", Loc.I.Format("step.game", st.Changes), true),
+                "close-apps" when st.Changes > 0 => new StepRow("✓", Loc.I.Format("step.closed", st.Changes), true),
+                "close-apps" => new StepRow("✓", Loc.I["step.closedNone"], true),
+                "windows" when st.Changes > 0 => new StepRow("✓", Loc.I.Format("step.windows", st.Changes), true),
+                "windows" => new StepRow("✓", Loc.I["step.windowsAlready"], true),
+                "gpu-profile" when ok && st.Status == BoostRoot.Core.Boost.StepStatus.Done => new StepRow("✓", Loc.I.Format("step.gpu", st.Changes), true),
+                "gpu-profile" => new StepRow("ℹ", Loc.I["step.gpuSkipped"], true),
+                "stretch" => new StepRow(ok ? "✓" : "⚠", ok ? Loc.I.Format("step.stretch", st.Detail ?? "") : Loc.I["step.stretchFailed"], ok),
+                _ when !ok => new StepRow("⚠", st.StepId + ": " + st.Detail, false),
+                _ when st.Changes > 0 => new StepRow("✓", Loc.I.Format("step.other", st.Changes), true),
+                _ => new StepRow("✓", Loc.I["step.otherAlready"], true),
+            };
+        }
+    }
     [ObservableProperty] public partial string? Tips { get; set; }
     [ObservableProperty] public partial string? PlaytimeText { get; set; }
     [ObservableProperty] public partial bool NoFileChanges { get; set; }
@@ -105,6 +147,24 @@ public sealed partial class HomeViewModel : ObservableObject
         }
         OnPropertyChanged(nameof(GamesTitle));
         OnPropertyChanged(nameof(LibraryText));
+        _ = LoadCoversAsync([.. Games.Where(g => g.Cover is null)]);
+    }
+
+    private CancellationTokenSource? _coverCts;
+
+    private async Task LoadCoversAsync(IReadOnlyList<GameCardViewModel> cards)
+    {
+        _coverCts?.Cancel();
+        var cts = _coverCts = new CancellationTokenSource();
+        var ui = SynchronizationContext.Current;
+        await Parallel.ForEachAsync(cards.Take(120), new ParallelOptions { MaxDegreeOfParallelism = 4, CancellationToken = cts.Token }, async (card, ct) =>
+        {
+            string? path;
+            try { path = await _services.FetchCoverAsync(card.Entry, ct).ConfigureAwait(false); }
+            catch (OperationCanceledException) { return; }
+            if (path is null) return;
+            if (ui is null) card.Cover = path; else ui.Post(_ => card.Cover = path, null);
+        }).ContinueWith(_ => { }, TaskScheduler.Default);
     }
     public string RecommendedText => Selected?.Entry.Profile is { } p ? Loc.I.Format("home.recommended", Loc.I["level." + Levels.First(l => l.Level == Recommended(p)).Key]) : "";
 
@@ -134,6 +194,7 @@ public sealed partial class HomeViewModel : ObservableObject
         Selected = game;
         Status = null;
         AskLaunch = false;
+        ResultSteps.Clear();
         if (game?.Entry.Profile is { } p)
         {
             var rec = Recommended(p);
@@ -168,11 +229,13 @@ public sealed partial class HomeViewModel : ObservableObject
             var level = SelectedLevel;
             var result = await Task.Run(() => _services.Boost(entry, level, _settings));
             LastResult = result;
+            ResultSteps.Clear();
+            if (entry.Profile is { } prof) foreach (var row in Describe(result, prof)) ResultSteps.Add(row);
             if (result.Success)
             {
                 LastOperation = result.OperationId;
                 var notFound = result.GameSettings?.Targets.Count > 0 && result.GameSettings.Targets.All(t => t.Status == TargetStatus.NotFound);
-                Status = notFound ? Loc.I["boost.notFound"] : Loc.I["boost.done"] + " · " + Loc.I.Format("boost.changes", result.Steps.Sum(s => s.Changes));
+                Status = notFound ? Loc.I["boost.notFound"] : Loc.I["boost.done"] + " ✓";
                 StatusIsError = notFound;
                 AskLaunch = !notFound;
             }

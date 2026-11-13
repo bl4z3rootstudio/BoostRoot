@@ -31,11 +31,6 @@ public sealed partial class App : Application
             services.ExitForUpdate = () => Avalonia.Threading.Dispatcher.UIThread.Post(() => desktop.Shutdown());
             Avalonia.Threading.DispatcherTimer.RunOnce(() => _ = vm.CheckUpdateAsync(), TimeSpan.FromSeconds(4));
             _ = vm.Scan.ScanCommand.ExecuteAsync(null); // score drives level recommendations
-            _ = Task.Run(async () =>
-            {
-                if (await services.PrefetchCoversAsync(services.LoadCatalog(), default) > 0)
-                    Avalonia.Threading.Dispatcher.UIThread.Post(vm.Home.Reload);
-            });
         }
         base.OnFrameworkInitializationCompleted();
     }

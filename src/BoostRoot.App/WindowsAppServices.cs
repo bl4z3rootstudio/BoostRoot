@@ -386,26 +386,74 @@ public sealed class WindowsAppServices : IAppServices
         File.WriteAllText(marker, ok ? "created " + DateTime.Now.ToString("O") : "unavailable (System Protection off) " + DateTime.Now.ToString("O"));
     }
 
-    public async Task<int> PrefetchCoversAsync(IReadOnlyList<CatalogEntry> entries, CancellationToken ct)
+    private readonly SemaphoreSlim _coverGate = new(4);
+
+    /// <summary>Finds cover art: Steam's local cache → Steam CDN by app id → Steam store search by name.
+    /// Misses are remembered for a week so we don't hammer the store.</summary>
+    public async Task<string?> FetchCoverAsync(CatalogEntry e, CancellationToken ct)
     {
-        if (LoadSettings().Offline) return 0;
+        if (CoverPath(e) is { } have) return have;
+        var id = e.Profile?.Id ?? e.Game?.SourceId;
+        if (id is null) return null;
         Directory.CreateDirectory(_coversDir);
-        var added = 0;
-        foreach (var e in entries)
+        var target = Path.Combine(_coversDir, id + ".jpg");
+        var miss = Path.Combine(_coversDir, id + ".none");
+        if (File.Exists(miss) && File.GetLastWriteTimeUtc(miss) > DateTime.UtcNow.AddDays(-7)) return null;
+        await _coverGate.WaitAsync(ct);
+        try
         {
-            if (CoverPath(e) is not null || e.Profile?.Id is not { } id) continue;
-            var appId = e.Profile.Detect.TryGetValue("steam", out var a) ? a : e.Game?.Source == "steam" ? e.Game.SourceId : null;
-            if (appId is null || !appId.All(char.IsAsciiDigit)) continue;
-            try
+            var appId = e.Profile?.Detect.TryGetValue("steam", out var a) == true ? a : e.Game?.Source == "steam" ? e.Game.SourceId : null;
+            if (appId is not null && appId.All(char.IsAsciiDigit) && LocalSteamCover(appId) is { } local)
             {
-                var bytes = await _http.GetByteArrayAsync($"https://cdn.cloudflare.steamstatic.com/steam/apps/{appId}/library_600x900.jpg", ct);
-                if (bytes.Length < 1024) continue;
-                await File.WriteAllBytesAsync(Path.Combine(_coversDir, id + ".jpg"), bytes, ct);
-                added++;
+                File.Copy(local, target, true);
+                return target;
             }
-            catch (Exception ex) when (ex is HttpRequestException or IOException or TaskCanceledException) { }
+            if (LoadSettings().Offline) return null;
+            if (appId is null || !appId.All(char.IsAsciiDigit)) appId = await SteamSearchAsync(e.DisplayName, ct);
+            if (appId is not null)
+            {
+                using var resp = await _http.GetAsync($"https://cdn.cloudflare.steamstatic.com/steam/apps/{appId}/library_600x900.jpg", ct);
+                if (resp.IsSuccessStatusCode && await resp.Content.ReadAsByteArrayAsync(ct) is { Length: > 2048 } bytes)
+                {
+                    await File.WriteAllBytesAsync(target, bytes, ct);
+                    return target;
+                }
+            }
+            await File.WriteAllTextAsync(miss, appId ?? "", ct);
+            return null;
         }
-        return added;
+        catch (Exception ex) when (ex is HttpRequestException or IOException or TaskCanceledException or UnauthorizedAccessException or JsonException) { return null; }
+        finally { _coverGate.Release(); }
+    }
+
+    private string? LocalSteamCover(string appId)
+    {
+        if (_registry.GetValue(Core.Platform.RegistryHive.CurrentUser, @"Software\Valve\Steam", "SteamPath")?.Data is not string root) return null;
+        var cache = Path.Combine(root.Replace('/', '\\'), "appcache", "librarycache");
+        var flat = Path.Combine(cache, appId + "_library_600x900.jpg");
+        if (File.Exists(flat)) return flat;
+        var dir = Path.Combine(cache, appId);
+        try { return Directory.Exists(dir) ? Directory.EnumerateFiles(dir, "library_600x900*.jpg", SearchOption.AllDirectories).FirstOrDefault() : null; }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return null; }
+    }
+
+    private async Task<string?> SteamSearchAsync(string name, CancellationToken ct)
+    {
+        var json = await _http.GetStringAsync("https://store.steampowered.com/api/storesearch/?l=english&cc=US&term=" + Uri.EscapeDataString(name), ct);
+        using var doc = JsonDocument.Parse(json);
+        if (!doc.RootElement.TryGetProperty("items", out var items)) return null;
+        var want = GameLibrary.Normalize(name);
+        string? first = null;
+        foreach (var it in items.EnumerateArray())
+        {
+            var id = it.GetProperty("id").ToString();
+            var n = it.TryGetProperty("name", out var nn) ? nn.GetString() ?? "" : "";
+            first ??= id;
+            if (GameLibrary.Normalize(n) == want) return id;
+        }
+        // Only trust the first hit when it clearly starts with the same words.
+        var firstName = items.GetArrayLength() > 0 && items[0].TryGetProperty("name", out var fn) ? GameLibrary.Normalize(fn.GetString() ?? "") : "";
+        return firstName.StartsWith(want, StringComparison.Ordinal) || want.StartsWith(firstName, StringComparison.Ordinal) && firstName.Length > 3 ? first : null;
     }
 
     public IReadOnlyList<WindowsTweak> AdvancedTweaks => [.. WindowsTweaks.All.Where(t => t.Tier == TweakTier.Advanced)];

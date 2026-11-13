@@ -99,8 +99,8 @@ public interface IAppServices
     Task<bool> SendToDiscordAsync(string webhook, string path, CancellationToken ct);
 
     // Covers + advanced tweaks
-    /// <summary>Downloads missing cover art (Steam CDN) unless offline; returns how many were added.</summary>
-    Task<int> PrefetchCoversAsync(IReadOnlyList<CatalogEntry> entries, CancellationToken ct);
+    /// <summary>Finds/downloads cover art for one game; null when none exists (a generated cover is shown).</summary>
+    Task<string?> FetchCoverAsync(CatalogEntry entry, CancellationToken ct);
     IReadOnlyList<WindowsTweak> AdvancedTweaks { get; }
     /// <summary>tweak id → operation id of tweaks currently applied by BoostRoot.</summary>
     IReadOnlyDictionary<string, string> AppliedTweaks();

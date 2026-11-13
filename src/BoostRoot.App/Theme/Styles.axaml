@@ -77,25 +77,59 @@
     <Setter Property="Padding" Value="18,10" />
   </Style>
   <!-- Big round BOOST button -->
+  <!-- BOOST: animated orb (rotating ring + breathing glow + press feedback) -->
   <Style Selector="Button.boost">
-    <Setter Property="Width" Value="250" />
-    <Setter Property="Height" Value="250" />
-    <Setter Property="CornerRadius" Value="125" />
-    <Setter Property="Background" Value="#120F1F" />
-    <Setter Property="BorderBrush" Value="{StaticResource Accent}" />
-    <Setter Property="BorderThickness" Value="3" />
-    <Setter Property="FontFamily" Value="{StaticResource HeadFont}" />
-    <Setter Property="FontSize" Value="42" />
-    <Setter Property="FontWeight" Value="Bold" />
-    <Setter Property="HorizontalContentAlignment" Value="Center" />
-    <Setter Property="VerticalContentAlignment" Value="Center" />
-    <Setter Property="Effect">
-      <DropShadowEffect Color="#A855F7" BlurRadius="80" OffsetX="0" OffsetY="0" Opacity="0.55" />
+    <Setter Property="Width" Value="240" />
+    <Setter Property="Height" Value="240" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="RenderTransform" Value="scale(1)" />
+    <Setter Property="Transitions">
+      <Transitions><TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" Easing="CubicEaseOut" /></Transitions>
+    </Setter>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter Content="{TemplateBinding Content}" Background="Transparent" />
+      </ControlTemplate>
     </Setter>
   </Style>
-  <Style Selector="Button.boost:pointerover /template/ ContentPresenter">
-    <Setter Property="Background" Value="#1A1430" />
-    <Setter Property="BorderBrush" Value="{StaticResource AccentLight}" />
+  <Style Selector="Button.boost:pointerover"><Setter Property="RenderTransform" Value="scale(1.05)" /></Style>
+  <Style Selector="Button.boost:pressed"><Setter Property="RenderTransform" Value="scale(0.94)" /></Style>
+  <Style Selector="Button.boost:disabled"><Setter Property="Opacity" Value="0.85" /></Style>
+  <Style Selector="Ellipse.orbRing">
+    <Setter Property="RenderTransform" Value="rotate(0deg)" />
+    <Style.Animations>
+      <Animation Duration="0:0:6" IterationCount="Infinite">
+        <KeyFrame Cue="0%"><Setter Property="RotateTransform.Angle" Value="0" /></KeyFrame>
+        <KeyFrame Cue="100%"><Setter Property="RotateTransform.Angle" Value="360" /></KeyFrame>
+      </Animation>
+    </Style.Animations>
+  </Style>
+  <Style Selector="Ellipse.orbRing.fast">
+    <Style.Animations>
+      <Animation Duration="0:0:0.9" IterationCount="Infinite">
+        <KeyFrame Cue="0%"><Setter Property="RotateTransform.Angle" Value="0" /></KeyFrame>
+        <KeyFrame Cue="100%"><Setter Property="RotateTransform.Angle" Value="360" /></KeyFrame>
+      </Animation>
+    </Style.Animations>
+  </Style>
+  <Style Selector="Ellipse.orbGlow">
+    <Style.Animations>
+      <Animation Duration="0:0:2.4" IterationCount="Infinite" PlaybackDirection="Alternate" Easing="SineEaseInOut">
+        <KeyFrame Cue="0%"><Setter Property="Opacity" Value="0.35" /><Setter Property="ScaleTransform.ScaleX" Value="0.92" /><Setter Property="ScaleTransform.ScaleY" Value="0.92" /></KeyFrame>
+        <KeyFrame Cue="100%"><Setter Property="Opacity" Value="0.75" /><Setter Property="ScaleTransform.ScaleX" Value="1.04" /><Setter Property="ScaleTransform.ScaleY" Value="1.04" /></KeyFrame>
+      </Animation>
+    </Style.Animations>
+  </Style>
+  <Style Selector="PathIcon.rocket">
+    <Style.Animations>
+      <Animation Duration="0:0:1.6" IterationCount="Infinite" PlaybackDirection="Alternate" Easing="SineEaseInOut">
+        <KeyFrame Cue="0%"><Setter Property="TranslateTransform.Y" Value="2" /></KeyFrame>
+        <KeyFrame Cue="100%"><Setter Property="TranslateTransform.Y" Value="-4" /></KeyFrame>
+      </Animation>
+    </Style.Animations>
   </Style>
   <!-- Game cover tiles -->
   <Style Selector="Button.cover">
@@ -146,5 +180,51 @@
   <Style Selector="ToggleButton.chip:checked /template/ ContentPresenter">
     <Setter Property="Background" Value="#3B1F66" />
     <Setter Property="BorderBrush" Value="{StaticResource Accent}" />
+  </Style>
+  <!-- ===== Light motion everywhere ===== -->
+  <Style Selector="Button.primary, Button.ghost, Button.pill, Button.nav, Button.chip, ToggleButton.chip, Button.cover">
+    <Setter Property="RenderTransform" Value="scale(1)" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" Easing="CubicEaseOut" />
+        <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Button.primary:pressed, Button.ghost:pressed, Button.pill:pressed, Button.chip:pressed, ToggleButton.chip:pressed">
+    <Setter Property="RenderTransform" Value="scale(0.95)" />
+  </Style>
+  <Style Selector="Button.primary:pointerover, Button.pill:pointerover"><Setter Property="RenderTransform" Value="scale(1.03)" /></Style>
+  <Style Selector="Button.nav:pointerover"><Setter Property="RenderTransform" Value="translateX(3px)" /></Style>
+  <Style Selector="Button.cover:pointerover"><Setter Property="RenderTransform" Value="scale(1.04)" /></Style>
+  <Style Selector="Button.cover:pressed"><Setter Property="RenderTransform" Value="scale(0.97)" /></Style>
+  <Style Selector="Button.cover.selected"><Setter Property="RenderTransform" Value="scale(1.02)" /></Style>
+  <!-- Cards and rows fade in when they appear -->
+  <Style Selector="Border.card">
+    <Style.Animations>
+      <Animation Duration="0:0:0.35" Easing="CubicEaseOut" FillMode="Forward">
+        <KeyFrame Cue="0%"><Setter Property="Opacity" Value="0" /></KeyFrame>
+        <KeyFrame Cue="100%"><Setter Property="Opacity" Value="1" /></KeyFrame>
+      </Animation>
+    </Style.Animations>
+  </Style>
+  <Style Selector="Button.cover">
+    <Style.Animations>
+      <Animation Duration="0:0:0.4" Easing="CubicEaseOut" FillMode="Forward">
+        <KeyFrame Cue="0%"><Setter Property="Opacity" Value="0" /></KeyFrame>
+        <KeyFrame Cue="100%"><Setter Property="Opacity" Value="1" /></KeyFrame>
+      </Animation>
+    </Style.Animations>
+  </Style>
+  <Style Selector="TextBlock.pop">
+    <Style.Animations>
+      <Animation Duration="0:0:0.45" Easing="BackEaseOut" FillMode="Forward">
+        <KeyFrame Cue="0%"><Setter Property="Opacity" Value="0" /><Setter Property="ScaleTransform.ScaleX" Value="0.6" /><Setter Property="ScaleTransform.ScaleY" Value="0.6" /></KeyFrame>
+        <KeyFrame Cue="100%"><Setter Property="Opacity" Value="1" /><Setter Property="ScaleTransform.ScaleX" Value="1" /><Setter Property="ScaleTransform.ScaleY" Value="1" /></KeyFrame>
+      </Animation>
+    </Style.Animations>
+  </Style>
+  <Style Selector="ProgressBar">
+    <Setter Property="Transitions"><Transitions><DoubleTransition Property="Value" Duration="0:0:0.3" Easing="CubicEaseOut" /></Transitions></Setter>
   </Style>
 </Styles>

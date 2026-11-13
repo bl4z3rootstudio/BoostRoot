@@ -15,7 +15,7 @@ using BoostRoot.ViewModels.Localization;
 
 namespace BoostRoot.Core.Tests;
 
-internal sealed class FakeAppServices : IAppServices
+public sealed class FakeAppServices : IAppServices
 {
     public List<CatalogEntry> Catalog { get; } = [];
     public int PcScore { get; set; } = 72;
@@ -77,7 +77,7 @@ internal sealed class FakeAppServices : IAppServices
     public Task<string?> VerticalClipAsync(string path) => Task.FromResult<string?>(null);
     public List<string> Sent { get; } = [];
     public Task<bool> SendToDiscordAsync(string webhook, string path, CancellationToken ct) { Sent.Add(webhook); return Task.FromResult(true); }
-    public Task<int> PrefetchCoversAsync(IReadOnlyList<CatalogEntry> entries, CancellationToken ct) => Task.FromResult(0);
+    public Task<string?> FetchCoverAsync(CatalogEntry entry, CancellationToken ct) => Task.FromResult<string?>(null);
     public IReadOnlyList<BoostRoot.Core.Tweaks.WindowsTweak> AdvancedTweaks => [.. BoostRoot.Core.Tweaks.WindowsTweaks.All.Where(t => t.Tier == BoostRoot.Core.Tweaks.TweakTier.Advanced)];
     public Dictionary<string, string> Tweaks { get; } = [];
     public IReadOnlyDictionary<string, string> AppliedTweaks() => Tweaks;
@@ -117,7 +117,7 @@ public class ViewModelTests
     private static GameProfile Example => ProfileLoader.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "TestData", "_example.json")));
     private static InstalledGame Game => new("riot", "valorant", "VALORANT", "C:/x", new Dictionary<string, string>());
 
-    internal static FakeAppServices Services()
+    public static FakeAppServices Services()
     {
         var s = new FakeAppServices();
         s.Catalog.Add(new CatalogEntry(Example, Game));
