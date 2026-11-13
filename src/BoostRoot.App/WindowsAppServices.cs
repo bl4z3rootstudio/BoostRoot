@@ -50,6 +50,7 @@ public sealed class WindowsAppServices : IAppServices
     private HardwareInfo? _lastHardware;
     private readonly ProfileApplier _applier;
     private readonly SafeFileEditor _editor;
+    private readonly WindowsPowerPlans _powerPlans = new();
     private readonly Core.Gpu.GpuProfileChanger _gpu;
     /// <summary>Set by the app: starts the in-game session (overlay, hotkeys, clips, 4:3) after a boost.</summary>
     public Action<CatalogEntry, AppSettings>? SessionStarter { get; set; }
@@ -66,7 +67,7 @@ public sealed class WindowsAppServices : IAppServices
         var editor = _editor = new SafeFileEditor(_fs, _journal, Path.Combine(shared, "backup"));
         var applier = _applier = new ProfileApplier(new PathResolver(_fs, p => WindowsEnvironment.Expand(ExpandGameVars(p))), editor);
         var registryChanger = _registryChanger = new RegistryChanger(_registry, _journal);
-        var powerChanger = new PowerPlanChanger(new WindowsPowerPlans(), _journal);
+        var powerChanger = new PowerPlanChanger(_powerPlans, _journal);
         _gpu = new Core.Gpu.GpuProfileChanger(new NvidiaDrs(), _journal);
         _undo = new UndoService(_journal, [new FileUndoHandler(_fs), registryChanger, powerChanger, _gpu]);
         _orchestrator = new BoostOrchestrator(applier, _processes, _registry, registryChanger, powerChanger, _undo, []);
@@ -643,5 +644,67 @@ public sealed class WindowsAppServices : IAppServices
             }
         }
         return n;
+    }
+
+    private readonly Dictionary<int, (TimeSpan Cpu, DateTime At)> _cpuSnap = [];
+
+    public IReadOnlyList<ProcessUsage> TopProcesses(int count)
+    {
+        var now = DateTime.UtcNow;
+        var list = new List<ProcessUsage>();
+        var seen = new HashSet<int>();
+        foreach (var p in System.Diagnostics.Process.GetProcesses())
+        {
+            try
+            {
+                if (p.Id <= 4) continue;
+                var cpu = p.TotalProcessorTime;
+                seen.Add(p.Id);
+                double pct = 0;
+                if (_cpuSnap.TryGetValue(p.Id, out var prev) && (now - prev.At).TotalMilliseconds > 100)
+                    pct = (cpu - prev.Cpu).TotalMilliseconds / (now - prev.At).TotalMilliseconds / Environment.ProcessorCount * 100;
+                _cpuSnap[p.Id] = (cpu, now);
+                list.Add(new ProcessUsage(p.Id, p.ProcessName, Math.Max(0, pct), p.WorkingSet64 / 1048576.0));
+            }
+            catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException or NotSupportedException) { }
+            finally { p.Dispose(); }
+        }
+        foreach (var dead in _cpuSnap.Keys.Where(k => !seen.Contains(k)).ToList()) _cpuSnap.Remove(dead);
+        return [.. list.OrderByDescending(x => x.CpuPercent).ThenByDescending(x => x.RamMb).Take(count)];
+    }
+
+    public bool KillProcess(int pid)
+    {
+        try { using var p = System.Diagnostics.Process.GetProcessById(pid); if (p.ProcessName is "explorer" or "BoostRoot" or "csrss" or "winlogon" or "dwm") return false; p.CloseMainWindow(); if (!p.WaitForExit(1500)) p.Kill(); return true; }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception) { return false; }
+    }
+
+    public IReadOnlyList<PreflightItem> Preflight(AppSettings settings)
+    {
+        var items = new List<PreflightItem>();
+        var running = RunningApps().ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var open = settings.CloseList.Where(running.Contains).ToList();
+        items.Add(new("pf.apps", open.Count == 0, open.Count == 0 ? "✓" : string.Join(", ", open.Select(AppCatalog.Friendly)), "close-apps"));
+        var avail = HardwareScanner.AvailableRamBytes();
+        var total = (ulong)((_lastHardware?.RamGb ?? 0) * 1073741824.0);
+        var pct = total > 0 ? avail * 100.0 / total : 50;
+        items.Add(new("pf.ram", pct >= 25, $"{avail / 1073741824.0:0.0} GB (%{pct:0})", "ram"));
+        var plan = _powerPlans.GetActive();
+        var high = plan == Core.Platform.PowerSchemes.HighPerformance || plan == new Guid("e9a42b02-d5df-448d-aa00-03f14749eb61");
+        items.Add(new("pf.power", high, high ? "✓" : Loc.I["pf.powerFix"]));
+        var s = Sensors.Read();
+        if (s.GpuTempC is { } t) items.Add(new("pf.gpuTemp", t < 70, $"{t:0}°C"));
+        if (CheckDriver() is { } d && d.AgeDays >= 0) items.Add(new("pf.driver", !d.IsOld, $"{d.AgeDays} gün / days", d.IsOld ? "driver" : ""));
+        try
+        {
+            var c = new DriveInfo(Path.GetPathRoot(Environment.SystemDirectory) ?? "C:\\");
+            var freeGb = c.AvailableFreeSpace / 1073741824.0;
+            items.Add(new("pf.disk", freeGb >= 20 && c.AvailableFreeSpace * 10 >= c.TotalSize, $"{freeGb:0} GB"));
+        }
+        catch (IOException) { }
+        var dvr = _registry.GetValue(Core.Platform.RegistryHive.CurrentUser, @"System\GameConfigStore", "GameDVR_Enabled")?.Data;
+        var dvrOn = dvr == "1";
+        items.Add(new("pf.gamebar", !dvrOn, dvrOn ? Loc.I["pf.gamebarFix"] : "✓"));
+        return items;
     }
 }

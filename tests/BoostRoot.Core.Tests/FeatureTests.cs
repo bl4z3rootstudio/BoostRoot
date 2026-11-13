@@ -99,3 +99,23 @@ public class FeatureTests
         Assert.Contains(rows, x => x.Text.Contains('3'));
     }
 }
+
+public class MonitorTests
+{
+    [Fact]
+    public async Task Monitor_TicksChecksAndFixes()
+    {
+        var svc = ViewModelTests.Services();
+        var vm = new MonitorViewModel(svc, () => AppSettings.Default);
+        vm.Tick();
+        Assert.Single(vm.CpuSeries);
+        Assert.Equal(2, vm.Processes.Count);
+        vm.RunChecks();
+        Assert.False(vm.AllOk);
+        await vm.FixAllCommand.ExecuteAsync(null);
+        Assert.Contains(10, svc.Killed);
+        Assert.True(vm.AllOk);
+        vm.Kill(vm.Processes[1]);
+        Assert.Contains(11, svc.Killed);
+    }
+}

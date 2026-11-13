@@ -89,11 +89,18 @@ public sealed class FakeAppServices : IAppServices
     public string? Clipboard { get; private set; }
     public void CopyToClipboard(string text) => Clipboard = text;
     public PlaytimeLog Playtime { get; } = new(new InMemoryFileSystem(), "C:/p.jsonl");
-    public long CleanRam() => 512L << 20;
+    public long CleanRam() { RamCleaned = true; return 512L << 20; }
     public IReadOnlyList<string> RunningApps() => ["Discord", "chrome"];
     public Task<IReadOnlyList<(string Name, string Path, long Bytes)>> GameSizesAsync(IReadOnlyList<CatalogEntry> entries, CancellationToken ct) =>
         Task.FromResult<IReadOnlyList<(string, string, long)>>([("VALORANT", "C:/x", 30L << 30), ("Mini", "C:/m", 1L << 30)]);
     public int? LastBenchmark { get; set; }
+    public List<int> Killed { get; } = [];
+    public IReadOnlyList<ProcessUsage> TopProcesses(int count) => [new(10, "chrome", 12.5, 900), new(11, "Discord", 3, 300)];
+    public bool KillProcess(int pid) { Killed.Add(pid); return true; }
+    public bool RamCleaned { get; private set; }
+    public IReadOnlyList<PreflightItem> Preflight(AppSettings settings) => RamCleaned
+        ? [new("pf.ram", true, "8 GB")]
+        : [new("pf.ram", false, "1 GB", "ram"), new("pf.apps", false, "chrome", "close-apps")];
     public IReadOnlyList<DnsServer> SystemDns() => [new("Current", "192.168.1.1")];
     public Task<DnsResult> MeasureDnsAsync(DnsServer server, CancellationToken ct) => Task.FromResult(new DnsResult(server, server.Address == "192.168.1.1" ? 40 : server.Address == "1.1.1.1" ? 10 : 25, 0));
     public List<BoostRoot.Core.Crosshair.CrosshairDesign> Crosshairs { get; set; } = [];

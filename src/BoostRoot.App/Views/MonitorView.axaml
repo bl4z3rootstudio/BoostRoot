@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BoostRoot.ViewModels" xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             xmlns:c="using:BoostRoot.App.Controls" xmlns:v="using:BoostRoot.App.Views"
+             x:Class="BoostRoot.App.Views.MonitorView" x:DataType="vm:MonitorViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="48,24" Spacing="16">
+      <TextBlock Classes="h1" FontSize="32" Text="{Binding [mon.title], Source={x:Static loc:Loc.I}}" />
+      <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [mon.sub], Source={x:Static loc:Loc.I}}" />
+      <UniformGrid Columns="4" Height="170">
+        <Border Classes="card" Margin="0,0,12,0"><DockPanel><StackPanel DockPanel.Dock="Top"><TextBlock Classes="muted" Text="{Binding [mon.cpu], Source={x:Static loc:Loc.I}}" /><TextBlock FontSize="18" FontWeight="Bold" Text="{Binding CpuText}" /></StackPanel><c:LineChart Values="{Binding CpuSeries}" Capacity="120" Max="100" Stroke="#C084FC" /></DockPanel></Border>
+        <Border Classes="card" Margin="0,0,12,0"><DockPanel><StackPanel DockPanel.Dock="Top"><TextBlock Classes="muted" Text="{Binding [mon.gpu], Source={x:Static loc:Loc.I}}" /><TextBlock FontSize="18" FontWeight="Bold" Text="{Binding GpuText}" /></StackPanel><c:LineChart Values="{Binding GpuSeries}" Capacity="120" Max="100" Stroke="#60A5FA" /></DockPanel></Border>
+        <Border Classes="card" Margin="0,0,12,0"><DockPanel><StackPanel DockPanel.Dock="Top"><TextBlock Classes="muted" Text="{Binding [mon.temp], Source={x:Static loc:Loc.I}}" /><TextBlock FontSize="18" FontWeight="Bold" Text="{Binding TempText}" /></StackPanel><c:LineChart Values="{Binding TempSeries}" Capacity="120" Max="100" Stroke="#F87171" /></DockPanel></Border>
+        <Border Classes="card"><DockPanel><StackPanel DockPanel.Dock="Top"><TextBlock Classes="muted" Text="{Binding [mon.ram], Source={x:Static loc:Loc.I}}" /><TextBlock FontSize="18" FontWeight="Bold" Text="{Binding RamText}" /></StackPanel><c:LineChart Values="{Binding RamSeries}" Capacity="120" Max="100" Stroke="#86EFAC" /></DockPanel></Border>
+      </UniformGrid>
+      <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+        <Border Classes="card">
+          <StackPanel Spacing="8">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+              <TextBlock Classes="h2" Text="{Binding [mon.checks], Source={x:Static loc:Loc.I}}" />
+              <Button Grid.Column="1" Classes="ghost" Command="{Binding RunChecksCommand}" Content="{Binding [mon.check], Source={x:Static loc:Loc.I}}" />
+              <Button Grid.Column="2" Classes="primary" Command="{Binding FixAllCommand}" Content="{Binding [mon.fixAll], Source={x:Static loc:Loc.I}}" />
+            </Grid>
+            <TextBlock Classes="pop" FontWeight="SemiBold" Foreground="{StaticResource Good}" IsVisible="{Binding AllOk}" Text="{Binding [mon.allOk], Source={x:Static loc:Loc.I}}" />
+            <ItemsControl ItemsSource="{Binding Checks}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:PreflightItem">
+                  <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,4">
+                    <TextBlock Text="✓" Foreground="{StaticResource Good}" FontWeight="Bold" Width="22" IsVisible="{Binding Ok}" />
+                    <TextBlock Text="!" Foreground="{StaticResource Warn}" FontWeight="Bold" Width="22" IsVisible="{Binding !Ok}" />
+                    <TextBlock Grid.Column="1" Text="{Binding Key, Converter={x:Static v:LocKeyConverter.Plain}}" />
+                    <TextBlock Grid.Column="2" Classes="muted" MaxWidth="240" TextTrimming="CharacterEllipsis" Text="{Binding Detail}" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Classes="pop" Foreground="{StaticResource AccentLight}" Text="{Binding Status}" />
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="1" Classes="card">
+          <StackPanel Spacing="6">
+            <TextBlock Classes="h2" Text="{Binding [mon.procs], Source={x:Static loc:Loc.I}}" />
+            <ItemsControl ItemsSource="{Binding Processes}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ProcessRowViewModel">
+                  <Grid ColumnDefinitions="*,70,80,Auto" Margin="0,3">
+                    <StackPanel>
+                      <TextBlock FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                      <ProgressBar Height="3" MinHeight="3" Minimum="0" Maximum="1" Value="{Binding CpuShare}" Foreground="{StaticResource Accent}" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Text="{Binding Cpu}" />
+                    <TextBlock Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Classes="muted" Text="{Binding Ram}" />
+                    <Button Grid.Column="3" Classes="ghost" Margin="8,0,0,0" Padding="8,2" Content="{Binding [mon.kill], Source={x:Static loc:Loc.I}}"
+                            Command="{Binding $parent[ItemsControl].((vm:MonitorViewModel)DataContext).KillCommand}" CommandParameter="{Binding}" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

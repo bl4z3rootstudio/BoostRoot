@@ -131,11 +131,21 @@ public interface IAppServices
     Task<IReadOnlyList<(string Name, string Path, long Bytes)>> GameSizesAsync(IReadOnlyList<CatalogEntry> entries, CancellationToken ct);
     /// <summary>Best/last benchmark score (null when never run).</summary>
     int? LastBenchmark { get; set; }
+    /// <summary>Busiest processes right now (CPU % since the previous call, RAM).</summary>
+    IReadOnlyList<ProcessUsage> TopProcesses(int count);
+    bool KillProcess(int pid);
+    /// <summary>"Ready to play?" checks.</summary>
+    IReadOnlyList<PreflightItem> Preflight(AppSettings settings);
     IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> LoadCrosshairs();
     void SaveCrosshairs(IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> designs);
     /// <summary>Writes the design into CS2's own crosshair settings (all Steam accounts). Returns accounts changed; CS2 must be closed.</summary>
     int ApplyCs2Crosshair(BoostRoot.Core.Crosshair.CrosshairDesign design);
 }
+
+public sealed record ProcessUsage(int Pid, string Name, double CpuPercent, double RamMb);
+
+/// <param name="Fix">fix id understood by the shell: "close-apps", "ram", "power", "driver", "" = info only</param>
+public sealed record PreflightItem(string Key, bool Ok, string Detail, string Fix = "");
 
 public sealed record ShareCard(string Game, FrameStats Before, FrameStats After, double Gain, string Cpu, string Gpu);
 
