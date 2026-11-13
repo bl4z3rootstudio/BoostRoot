@@ -66,6 +66,23 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty] public partial string ClipAudio { get; set; }
     [ObservableProperty] public partial string ClipFolder { get; set; }
     [ObservableProperty] public partial string DiscordWebhook { get; set; }
+    [ObservableProperty] public partial bool AutoUndo { get; set; }
+    public System.Collections.ObjectModel.ObservableCollection<string> RunningApps { get; } = [];
+
+    [RelayCommand]
+    public void LoadRunningApps()
+    {
+        RunningApps.Clear();
+        var have = (CloseList ?? "").Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var a in _services.RunningApps().Where(a => !have.Contains(a))) RunningApps.Add(a);
+    }
+
+    [RelayCommand]
+    public void AddToCloseList(string app)
+    {
+        CloseList = string.IsNullOrWhiteSpace(CloseList) ? app : CloseList + ", " + app;
+        RunningApps.Remove(app);
+    }
 
     public SettingsViewModel(IAppServices services, Action<AppSettings> onChanged)
     {
@@ -82,6 +99,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         (CrosshairEnabled, CrosshairColor, CrosshairSize, CrosshairThickness, CrosshairGap, CrosshairDot, CrosshairOutline) = (c.Enabled, c.Color, c.Size, c.Thickness, c.Gap, c.Dot, c.Outline);
         var k = s.ClipsOrDefault;
         (ReplayEnabled, ReplaySeconds, ClipHeight, ClipFps, ClipAudio, ClipFolder, DiscordWebhook) = (k.ReplayEnabled, k.ReplaySeconds, k.Height, k.Fps, k.Audio, k.Folder ?? "", k.DiscordWebhook ?? "");
+        AutoUndo = s.AutoUndo;
         Metrics = [.. AppSettings.AllMetrics.Select(m => new MetricToggleViewModel(m, s.Metrics.Contains(m), Save))];
         Loc.I.SetLanguage(s.Language);
         _ready = true;
@@ -97,6 +115,7 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     public AppSettings Current => _base with
     {
+        AutoUndo = AutoUndo,
         Language = Language ?? "tr", Sounds = Sounds, Animations = Animations, Offline = Offline,
         CloseList = [.. (CloseList ?? "").Split([',', ';', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],
         OverlayMetrics = [.. Metrics.Where(m => m.IsOn).Select(m => m.Key)],
@@ -186,6 +205,11 @@ public sealed partial class MainViewModel : ObservableObject
         _services = services;
         Home = new HomeViewModel(services);
         Settings = new SettingsViewModel(services, s => Home.ApplySettings(s));
+        Home.FavoriteChanged = (id, on) => Settings.Update(s => s with
+        {
+            Favorites = on ? [.. (s.Favorites ?? []).Append(id).Distinct()] : [.. (s.Favorites ?? []).Where(x => x != id)],
+        });
+        Home.CopyText = services.CopyToClipboard;
         Home.StretchChanged = (id, on) => Settings.Update(s => s with
         {
             StretchGames = on ? [.. (s.StretchGames ?? []).Append(id).Distinct()] : [.. (s.StretchGames ?? []).Where(x => x != id)],
@@ -198,6 +222,8 @@ public sealed partial class MainViewModel : ObservableObject
         Clips = new ClipsViewModel(services, () => Settings!.Current);
         ShowWelcome = !services.LoadSettings().FirstRunDone;
         Crosshair = new CrosshairViewModel(services, d => Settings.UseCrosshair(d));
+        Home.CurrentCrosshairCode = () => Crosshair.Design.ToValorantCode();
+        Home.ApplySharedCrosshair = code => { if (BoostRoot.Core.Crosshair.CrosshairDesign.FromValorantCode(code) is { } d) Crosshair.Load(d); };
         Nav =
         [
             new("boost", "M13 2 4 14h7l-1 8 9-12h-7z", Home),

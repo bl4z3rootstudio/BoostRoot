@@ -83,6 +83,27 @@
       </Border>
       <Border Classes="card">
         <StackPanel Spacing="8">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Classes="h2" Text="{Binding [tools.sizes], Source={x:Static loc:Loc.I}}" />
+            <Button Grid.Column="1" Classes="ghost" Command="{Binding LoadSizesCommand}" Content="{Binding [tools.sizesRun], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+          <ProgressBar IsIndeterminate="True" IsVisible="{Binding SizesBusy}" Foreground="{StaticResource Accent}" />
+          <ItemsControl ItemsSource="{Binding Sizes}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:GameSizeRow">
+                <Grid ColumnDefinitions="220,*,90" Margin="0,4">
+                  <Button Classes="ghost" Padding="0" BorderThickness="0" HorizontalAlignment="Left" Content="{Binding Name}"
+                          Command="{Binding $parent[ItemsControl].((vm:ToolsViewModel)DataContext).OpenFolderCommand}" CommandParameter="{Binding}" />
+                  <ProgressBar Grid.Column="1" Margin="8,0" VerticalAlignment="Center" Minimum="0" Maximum="1" Value="{Binding Share}" Foreground="{StaticResource Accent}" />
+                  <TextBlock Grid.Column="2" HorizontalAlignment="Right" FontWeight="SemiBold" Text="{Binding Size}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
           <TextBlock Classes="h2" Text="{Binding [tools.startup], Source={x:Static loc:Loc.I}}" />
           <ItemsControl ItemsSource="{Binding Startup}">
             <ItemsControl.ItemTemplate>

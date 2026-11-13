@@ -46,6 +46,9 @@ public sealed class StatsOverlay : OverlayWindowBase
     private readonly TextBlock _text = new() { FontFamily = new FontFamily("Consolas"), FontSize = 14, Foreground = Brushes.White, LineHeight = 19 };
     private readonly DispatcherTimer _timer;
     private readonly Queue<double> _lowWindow = new();
+    private double? _ping;
+    private int _tick;
+    private readonly BoostRoot.Core.Net.IcmpPinger _pinger = new();
 
     public StatsOverlay(ISensors sensors, RollingFps fps, AppSettings settings)
     {
@@ -76,6 +79,10 @@ public sealed class StatsOverlay : OverlayWindowBase
         var fps = _fps.Fps;
         if (fps is { } f) { _lowWindow.Enqueue(f); while (_lowWindow.Count > 20) _lowWindow.Dequeue(); }
         static string N(double? v, string u) => v is { } d ? $"{d:0}{u}" : "—";
+        if (_metrics.Contains("ping") && _tick++ % 4 == 0)
+            _ = Task.Run(async () => { var r = await _pinger.PingAsync("1.1.1.1", TimeSpan.FromMilliseconds(900), CancellationToken.None); _ping = r; });
+        var hot = x.GpuTempC >= 85 || x.CpuTempC >= 90;
+        _text.Foreground = hot ? Brushes.OrangeRed : Brushes.White;
         var lines = new List<string>();
         foreach (var m in _metrics)
         {
@@ -90,6 +97,8 @@ public sealed class StatsOverlay : OverlayWindowBase
                 "vram" => $"VRAM  {N(x.VramUsedMb, " MB")}",
                 "ram" => $"RAM   {N(x.RamUsedPct, "%")}",
                 "clock" => $"CLK   {N(x.GpuClockMhz, " MHz")}",
+                "ping" => $"PING  {N(_ping, " ms")}",
+                "time" => $"TIME  {DateTime.Now:HH:mm}",
                 _ => "",
             });
         }

@@ -62,7 +62,9 @@ public class NetToolsTests
     public void Junk_NeverIncludesRecycleBinOrShaderCacheCategories()
     {
         var cats = JunkCleaner.Categories("t", "w", "l", "p", "win");
-        Assert.DoesNotContain(cats, c => c.Roots.Any(r => r.Contains("Recycle", StringComparison.OrdinalIgnoreCase) || r.Contains("DXCache", StringComparison.OrdinalIgnoreCase)));
+        Assert.DoesNotContain(cats, c => c.Roots.Any(r => r.Contains("Recycle", StringComparison.OrdinalIgnoreCase)));
+        // Shader caches live only in their own opt-in category (unchecked by default).
+        Assert.All(cats.Where(c => c.Roots.Any(r => r.Contains("DXCache", StringComparison.OrdinalIgnoreCase))), c => { Assert.Equal(JunkCleaner.ShaderCacheId, c.Id); Assert.True(c.RequiresConfirm); });
     }
 
     [Fact]

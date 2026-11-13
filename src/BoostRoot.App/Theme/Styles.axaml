@@ -227,4 +227,19 @@
   <Style Selector="ProgressBar">
     <Setter Property="Transitions"><Transitions><DoubleTransition Property="Value" Duration="0:0:0.3" Easing="CubicEaseOut" /></Transitions></Setter>
   </Style>
+  <Style Selector="Button.star">
+    <Setter Property="Background" Value="#99000000" />
+    <Setter Property="Foreground" Value="#80FFFFFF" />
+    <Setter Property="CornerRadius" Value="14" />
+    <Setter Property="Width" Value="28" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="RenderTransform" Value="scale(1)" />
+    <Setter Property="Transitions"><Transitions><TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" Easing="BackEaseOut" /></Transitions></Setter>
+  </Style>
+  <Style Selector="Button.star.on"><Setter Property="Foreground" Value="#FACC15" /><Setter Property="RenderTransform" Value="scale(1.12)" /></Style>
+  <Style Selector="Button.star:pointerover"><Setter Property="RenderTransform" Value="scale(1.2)" /></Style>
 </Styles>

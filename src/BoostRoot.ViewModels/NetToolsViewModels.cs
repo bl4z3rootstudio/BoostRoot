@@ -9,8 +9,38 @@ namespace BoostRoot.ViewModels;
 
 public sealed record PingRow(string Name, string Region, string Avg, string Jitter, string Loss, bool Ok);
 
+public sealed record DnsRow(string Name, string Address, string Ms, bool Best, bool Current);
+
 public sealed partial class NetViewModel(IAppServices services) : ObservableObject
 {
+    public ObservableCollection<DnsRow> Dns { get; } = [];
+    [ObservableProperty] public partial bool DnsRunning { get; set; }
+    [ObservableProperty] public partial string? DnsAdvice { get; set; }
+
+    [RelayCommand]
+    public async Task RunDnsAsync(CancellationToken ct)
+    {
+        if (DnsRunning) return;
+        DnsRunning = true;
+        Dns.Clear();
+        DnsAdvice = null;
+        try
+        {
+            var current = services.SystemDns();
+            var servers = current.Concat(DnsBenchmark.Public.Where(p => current.All(c => c.Address != p.Address))).ToList();
+            var results = new List<DnsResult>();
+            foreach (var s in servers) results.Add(await services.MeasureDnsAsync(s, ct));
+            var best = results.Where(r => r.MedianMs is not null).OrderBy(r => r.MedianMs).FirstOrDefault();
+            foreach (var r in results.OrderBy(r => r.MedianMs ?? double.MaxValue))
+                Dns.Add(new(r.Server.Name, r.Server.Address, r.MedianMs is { } m ? $"{m:0} ms" : "—", r == best, current.Any(c => c.Address == r.Server.Address)));
+            var cur = results.Where(r => current.Any(c => c.Address == r.Server.Address) && r.MedianMs is not null).OrderBy(r => r.MedianMs).FirstOrDefault();
+            DnsAdvice = best is null ? null
+                : cur is null || cur.MedianMs - best.MedianMs <= 8 ? Loc.I["dns.fine"]
+                : Loc.I.Format("dns.faster", best.Server.Name, best.Server.Address, $"{cur.MedianMs - best.MedianMs:0}");
+        }
+        catch (OperationCanceledException) { }
+        finally { DnsRunning = false; }
+    }
     public ObservableCollection<PingRow> Pings { get; } = [];
     public ObservableCollection<string> Advice { get; } = [];
     [ObservableProperty] public partial bool IsRunning { get; set; }
@@ -90,6 +120,8 @@ public sealed partial class TweakRowViewModel(BoostRoot.Core.Tweaks.WindowsTweak
     partial void OnIsOnChanged(bool value) => services.SetTweak(tweak.Id, value);
 }
 
+public sealed record GameSizeRow(string Name, string Size, string Path, double Share);
+
 public sealed partial class ToolsViewModel(IAppServices services) : ObservableObject
 {
     public ObservableCollection<TweakRowViewModel> Tweaks { get; } = [];
@@ -163,6 +195,24 @@ public sealed partial class ToolsViewModel(IAppServices services) : ObservableOb
     }
 
     [ObservableProperty] public partial string? RamResult { get; set; }
+    public ObservableCollection<GameSizeRow> Sizes { get; } = [];
+    [ObservableProperty] public partial bool SizesBusy { get; set; }
+
+    [RelayCommand]
+    public async Task LoadSizesAsync(CancellationToken ct)
+    {
+        SizesBusy = true;
+        try
+        {
+            var list = await services.GameSizesAsync([.. services.LoadCatalog().Where(e => e.IsInstalled)], ct);
+            Sizes.Clear();
+            var max = Math.Max(1, list.Count == 0 ? 1 : list.Max(x => x.Bytes));
+            foreach (var g in list.OrderByDescending(x => x.Bytes)) Sizes.Add(new(g.Name, Bytes(g.Bytes), g.Path, g.Bytes / (double)max));
+        }
+        finally { SizesBusy = false; }
+    }
+
+    [RelayCommand] public void OpenFolder(GameSizeRow r) => services.OpenUrl(r.Path);
 
     [RelayCommand]
     public async Task CleanRamAsync()

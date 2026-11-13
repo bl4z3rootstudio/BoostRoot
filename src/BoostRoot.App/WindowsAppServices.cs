@@ -566,4 +566,48 @@ public sealed class WindowsAppServices : IAppServices
         foreach (var p in _processes.List().Where(p => wanted.Contains(Path.GetFileNameWithoutExtension(p.Name)))) ok |= _processes.SetHighPriority(p.Id);
         return ok;
     }
+
+    public IReadOnlyList<DnsServer> SystemDns() => DnsBenchmark.System();
+    public Task<DnsResult> MeasureDnsAsync(DnsServer server, CancellationToken ct) => DnsBenchmark.MeasureAsync(server, ct);
+
+    private static readonly HashSet<string> SystemProcs = new(StringComparer.OrdinalIgnoreCase)
+    { "explorer", "BoostRoot", "ApplicationFrameHost", "SystemSettings", "TextInputHost", "ShellExperienceHost", "SearchHost", "StartMenuExperienceHost", "LockApp", "dwm", "csrss", "winlogon" };
+
+    public IReadOnlyList<string> RunningApps()
+    {
+        var list = new List<string>();
+        foreach (var p in System.Diagnostics.Process.GetProcesses())
+        {
+            try { if (p.MainWindowHandle != 0 && !SystemProcs.Contains(p.ProcessName) && !BoostOrchestrator.NeverClose.Contains(p.ProcessName, StringComparer.OrdinalIgnoreCase)) list.Add(p.ProcessName); }
+            catch (InvalidOperationException) { }
+            finally { p.Dispose(); }
+        }
+        return [.. list.Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase)];
+    }
+
+    public Task<IReadOnlyList<(string Name, string Path, long Bytes)>> GameSizesAsync(IReadOnlyList<CatalogEntry> entries, CancellationToken ct) => Task.Run<IReadOnlyList<(string, string, long)>>(() =>
+    {
+        var res = new List<(string, string, long)>();
+        foreach (var e in entries)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (e.Game?.InstallPath is not { Length: > 3 } path || !Directory.Exists(path)) continue;
+            long size = 0;
+            try
+            {
+                foreach (var f in Directory.EnumerateFiles(path, "*", new EnumerationOptions { RecurseSubdirectories = true, IgnoreInaccessible = true, AttributesToSkip = FileAttributes.ReparsePoint }))
+                    try { size += new FileInfo(f).Length; } catch (IOException) { }
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+            res.Add((e.DisplayName, path, size));
+        }
+        return res;
+    }, ct);
+
+    private static string BenchFile => Path.Combine(UserDataDir, "benchmark.txt");
+    public int? LastBenchmark
+    {
+        get => File.Exists(BenchFile) && int.TryParse(File.ReadAllText(BenchFile), out var v) ? v : null;
+        set { Directory.CreateDirectory(UserDataDir); File.WriteAllText(BenchFile, value?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? ""); }
+    }
 }

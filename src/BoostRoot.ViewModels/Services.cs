@@ -26,10 +26,13 @@ public sealed record AppSettings(
     CrosshairSettings? Crosshair = null,
     IReadOnlyList<string>? StretchGames = null,
     ClipSettings? Clips = null,
-    bool FirstRunDone = false)
+    bool FirstRunDone = false,
+    IReadOnlyList<string>? Favorites = null,
+    bool AutoUndo = false)
 {
+    public bool IsFavorite(string profileId) => Favorites?.Contains(profileId) == true;
     public static AppSettings Default { get; } = new("tr", true, true, false, ["chrome", "msedge", "opera", "firefox", "spotify", "steamwebhelper", "epicgameslauncher"], false);
-    public static IReadOnlyList<string> AllMetrics { get; } = ["fps", "low1", "cpu", "cputemp", "gpu", "gputemp", "vram", "ram", "clock"];
+    public static IReadOnlyList<string> AllMetrics { get; } = ["fps", "low1", "cpu", "cputemp", "gpu", "gputemp", "vram", "ram", "clock", "ping", "time"];
     public IReadOnlyList<string> Metrics => OverlayMetrics ?? ["fps", "low1", "cpu", "gpu", "gputemp", "ram"];
     public CrosshairSettings CrosshairOrDefault => Crosshair ?? new();
     public ClipSettings ClipsOrDefault => Clips ?? new();
@@ -62,6 +65,8 @@ public interface IAppServices
     IReadOnlyList<NetInfo> NetworkAdapters();
     Task<PingStats> PingAsync(string host, CancellationToken ct);
     Task<SpeedResult> SpeedTestAsync(IProgress<double>? progress, CancellationToken ct);
+    IReadOnlyList<DnsServer> SystemDns();
+    Task<DnsResult> MeasureDnsAsync(DnsServer server, CancellationToken ct);
 
     // Tools
     IReadOnlyList<JunkScan> ScanJunk();
@@ -116,6 +121,12 @@ public interface IAppServices
     PlaytimeLog Playtime { get; }
     /// <summary>Frees RAM without closing anything; returns bytes freed.</summary>
     long CleanRam();
+    /// <summary>Visible apps running right now (process names), for the "close before playing" picker.</summary>
+    IReadOnlyList<string> RunningApps();
+    /// <summary>Install size of each installed game (slow: walks folders).</summary>
+    Task<IReadOnlyList<(string Name, string Path, long Bytes)>> GameSizesAsync(IReadOnlyList<CatalogEntry> entries, CancellationToken ct);
+    /// <summary>Best/last benchmark score (null when never run).</summary>
+    int? LastBenchmark { get; set; }
     IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> LoadCrosshairs();
     void SaveCrosshairs(IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> designs);
 }

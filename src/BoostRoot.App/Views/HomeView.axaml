@@ -34,6 +34,16 @@
             <CheckBox IsChecked="{Binding IsStretched}" Content="{Binding [home.stretch], Source={x:Static loc:Loc.I}}" />
             <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" MaxWidth="620" HorizontalAlignment="Left" Text="{Binding [home.stretchNote], Source={x:Static loc:Loc.I}}" />
           </StackPanel>
+          <Expander Header="{Binding [share.title], Source={x:Static loc:Loc.I}}" MaxWidth="620" HorizontalAlignment="Left" IsVisible="{Binding HasSelection}">
+            <StackPanel Spacing="8">
+              <Button Classes="ghost" HorizontalAlignment="Left" Command="{Binding ShareCommand}" Content="{Binding [share.copy], Source={x:Static loc:Loc.I}}" />
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox Text="{Binding ShareInput}" Watermark="{Binding [share.paste], Source={x:Static loc:Loc.I}}" />
+                <Button Grid.Column="1" Classes="primary" Command="{Binding ImportShareCommand}" Content="{Binding [share.apply], Source={x:Static loc:Loc.I}}" />
+              </Grid>
+              <TextBlock Classes="pop" Foreground="{StaticResource Good}" Text="{Binding ShareStatus}" />
+            </StackPanel>
+          </Expander>
           <Expander Header="{Binding [home.whatChanges], Source={x:Static loc:Loc.I}}" MaxWidth="620" HorizontalAlignment="Left" IsVisible="{Binding HasSelection}">
             <StackPanel Spacing="6">
               <TextBlock Classes="muted" TextWrapping="Wrap" IsVisible="{Binding NoFileChanges}" Text="{Binding [home.noFileChanges], Source={x:Static loc:Loc.I}}" />
@@ -157,6 +167,9 @@
                                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-30,0,0" />
                   </Grid>
                   <Image Source="{Binding Cover, Converter={x:Static local:CoverConverter.Instance}}" Stretch="UniformToFill" IsVisible="{Binding HasCover}" />
+                  <Button Classes="star" Classes.on="{Binding IsFavorite}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6"
+                          ToolTip.Tip="{Binding [fav.tip], Source={x:Static loc:Loc.I}}"
+                          Command="{Binding $parent[UserControl].((vm:HomeViewModel)DataContext).ToggleFavoriteCommand}" CommandParameter="{Binding}">★</Button>
                   <Border VerticalAlignment="Bottom" Background="#B30B0A12" Padding="10,8">
                     <StackPanel>
                       <TextBlock Text="{Binding Name}" FontFamily="{StaticResource HeadFont}" FontWeight="Bold" FontSize="14" TextTrimming="CharacterEllipsis" />

@@ -19,7 +19,14 @@ public sealed class JunkCleaner(IFileSystem fs, Func<string, long> sizeOf)
         new("wer", new("Hata raporları", "Error reports"), [Path.Combine(programData, "Microsoft", "Windows", "WER", "ReportArchive"), Path.Combine(programData, "Microsoft", "Windows", "WER", "ReportQueue"), Path.Combine(localAppData, "CrashDumps")], "*"),
         new("do-cache", new("Teslim İyileştirme önbelleği", "Delivery Optimization cache"), [Path.Combine(windir, "ServiceProfiles", "NetworkService", "AppData", "Local", "Microsoft", "Windows", "DeliveryOptimization", "Cache")], "*"),
         new("wu-download", new("Eski Windows Update indirmeleri", "Old Windows Update downloads"), [Path.Combine(windir, "SoftwareDistribution", "Download")], "*", MinAge: TimeSpan.FromDays(10)),
+        // Opt-in: fixes stutter/crashes after a driver update or a corrupted cache; games rebuild it on first launch (a few minutes of extra loading).
+        new(ShaderCacheId, new("Ekran kartı gölgelendirici önbelleği (sürücü güncellemesinden sonra takılma yaşıyorsan)", "GPU shader cache (if you stutter after a driver update)"),
+            [Path.Combine(localAppData, "D3DSCache"), Path.Combine(localAppData, "NVIDIA", "DXCache"), Path.Combine(localAppData, "NVIDIA", "GLCache"),
+             Path.Combine(localAppData, "AMD", "DxCache"), Path.Combine(localAppData, "AMD", "DxcCache"), Path.Combine(localAppData, "AMD", "VkCache"), Path.Combine(localAppData, "AMD", "GLCache")],
+            "*", RequiresConfirm: true),
     ];
+
+    public const string ShaderCacheId = "shader-cache";
 
     /// <summary>Folders that must never be cleaned even if a category root points near them.</summary>
     public static IReadOnlyList<string> NeverClean { get; } = ["DXCache", "D3DSCache", "NVIDIA", "AMD", "ShaderCache", "GLCache", "Downloads", "Steam", "Riot Games"];
@@ -36,7 +43,7 @@ public sealed class JunkCleaner(IFileSystem fs, Func<string, long> sizeOf)
             foreach (var f in found)
             {
                 var parts = f.Replace('\\', '/').Split('/');
-                if (parts.Any(p => NeverClean.Contains(p, StringComparer.OrdinalIgnoreCase))) continue;
+                if (c.Id != ShaderCacheId && parts.Any(p => NeverClean.Contains(p, StringComparer.OrdinalIgnoreCase))) continue;
                 try
                 {
                     if (c.MinAge is { } age && nowUtc - fs.GetLastWriteTimeUtc(f) < age) continue;

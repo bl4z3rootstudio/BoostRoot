@@ -29,6 +29,7 @@ public sealed partial class GameCardViewModel(CatalogEntry entry, string? cover)
     /// <summary>Stable tint per game for the cover placeholder.</summary>
     public string Tint { get; } = Palette[Math.Abs(StableHash(entry.DisplayName)) % Palette.Length];
     [ObservableProperty] public partial bool IsSelected { get; set; }
+    [ObservableProperty] public partial bool IsFavorite { get; set; }
 
     private static readonly string[] Palette = ["#7A1F2B", "#3A3420", "#2E4A22", "#4A3A18", "#2A2F45", "#1F3440", "#23361F", "#3A2A44", "#4A2418", "#1F3A4A"];
     private static int StableHash(string s) { unchecked { var h = 17; foreach (var c in s) h = h * 31 + c; return h; } }
@@ -141,13 +142,62 @@ public sealed partial class HomeViewModel : ObservableObject
         foreach (var g in _all)
         {
             var id = g.Entry.Profile?.Id ?? "";
-            var visible = q.Length > 0 ? BoostRoot.Core.Profiles.GameLibrary.Normalize(g.Name).Contains(q, StringComparison.Ordinal)
-                : ShowAll || g.IsInstalled || !(id.StartsWith("lib-", StringComparison.Ordinal) || id.StartsWith("auto-", StringComparison.Ordinal));
-            if (visible) Games.Add(g);
+            var visible = Visible(g, q);
+            if (visible) { g.IsFavorite = g.Entry.Profile is { } pf && _settings.IsFavorite(pf.Id); }
         }
+        // Favorites first, then installed, then name.
+        foreach (var g in _all.Where(g => Visible(g, q)).OrderByDescending(g => g.IsFavorite).ThenByDescending(g => g.IsInstalled).ThenBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase))
+            Games.Add(g);
         OnPropertyChanged(nameof(GamesTitle));
         OnPropertyChanged(nameof(LibraryText));
         _ = LoadCoversAsync([.. Games.Where(g => g.Cover is null)]);
+    }
+
+    private bool Visible(GameCardViewModel g, string q)
+    {
+        var id = g.Entry.Profile?.Id ?? "";
+        return q.Length > 0 ? BoostRoot.Core.Profiles.GameLibrary.Normalize(g.Name).Contains(q, StringComparison.Ordinal)
+            : ShowAll || g.IsInstalled || !(id.StartsWith("lib-", StringComparison.Ordinal) || id.StartsWith("auto-", StringComparison.Ordinal));
+    }
+
+    /// <summary>(profileId, favorite) — the shell stores it in settings.</summary>
+    public Action<string, bool>? FavoriteChanged { get; set; }
+
+    [RelayCommand]
+    public void ToggleFavorite(GameCardViewModel g)
+    {
+        if (g.Entry.Profile is not { } p) return;
+        g.IsFavorite = !g.IsFavorite;
+        FavoriteChanged?.Invoke(p.Id, g.IsFavorite);
+    }
+
+    [ObservableProperty] public partial string? ShareInput { get; set; }
+    [ObservableProperty] public partial string? ShareStatus { get; set; }
+    public Action<string>? CopyText { get; set; }
+    public Action<string>? ApplySharedCrosshair { get; set; }
+    public Func<string?>? CurrentCrosshairCode { get; set; }
+
+    [RelayCommand]
+    public void Share()
+    {
+        if (Selected?.Entry.Profile is not { } p) return;
+        var code = BoostRoot.Core.Profiles.ShareCode.Encode(new(p.Id, SelectedLevel, IsStretched, CurrentCrosshairCode?.Invoke()));
+        CopyText?.Invoke(code);
+        ShareStatus = Loc.I["share.copied"];
+    }
+
+    [RelayCommand]
+    public void ImportShare()
+    {
+        if (BoostRoot.Core.Profiles.ShareCode.Decode(ShareInput ?? "") is not { } s) { ShareStatus = Loc.I["share.bad"]; return; }
+        var card = _all.FirstOrDefault(g => g.Entry.Profile?.Id == s.Game);
+        if (card is null || !card.IsInstalled) { ShareStatus = Loc.I["share.notInstalled"]; return; }
+        Select(card);
+        ChooseLevel(Levels.First(l => l.Level == s.Level));
+        if (CanStretch) IsStretched = s.Stretched;
+        if (s.Crosshair is { } c) ApplySharedCrosshair?.Invoke(c);
+        ShareStatus = Loc.I["share.applied"];
+        ShareInput = null;
     }
 
     private CancellationTokenSource? _coverCts;

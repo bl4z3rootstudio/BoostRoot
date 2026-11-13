@@ -6,6 +6,16 @@
     <StackPanel Margin="48,24" Spacing="16">
       <TextBlock Classes="h1" FontSize="32" Text="{Binding [nav.stress], Source={x:Static loc:Loc.I}}" />
       <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [stress.note], Source={x:Static loc:Loc.I}}" />
+      <Border Classes="card">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="h2" Text="{Binding [bench.title], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [bench.note], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Classes="pop" FontSize="22" FontWeight="Bold" Foreground="{StaticResource AccentLight}" Text="{Binding BenchText}" />
+          </StackPanel>
+          <Button Grid.Column="1" Classes="primary" VerticalAlignment="Center" Command="{Binding BenchmarkCommand}" Content="{Binding [bench.run], Source={x:Static loc:Loc.I}}" />
+        </Grid>
+      </Border>
       <Grid ColumnDefinitions="*,*" IsEnabled="{Binding !IsRunning}">
         <StackPanel Spacing="8" Margin="0,0,16,0">
           <TextBlock Classes="h2" Text="{Binding [stress.what], Source={x:Static loc:Loc.I}}" />

@@ -90,6 +90,12 @@ public sealed class FakeAppServices : IAppServices
     public void CopyToClipboard(string text) => Clipboard = text;
     public PlaytimeLog Playtime { get; } = new(new InMemoryFileSystem(), "C:/p.jsonl");
     public long CleanRam() => 512L << 20;
+    public IReadOnlyList<string> RunningApps() => ["Discord", "chrome"];
+    public Task<IReadOnlyList<(string Name, string Path, long Bytes)>> GameSizesAsync(IReadOnlyList<CatalogEntry> entries, CancellationToken ct) =>
+        Task.FromResult<IReadOnlyList<(string, string, long)>>([("VALORANT", "C:/x", 30L << 30), ("Mini", "C:/m", 1L << 30)]);
+    public int? LastBenchmark { get; set; }
+    public IReadOnlyList<DnsServer> SystemDns() => [new("Current", "192.168.1.1")];
+    public Task<DnsResult> MeasureDnsAsync(DnsServer server, CancellationToken ct) => Task.FromResult(new DnsResult(server, server.Address == "192.168.1.1" ? 40 : server.Address == "1.1.1.1" ? 10 : 25, 0));
     public List<BoostRoot.Core.Crosshair.CrosshairDesign> Crosshairs { get; set; } = [];
     public IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> LoadCrosshairs() => Crosshairs;
     public void SaveCrosshairs(IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> designs) => Crosshairs = [.. designs];

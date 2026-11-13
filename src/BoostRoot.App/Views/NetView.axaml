@@ -33,6 +33,30 @@
           </DataTemplate>
         </ItemsControl.ItemTemplate>
       </ItemsControl>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel>
+              <TextBlock Classes="h2" Text="{Binding [dns.title], Source={x:Static loc:Loc.I}}" />
+              <TextBlock Classes="muted" FontSize="12" Text="{Binding [dns.note], Source={x:Static loc:Loc.I}}" />
+            </StackPanel>
+            <Button Grid.Column="1" Classes="ghost" VerticalAlignment="Center" Command="{Binding RunDnsCommand}" Content="{Binding [dns.run], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+          <ProgressBar IsIndeterminate="True" IsVisible="{Binding DnsRunning}" Foreground="{StaticResource Accent}" />
+          <ItemsControl ItemsSource="{Binding Dns}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:DnsRow">
+                <Grid ColumnDefinitions="*,150,90" Margin="0,3">
+                  <TextBlock><Run Text="{Binding Name}" FontWeight="SemiBold" /><Run Text="  " /><Run Text="{Binding Address}" Foreground="{StaticResource Muted}" /></TextBlock>
+                  <TextBlock Grid.Column="1" Classes="muted" Text="★" IsVisible="{Binding Best}" Foreground="{StaticResource Good}" />
+                  <TextBlock Grid.Column="2" FontWeight="SemiBold" Text="{Binding Ms}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock TextWrapping="Wrap" Foreground="{StaticResource AccentLight}" Text="{Binding DnsAdvice}" />
+        </StackPanel>
+      </Border>
       <TextBlock Classes="h2" Text="{Binding [net.advice], Source={x:Static loc:Loc.I}}" />
       <ItemsControl ItemsSource="{Binding Advice}">
         <ItemsControl.ItemTemplate>

@@ -41,6 +41,38 @@ public sealed partial class StressViewModel(IAppServices services) : ObservableO
     [ObservableProperty] public partial bool ResultOk { get; set; }
 
     private CancellationTokenSource? _cts;
+    [ObservableProperty] public partial string? BenchText { get; set; }
+
+    /// <summary>60 s CPU + GPU run → one comparable "BoostRoot score" (higher is better).</summary>
+    [RelayCommand(CanExecute = nameof(CanStart))]
+    public async Task BenchmarkAsync() => await RunBenchmarkAsync(TimeSpan.FromSeconds(60), TimeSpan.FromSeconds(1));
+
+    public async Task RunBenchmarkAsync(TimeSpan duration, TimeSpan tick)
+    {
+        var cpu = new CpuStress();
+        var loads = new List<IStressWorkload> { cpu };
+        if (services.CreateGpuStress() is { } gpu) loads.Add(gpu);
+        IsRunning = true;
+        BenchText = Loc.I["bench.running"];
+        try
+        {
+            var start = DateTime.UtcNow;
+            var r = await new StressRunner(services.Sensors, StressLimits.Default).RunAsync(loads, duration, CancellationToken.None, tick);
+            var secs = Math.Max(1, (DateTime.UtcNow - start).TotalSeconds);
+            var cpuRate = cpu.Work / secs;
+            var gpuRate = loads.Count > 1 ? loads[1].Work / secs : 0;
+            var score = BenchmarkScore(cpuRate, gpuRate);
+            var prev = services.LastBenchmark;
+            services.LastBenchmark = score;
+            BenchText = !r.Passed ? Loc.I["bench.failed"]
+                : prev is { } p0 ? Loc.I.Format("bench.resultPrev", score, (score >= p0 ? "+" : "") + ((score - p0) * 100.0 / Math.Max(1, p0)).ToString("0.#"))
+                : Loc.I.Format("bench.result", score);
+        }
+        finally { IsRunning = false; }
+    }
+
+    /// <summary>CPU kernel iterations/s and GPU frames/s → single number (≈10 000 for a mid-range 2020 PC).</summary>
+    public static int BenchmarkScore(double cpuItersPerSec, double gpuFps) => (int)Math.Round(cpuItersPerSec * 6 + gpuFps * 25);
     private double _rateMax;
 
     [RelayCommand] public void ChooseKind(KindChoice k) { foreach (var x in Kinds) x.IsSelected = x == k; }

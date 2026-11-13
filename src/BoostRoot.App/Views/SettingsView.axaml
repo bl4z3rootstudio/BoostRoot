@@ -29,6 +29,24 @@
       </Border>
       <Border Classes="card">
         <StackPanel Spacing="8">
+          <ToggleSwitch IsChecked="{Binding AutoUndo}" Content="{Binding [settings.autoUndo], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [settings.autoUndoNote], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Margin="0,8,0,0" FontWeight="SemiBold" Text="{Binding [settings.closeApps], Source={x:Static loc:Loc.I}}" />
+          <TextBox Text="{Binding CloseList}" TextWrapping="Wrap" />
+          <Button Classes="ghost" HorizontalAlignment="Left" Command="{Binding LoadRunningAppsCommand}" Content="{Binding [settings.pickApps], Source={x:Static loc:Loc.I}}" />
+          <ItemsControl ItemsSource="{Binding RunningApps}">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="x:String">
+                <Button Classes="pill" Margin="0,0,6,6" Content="{Binding StringFormat='+ {0}'}"
+                        Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).AddToCloseListCommand}" CommandParameter="{Binding}" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
           <TextBlock Classes="h2" Text="{Binding [settings.overlay], Source={x:Static loc:Loc.I}}" />
           <ItemsControl ItemsSource="{Binding Metrics}">
             <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
