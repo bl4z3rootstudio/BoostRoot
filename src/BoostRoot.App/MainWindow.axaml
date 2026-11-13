@@ -71,9 +71,12 @@
     <Grid DockPanel.Dock="Top" Height="36" ColumnDefinitions="*,Auto">
       <Border Background="Transparent" PointerPressed="OnDragArea" DoubleTapped="OnToggleMaximize" />
       <StackPanel Grid.Column="1" Orientation="Horizontal">
-        <Button Classes="chrome" Click="OnMinimize" ToolTip.Tip="−"><PathIcon Data="M4 12h16" Width="10" Height="10" /></Button>
-        <Button Classes="chrome" Click="OnToggleMaximize" ToolTip.Tip="□"><PathIcon Data="M4 4h16v16H4z" Width="10" Height="10" /></Button>
-        <Button Classes="chrome close" Click="OnClose" ToolTip.Tip="×"><PathIcon Data="M5 5l14 14M19 5L5 19" Width="10" Height="10" /></Button>
+        <!-- Filled outlines (PathIcon fills, it doesn't stroke) so the glyphs are actually visible -->
+        <Button Classes="chrome" Click="OnMinimize"><PathIcon Data="M0 4.4h10v1.2H0z" Width="10" Height="10" /></Button>
+        <Button Classes="chrome" Click="OnToggleMaximize">
+          <PathIcon x:Name="MaxIcon" Data="M0 0h10v10H0zM1.2 1.2v7.6h7.6V1.2z" Width="10" Height="10" />
+        </Button>
+        <Button Classes="chrome close" Click="OnClose"><PathIcon Data="M0.85 0L5 4.15 9.15 0 10 0.85 5.85 5 10 9.15 9.15 10 5 5.85 0.85 10 0 9.15 4.15 5 0 0.85z" Width="10" Height="10" /></Button>
       </StackPanel>
     </Grid>
     <!-- Update banner -->

@@ -159,9 +159,14 @@
     <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
   </Style>
+  <Style Selector="Button.chrome PathIcon"><Setter Property="Foreground" Value="#C9C3DC" /></Style>
+  <Style Selector="Button.chrome:pointerover /template/ ContentPresenter"><Setter Property="Background" Value="#2A2440" /></Style>
+  <Style Selector="Button.chrome:pressed /template/ ContentPresenter"><Setter Property="Background" Value="#3A3256" /></Style>
+  <Style Selector="Button.chrome:pointerover PathIcon"><Setter Property="Foreground" Value="White" /></Style>
   <Style Selector="Button.chrome.close:pointerover /template/ ContentPresenter">
     <Setter Property="Background" Value="#C42B1C" />
   </Style>
+  <Style Selector="Button.chrome.close:pressed /template/ ContentPresenter"><Setter Property="Background" Value="#A32315" /></Style>
   <Style Selector="Border.card">
     <Setter Property="Background" Value="{StaticResource Surface}" />
     <Setter Property="BorderBrush" Value="{StaticResource Border}" />
