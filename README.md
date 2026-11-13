@@ -26,7 +26,8 @@
 ### Özellikler
 | | |
 |---|---|
-| 🎮 **30 oyun profili** | VALORANT, CS2, Fortnite, PUBG, Apex, LoL, Minecraft, Rocket League, GTA V, Palworld, Hogwarts Legacy, Roblox, Valheim, Rust, R6 Siege, Cyberpunk, RDR2, Elden Ring, ETS2, Forza Horizon 5 ve daha fazlası |
+| 🎮 **500+ oyun** | 30 oyunda ayar dosyası seviyesinde ince ayar (VALORANT, CS2, Fortnite, PUBG, Apex, LoL, Minecraft, Rocket League, GTA V…), 500'den fazla oyunda (Game Pass dahil) sürücü + Windows + türe özel rehber. Kütüphanede olmayan **her yüklü oyun** da otomatik Boost'lanır |
+| ✛ **Nişangâh Stüdyosu** | Tasarla → VALORANT kodu olarak kopyala, CS2/TF2 komutu olarak kopyala ya da BoostRoot nişangâhıyla tüm oyunlarda kullan. VALORANT kodunu içe aktarma, hazır tasarımlar |
 | 🎚 **4 seviye** | Kalite · Dengeli · Maks FPS · Rekabetçi — PC'ne göre öneri ★ |
 | 🩺 **PC Karnesi** | İşlemci, ekran kartı, RAM (XMP kapalı mı?), ekran (Hz doğru mu?), sürücü yaşı, internet |
 | 📈 **FPS testi** | Boost öncesi/sonrası ortalama, %1 low, %0.1 low, takılma — Instagram hikâyesi/kare paylaşım görseli |
@@ -34,7 +35,9 @@
 | 🌐 **İnternet analizi** | Oyun sunucularına ping/jitter/kayıp, hız testi, öneriler (ayarlarına dokunmaz) |
 | 🧹 **Araçlar** | Çöp temizleyici, başlangıç yöneticisi, sürücü kontrolü, gelişmiş Windows ayarları |
 | 🖥 **Oyun içi gösterge** | Alt+O — FPS, %1 low, CPU/GPU yük ve sıcaklık, VRAM, RAM (MSI Afterburner gibi) |
-| ✛ **Nişangâh** | Alt+C — renk, boyut, kalınlık, boşluk, nokta, kenar |
+| ✛ **Oyun içi nişangâh** | Alt+C — her oyunun üstünde |
+| 🧠 **RAM boşalt** | Hiçbir programı kapatmadan belleği boşaltır |
+| ⏱ **Oyun süresi** | Hangi oyunu ne kadar oynadığın; oyun açıkken öncelik + 0.5 ms zamanlayıcı |
 | 🎬 **Klipler** | Alt+F10 son anları kaydet · Alt+F9 kayıt · Alt+F1 ekran görüntüsü · kes, dikey (9:16) yap, Discord'a gönder |
 | ⬛ **4:3 Stretched** | Oyun başına isteğe bağlı; oyun kapanınca masaüstü eski haline döner |
 | 🔄 **Otomatik güncelleme** | GitHub Releases + SHA-256 doğrulama |
@@ -57,19 +60,18 @@ Windows SmartScreen "tanınmayan uygulama" diyebilir (kod imzalama sertifikası 
 **Pick a game, press Boost.** BoostRoot tunes that game's settings file, Windows and your graphics driver — and asks "Launch the game now?".
 Everything is journaled and can be undone with one click. It **never** touches your resolution, keybinds, sensitivity or crosshair, and **never injects** anything into games (safe with Vanguard / EAC / BattlEye).
 
-Features: 30 game profiles · 4 levels with a recommendation for your PC · PC report card · FPS test with before/after share images · CPU/GPU/RAM stress tests with live charts and safety cut-offs · network analysis · junk cleaner, startup manager, driver check · in-game overlay (Alt+O) · crosshair (Alt+C) · clips (Alt+F10 / Alt+F9 / Alt+F1) with trim, vertical crop and Discord upload · optional per-game 4:3 stretched · auto-update with SHA-256 verification. AMD and NVIDIA, Windows 10/11.
+Features: 500+ games (30 with file-level tuning, any installed game gets a generic boost) · Crosshair Studio (export to VALORANT code / CS2 commands / overlay) · RAM cleaner · playtime tracking · 4 levels with a recommendation for your PC · PC report card · FPS test with before/after share images · CPU/GPU/RAM stress tests with live charts and safety cut-offs · network analysis · junk cleaner, startup manager, driver check · in-game overlay (Alt+O) · crosshair (Alt+C) · clips (Alt+F10 / Alt+F9 / Alt+F1) with trim, vertical crop and Discord upload · optional per-game 4:3 stretched · auto-update with SHA-256 verification. AMD and NVIDIA, Windows 10/11.
 
 ---
 
 ## Destek ol / Support
 BoostRoot tamamen ücretsizdir ve öyle kalacak. Beğendiysen:
-- ♥ [GitHub Sponsors](https://github.com/sponsors/bl4z3rootstudio)
-- ₿ Bitcoin (BTC): `adres yakında / address coming soon`
-- ₮ USDT (TRC20): `adres yakında / address coming soon`
+- ⭐ Depoya yıldız ver ve arkadaşlarınla paylaş — en büyük destek bu. / Star the repo and share it.
+- ♥ GitHub Sponsors (yakında / coming soon)
 
 ## Geliştirme / Development
 ```bash
-dotnet test                     # 160+ tests (Linux or Windows)
+dotnet test                     # 180 tests (Linux or Windows)
 dotnet run --project src/BoostRoot.App   # Windows
 ```
 - `src/BoostRoot.Core` — safety (NeverTouchGuard, journal, undo), config formats, profiles, FPS/stress/clip logic (cross-platform, tested)

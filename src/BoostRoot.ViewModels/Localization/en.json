@@ -214,7 +214,7 @@
   "update.failed": "Couldn't download the update; you can download it from GitHub manually.",
   "update.verifying": "Downloading and verifying…",
   "donate.button": "Support",
-  "donate.tip": "BoostRoot is completely free. If you like it you can support it via GitHub Sponsors or crypto (see README).",
+  "donate.tip": "BoostRoot is completely free. If you like it, star it on GitHub and share it.",
   "gpu.openApp": "Open driver app",
   "gpu.amd.title": "AMD Radeon — recommended Adrenalin settings",
   "gpu.amd.1": "Gaming → pick your game (or Global Graphics): Radeon Anti-Lag ON.",

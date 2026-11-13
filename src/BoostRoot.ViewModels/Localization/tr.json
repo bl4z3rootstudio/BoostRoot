@@ -214,7 +214,7 @@
   "update.failed": "Güncelleme indirilemedi; GitHub'dan elle indirip kurabilirsin.",
   "update.verifying": "İndiriliyor ve doğrulanıyor…",
   "donate.button": "Destek ol",
-  "donate.tip": "BoostRoot tamamen ücretsiz. Beğendiysen GitHub Sponsors veya kripto ile destek olabilirsin (README'de).",
+  "donate.tip": "BoostRoot tamamen ücretsiz. Beğendiysen GitHub'da yıldız ver ve arkadaşlarınla paylaş.",
   "gpu.openApp": "Sürücü uygulamasını aç",
   "gpu.amd.title": "AMD Radeon — önerilen Adrenalin ayarları",
   "gpu.amd.1": "Oyunlar → oyununu seç (ya da Genel Grafik): Radeon Anti-Lag AÇIK.",

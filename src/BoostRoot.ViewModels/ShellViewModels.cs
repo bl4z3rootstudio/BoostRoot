@@ -147,7 +147,7 @@ public sealed partial class MainViewModel : ObservableObject
     partial void OnUpdateChanged(BoostRoot.Core.Updates.UpdateInfo? value) => OnPropertyChanged(nameof(UpdateText));
     private readonly IAppServices _services;
 
-    public const string SponsorsUrl = "https://github.com/sponsors/bl4z3rootstudio";
+    public const string SponsorsUrl = "https://github.com/bl4z3rootstudio/BoostRoot#destek-ol--support";
     [RelayCommand] public void Donate() => _services.OpenUrl(SponsorsUrl);
 
     public async Task CheckUpdateAsync()
