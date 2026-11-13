@@ -34,3 +34,9 @@ Son güncelleme: 12.11.2026 gece · sürüm 26.11.1 · testler: 169 (Linux) + Wi
 ## Notlar
 - .NET 10 SDK: `export PATH=$HOME/.dotnet:$PATH`; Linux'ta Windows projeleri derlenir ama çalışmaz; NativeAOT yalnızca Windows CI'da.
 - Avalonia 12: `WindowDecorations`; XAML'de generic tip yok (KindChoice/MinutesChoice).
+
+## 26.11.3 – 26.11.5 (13 Kasım 2026)
+- 26.11.3: Güncelleme Merkezi (winget, Windows Update + sürücüler, GPU sürücüsü, gereksiz uygulama kaldırma), Hata bildir.
+- 26.11.4: 6 tema rengi, 7 dil (TR/EN/AZ/DE/RU/ES/PT; eksikler İngilizce), Boost sesi, laptop pil kontrolü, sistem tepsisi.
+- 26.11.5: Donanım Testi sayfası, canlı ping, kare süresi grafiği, oyunlar arası FPS, otomatik FPS kaydı, Otomatik Boost, son oynananlar üstte.
+- Bekleyen: Discord durumu (kullanıcının ücretsiz bir Discord "Application ID"si gerekiyor), Arapça (sağdan sola düzen).
