@@ -1,3 +1,4 @@
+using Avalonia.Input.Platform;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -24,6 +25,7 @@ public sealed partial class App : Application
                 session.Ended += () => { window.WindowState = Avalonia.Controls.WindowState.Normal; window.Activate(); };
             });
             desktop.Exit += (_, _) => GameSession.Current?.Dispose();
+            services.ClipboardSetter = text => _ = window.Clipboard?.SetTextAsync(text);
             services.ExitForUpdate = () => Avalonia.Threading.Dispatcher.UIThread.Post(() => desktop.Shutdown());
             Avalonia.Threading.DispatcherTimer.RunOnce(() => _ = vm.CheckUpdateAsync(), TimeSpan.FromSeconds(4));
             _ = vm.Scan.ScanCommand.ExecuteAsync(null); // score drives level recommendations

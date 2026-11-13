@@ -105,6 +105,13 @@ public sealed partial class SettingsViewModel : ObservableObject
         Clips = new ClipSettings(ReplayEnabled, ReplaySeconds, ClipHeight, ClipFps, string.IsNullOrWhiteSpace(ClipFolder) ? null : ClipFolder, ClipAudio ?? "system", string.IsNullOrWhiteSpace(DiscordWebhook) ? null : DiscordWebhook.Trim()),
     };
 
+    public void UseCrosshair(BoostRoot.Core.Crosshair.CrosshairDesign d)
+    {
+        var o = d.ToOverlay();
+        (CrosshairColor, CrosshairSize, CrosshairThickness, CrosshairGap, CrosshairDot, CrosshairOutline) = (o.Color, o.Size, o.Thickness, o.Gap, o.Dot, o.Outline);
+        CrosshairEnabled = true;
+    }
+
     /// <summary>Called by other screens (e.g. 4:3 toggle on Home) so all settings stay in one place.</summary>
     public void Update(Func<AppSettings, AppSettings> change) { _base = change(Current); Save(); }
 
@@ -128,6 +135,7 @@ public sealed partial class MainViewModel : ObservableObject
     public StressViewModel Stress { get; }
     public FpsViewModel Fps { get; }
     public ClipsViewModel Clips { get; }
+    public CrosshairViewModel Crosshair { get; }
 
     [ObservableProperty] public partial ObservableObject CurrentPage { get; set; }
     [ObservableProperty] public partial bool ShowWelcome { get; set; }
@@ -139,7 +147,7 @@ public sealed partial class MainViewModel : ObservableObject
     partial void OnUpdateChanged(BoostRoot.Core.Updates.UpdateInfo? value) => OnPropertyChanged(nameof(UpdateText));
     private readonly IAppServices _services;
 
-    public const string SponsorsUrl = "https://github.com/sponsors/bl4z3root";
+    public const string SponsorsUrl = "https://github.com/sponsors/bl4z3rootstudio";
     [RelayCommand] public void Donate() => _services.OpenUrl(SponsorsUrl);
 
     public async Task CheckUpdateAsync()
@@ -189,6 +197,7 @@ public sealed partial class MainViewModel : ObservableObject
         Fps = new FpsViewModel(services);
         Clips = new ClipsViewModel(services, () => Settings!.Current);
         ShowWelcome = !services.LoadSettings().FirstRunDone;
+        Crosshair = new CrosshairViewModel(services, d => Settings.UseCrosshair(d));
         Nav =
         [
             new("boost", "M13 2 4 14h7l-1 8 9-12h-7z", Home),
@@ -197,6 +206,7 @@ public sealed partial class MainViewModel : ObservableObject
             new("stress", "M12 2a7 7 0 0 0-4 12.7V18h8v-3.3A7 7 0 0 0 12 2zM9 22h6", Stress),
             new("net", "M2 9a15 15 0 0 1 20 0M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M12 20h.01", Net),
             new("clips", "M4 6h12v12H4zM16 10l5-3v10l-5-3", Clips),
+            new("crosshair", "M12 2v6M12 16v6M2 12h6M16 12h6M12 11.5a.5.5 0 1 0 0 1 .5.5 0 1 0 0-1", Crosshair),
             new("tools", "M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z", Tools),
             new("settings", "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z", Settings),
         ];

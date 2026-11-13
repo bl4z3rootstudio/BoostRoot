@@ -18,6 +18,7 @@
     <DataTemplate DataType="vm:StressViewModel"><v:StressView /></DataTemplate>
     <DataTemplate DataType="vm:FpsViewModel"><v:FpsView /></DataTemplate>
     <DataTemplate DataType="vm:ClipsViewModel"><v:ClipsView /></DataTemplate>
+    <DataTemplate DataType="vm:CrosshairViewModel"><v:CrosshairView /></DataTemplate>
     <DataTemplate DataType="vm:PlaceholderViewModel"><v:PlaceholderView /></DataTemplate>
   </Window.DataTemplates>
   <Panel>

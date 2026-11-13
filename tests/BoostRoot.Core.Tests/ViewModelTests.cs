@@ -86,6 +86,11 @@ internal sealed class FakeAppServices : IAppServices
     public Task<BoostRoot.Core.Updates.UpdateInfo?> CheckUpdateAsync(CancellationToken ct) => Task.FromResult(NextUpdate);
     public bool UpdateOk { get; set; } = true;
     public Task<bool> InstallUpdateAsync(BoostRoot.Core.Updates.UpdateInfo update, IProgress<double>? progress, CancellationToken ct) => Task.FromResult(UpdateOk);
+    public string? Clipboard { get; private set; }
+    public void CopyToClipboard(string text) => Clipboard = text;
+    public List<BoostRoot.Core.Crosshair.CrosshairDesign> Crosshairs { get; set; } = [];
+    public IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> LoadCrosshairs() => Crosshairs;
+    public void SaveCrosshairs(IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> designs) => Crosshairs = [.. designs];
 }
 
 public sealed class FakeFrames : IFrameSource

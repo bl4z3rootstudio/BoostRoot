@@ -25,6 +25,7 @@ namespace BoostRoot.App;
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase, WriteIndented = true)]
 [JsonSerializable(typeof(AppSettings))]
 [JsonSerializable(typeof(Dictionary<string, string>))]
+[JsonSerializable(typeof(List<BoostRoot.Core.Crosshair.CrosshairDesign>))]
 internal sealed partial class AppJsonContext : JsonSerializerContext;
 
 /// <summary>Composition root: wires Core/Games/Platform together for the real Windows machine.</summary>
@@ -462,4 +463,22 @@ public sealed class WindowsAppServices : IAppServices
 
     public Task InstallFpsToolAsync(CancellationToken ct) =>
         LoadSettings().Offline ? Task.FromException(new HttpRequestException("Offline mode")) : PresentMonSource.InstallAsync(_http, ct);
+
+    /// <summary>Set by the app (needs the window's clipboard).</summary>
+    public Action<string>? ClipboardSetter { get; set; }
+    public void CopyToClipboard(string text) => ClipboardSetter?.Invoke(text);
+
+    private static string CrosshairFile => Path.Combine(UserDataDir, "crosshairs.json");
+
+    public IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> LoadCrosshairs()
+    {
+        try { return File.Exists(CrosshairFile) ? JsonSerializer.Deserialize(File.ReadAllText(CrosshairFile), AppJsonContext.Default.ListCrosshairDesign) ?? [] : []; }
+        catch (Exception ex) when (ex is JsonException or IOException) { return []; }
+    }
+
+    public void SaveCrosshairs(IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> designs)
+    {
+        Directory.CreateDirectory(UserDataDir);
+        File.WriteAllText(CrosshairFile, JsonSerializer.Serialize(designs.ToList(), AppJsonContext.Default.ListCrosshairDesign));
+    }
 }

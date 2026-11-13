@@ -1,0 +1,126 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BoostRoot.ViewModels" xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             xmlns:c="using:BoostRoot.App.Controls" xmlns:ch="using:BoostRoot.Core.Crosshair"
+             x:Class="BoostRoot.App.Views.CrosshairView" x:DataType="vm:CrosshairViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="48,24" Spacing="16">
+      <TextBlock Classes="h1" FontSize="32" Text="{Binding [ch.title], Source={x:Static loc:Loc.I}}" />
+      <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [ch.sub], Source={x:Static loc:Loc.I}}" />
+      <Grid ColumnDefinitions="360,*" ColumnSpacing="20">
+        <StackPanel Spacing="12">
+          <Border CornerRadius="16" ClipToBounds="True" Height="300"><c:CrosshairPreview Design="{Binding Design}" Zoom="5" /></Border>
+          <Border CornerRadius="12" ClipToBounds="True" Height="90"><c:CrosshairPreview Design="{Binding Design}" Zoom="1.5" /></Border>
+          <TextBlock Classes="h2" Text="{Binding [ch.presets], Source={x:Static loc:Loc.I}}" />
+          <ItemsControl ItemsSource="{Binding Presets}">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="ch:CrosshairDesign">
+                <Button Classes="chip" Margin="0,0,6,6" Padding="4" ToolTip.Tip="{Binding Name}"
+                        Command="{Binding $parent[ItemsControl].((vm:CrosshairViewModel)DataContext).LoadCommand}" CommandParameter="{Binding}">
+                  <Border Width="56" Height="56" CornerRadius="10" ClipToBounds="True"><c:CrosshairPreview Design="{Binding}" Zoom="2" /></Border>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Classes="h2" Text="{Binding [ch.mine], Source={x:Static loc:Loc.I}}" IsVisible="{Binding Saved.Count}" />
+          <ItemsControl ItemsSource="{Binding Saved}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="ch:CrosshairDesign">
+                <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,3">
+                  <Border Width="36" Height="36" CornerRadius="8" ClipToBounds="True"><c:CrosshairPreview Design="{Binding}" Zoom="1.5" /></Border>
+                  <Button Grid.Column="1" Classes="ghost" Margin="8,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Content="{Binding Name}"
+                          Command="{Binding $parent[ItemsControl].((vm:CrosshairViewModel)DataContext).LoadCommand}" CommandParameter="{Binding}" />
+                  <Button Grid.Column="2" Classes="ghost" Content="✕"
+                          Command="{Binding $parent[ItemsControl].((vm:CrosshairViewModel)DataContext).DeleteCommand}" CommandParameter="{Binding}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Spacing="12">
+          <Border Classes="card">
+            <StackPanel Spacing="8">
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox Text="{Binding Name}" Watermark="{Binding [ch.name], Source={x:Static loc:Loc.I}}" />
+                <Button Grid.Column="1" Classes="primary" Command="{Binding SaveCommand}" Content="{Binding [ch.save], Source={x:Static loc:Loc.I}}" />
+              </Grid>
+              <TextBlock Text="{Binding [ch.color], Source={x:Static loc:Loc.I}}" />
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <ItemsControl ItemsSource="{Binding Swatches}">
+                  <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                      <Button Width="26" Height="26" CornerRadius="13" Padding="0" Background="{Binding}" BorderBrush="#33FFFFFF" BorderThickness="1"
+                              Command="{Binding $parent[ItemsControl].((vm:CrosshairViewModel)DataContext).SwatchCommand}" CommandParameter="{Binding}" />
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBox Width="100" Text="{Binding Color}" />
+              </StackPanel>
+              <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                <StackPanel Spacing="4">
+                  <CheckBox IsChecked="{Binding Outline}" Content="{Binding [ch.outline], Source={x:Static loc:Loc.I}}" />
+                  <TextBlock Classes="muted" Text="{Binding [ch.outlineThickness], Source={x:Static loc:Loc.I}}" />
+                  <Slider Minimum="1" Maximum="6" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding OutlineThickness}" />
+                  <TextBlock Classes="muted" Text="{Binding [ch.outlineOpacity], Source={x:Static loc:Loc.I}}" />
+                  <Slider Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True" Value="{Binding OutlineOpacity}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="4">
+                  <CheckBox IsChecked="{Binding Dot}" Content="{Binding [ch.dot], Source={x:Static loc:Loc.I}}" />
+                  <TextBlock Classes="muted" Text="{Binding [ch.dotSize], Source={x:Static loc:Loc.I}}" />
+                  <Slider Minimum="1" Maximum="6" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding DotThickness}" />
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+          </Border>
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+            <Border Classes="card">
+              <StackPanel Spacing="4">
+                <CheckBox FontWeight="SemiBold" IsChecked="{Binding InnerShow}" Content="{Binding [ch.inner], Source={x:Static loc:Loc.I}}" />
+                <TextBlock Classes="muted" Text="{Binding [ch.thickness], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding InnerThickness}" />
+                <TextBlock Classes="muted" Text="{Binding [ch.length], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="20" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding InnerLength}" />
+                <TextBlock Classes="muted" Text="{Binding [ch.offset], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="20" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding InnerOffset}" />
+                <TextBlock Classes="muted" Text="{Binding [ch.opacity], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True" Value="{Binding InnerOpacity}" />
+              </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Classes="card">
+              <StackPanel Spacing="4">
+                <CheckBox FontWeight="SemiBold" IsChecked="{Binding OuterShow}" Content="{Binding [ch.outer], Source={x:Static loc:Loc.I}}" />
+                <TextBlock Classes="muted" Text="{Binding [ch.thickness], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding OuterThickness}" />
+                <TextBlock Classes="muted" Text="{Binding [ch.length], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="20" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding OuterLength}" />
+                <TextBlock Classes="muted" Text="{Binding [ch.offset], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="40" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding OuterOffset}" />
+                <TextBlock Classes="muted" Text="{Binding [ch.opacity], Source={x:Static loc:Loc.I}}" /><Slider Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True" Value="{Binding OuterOpacity}" />
+              </StackPanel>
+            </Border>
+          </Grid>
+          <Border Classes="card">
+            <StackPanel Spacing="8">
+              <TextBlock Classes="h2" Text="{Binding [ch.exportTo], Source={x:Static loc:Loc.I}}" />
+              <ItemsControl ItemsSource="{Binding Targets}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:CrosshairTargetRow">
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                      <StackPanel>
+                        <TextBlock FontWeight="SemiBold" Text="{Binding Target.Game}" />
+                        <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding How}" />
+                      </StackPanel>
+                      <Button Grid.Column="1" Classes="ghost" VerticalAlignment="Center" Content="{Binding [ch.copy], Source={x:Static loc:Loc.I}}"
+                              Command="{Binding $parent[ItemsControl].((vm:CrosshairViewModel)DataContext).ExportCommand}" CommandParameter="{Binding}" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <TextBlock Foreground="{StaticResource Good}" TextWrapping="Wrap" Text="{Binding Status}" />
+              <SelectableTextBlock Classes="muted" FontFamily="Consolas" FontSize="11" TextWrapping="Wrap" Text="{Binding LastExport}" />
+              <TextBlock Text="{Binding [ch.import], Source={x:Static loc:Loc.I}}" Margin="0,8,0,0" />
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox Text="{Binding ImportCode}" Watermark="0;P;c;5;h;0;..." />
+                <Button Grid.Column="1" Classes="ghost" Command="{Binding ImportCommand}" Content="{Binding [ch.importBtn], Source={x:Static loc:Loc.I}}" />
+              </Grid>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

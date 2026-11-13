@@ -4,8 +4,8 @@
 <i>Free, open-source FPS booster. Premium features for free — no ads, no account.</i></p>
 
 <p align="center">
-  <a href="https://github.com/bl4z3root/BoostRoot/releases/latest"><b>⬇ İndir / Download</b></a> ·
-  <a href="https://bl4z3root.github.io/BoostRoot/">Web sitesi</a> ·
+  <a href="https://github.com/bl4z3rootstudio/BoostRoot/releases/latest"><b>⬇ İndir / Download</b></a> ·
+  <a href="https://bl4z3rootstudio.github.io/BoostRoot/">Web sitesi</a> ·
   <a href="#destek-ol--support">♥ Destek ol</a>
 </p>
 
@@ -42,7 +42,7 @@
 AMD ve NVIDIA · Windows 10 / 11 · Home ve Pro · masaüstü ve laptop.
 
 ### Kurulum
-[Son sürümü indir](https://github.com/bl4z3root/BoostRoot/releases/latest) → `BoostRoot-Setup-xx.x.x.exe`.
+[Son sürümü indir](https://github.com/bl4z3rootstudio/BoostRoot/releases/latest) → `BoostRoot-Setup-xx.x.x.exe`.
 Windows SmartScreen "tanınmayan uygulama" diyebilir (kod imzalama sertifikası ücretli olduğu için yok): **Ek bilgi → Yine de çalıştır**. Dosyanın SHA-256 değerini sürümdeki `SHA256SUMS.txt` ile karşılaştırabilirsin.
 
 ### Sık sorulanlar
@@ -63,7 +63,7 @@ Features: 30 game profiles · 4 levels with a recommendation for your PC · PC r
 
 ## Destek ol / Support
 BoostRoot tamamen ücretsizdir ve öyle kalacak. Beğendiysen:
-- ♥ [GitHub Sponsors](https://github.com/sponsors/bl4z3root)
+- ♥ [GitHub Sponsors](https://github.com/sponsors/bl4z3rootstudio)
 - ₿ Bitcoin (BTC): `adres yakında / address coming soon`
 - ₮ USDT (TRC20): `adres yakında / address coming soon`
 

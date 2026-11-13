@@ -24,7 +24,7 @@ public sealed record UpdateInfo(AppVersion Version, string Notes, ReleaseAsset S
 /// and "SHA256SUMS.txt" listing every asset's hash.</summary>
 public static class Updater
 {
-    public const string Repo = "bl4z3root/BoostRoot";
+    public const string Repo = "bl4z3rootstudio/BoostRoot";
     public const string LatestUrl = "https://api.github.com/repos/" + Repo + "/releases/latest";
 
     public static GitHubRelease? ParseRelease(string json)

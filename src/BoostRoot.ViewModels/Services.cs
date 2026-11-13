@@ -110,6 +110,11 @@ public interface IAppServices
     Task<UpdateInfo?> CheckUpdateAsync(CancellationToken ct);
     /// <summary>Downloads + verifies the installer, starts it and asks the app to exit. False on failure.</summary>
     Task<bool> InstallUpdateAsync(UpdateInfo update, IProgress<double>? progress, CancellationToken ct);
+
+    // Crosshair studio + misc
+    void CopyToClipboard(string text);
+    IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> LoadCrosshairs();
+    void SaveCrosshairs(IReadOnlyList<BoostRoot.Core.Crosshair.CrosshairDesign> designs);
 }
 
 public sealed record ShareCard(string Game, FrameStats Before, FrameStats After, double Gain, string Cpu, string Gpu);

@@ -47,7 +47,7 @@ internal static class ShareCardRenderer
                     new UniformGrid { Columns = 2, Children = { Column(Loc.I["fps.before"], c.Before.AvgFps, c.Before.Low1, false), Column(Loc.I["fps.after"], c.After.AvgFps, c.After.Low1, true) } },
                     T(gain, story ? 170 : 120, c.Gain >= 0 ? "#86EFAC" : "#FCD34D", FontWeight.Bold),
                     T($"{c.Cpu}\n{c.Gpu}", 28, "#A19DB5"),
-                    T("BoostRoot · github.com/bl4z3root/BoostRoot", 30, "#C084FC"),
+                    T("BoostRoot · github.com/bl4z3rootstudio/BoostRoot", 30, "#C084FC"),
                 },
             },
         };
