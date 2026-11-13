@@ -21,9 +21,15 @@ Son güncelleme: 12.11.2026 gece · sürüm 26.11.1 · testler: 169 (Linux) + Wi
 - Gösterge/nişangâh exclusive fullscreen'de görünmeyebilir (enjeksiyon yapmadığımız için).
 - Kripto adresleri README'de "yakında" — kullanıcıdan alınacak.
 
+## 13.11.2026 gece eklenenler
+- Nişangâh Stüdyosu (VALORANT kodu dışa/içe aktarma, CS2/TF2 komutları, BoostRoot overlay), 500+ oyun kütüphanesi (`profiles/library.txt`), tanınmayan her yüklü oyuna genel profil ("dir:" süreç tespiti), ana ekranda arama, RAM boşaltma, oyun süresi, oyun açıkken yüksek öncelik + 0.5 ms zamanlayıcı
+- GitHub: https://github.com/bl4z3rootstudio/BoostRoot (public), Pages: https://bl4z3rootstudio.github.io/BoostRoot/
+- **v26.11.1 yayınlandı** (Release workflow, manuel tetikleme: Actions → Release → Run workflow → sürüm). Kurulum 15 MB, taşınabilir 19 MB.
+- Etiket (tag) push'u oturum proxy'sinde 403 veriyor → sürüm çıkarmak için Actions'tan "Run workflow" kullan.
+
 ## Sıradaki
-1. Kullanıcı PC testi: `docs/TEST-CHECKLIST.md`
-2. GitHub'a yükleme + `v26.11.1` etiketi → CI kurulum dosyasını üretir.
+1. Kullanıcı PC testi: `docs/TEST-CHECKLIST.md` (UAC "Evet" kullanıcı tarafından basılmalı; uzaktan tıklanamıyor)
+2. Bulunan hatalar → 26.11.2
 
 ## Notlar
 - .NET 10 SDK: `export PATH=$HOME/.dotnet:$PATH`; Linux'ta Windows projeleri derlenir ama çalışmaz; NativeAOT yalnızca Windows CI'da.
