@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json;
+using System.Text.RegularExpressions;
+using BoostRoot.Core.Profiles;
 
 namespace BoostRoot.ViewModels.Localization;
 
@@ -8,7 +10,7 @@ namespace BoostRoot.ViewModels.Localization;
 public sealed class Loc : INotifyPropertyChanged
 {
     // Order matters: Languages must be initialised before the singleton constructor reads it.
-    public static IReadOnlyList<string> Languages { get; } = ["tr", "en", "az", "de", "ru", "es", "pt"];
+    public static IReadOnlyList<string> Languages { get; } = ["tr", "en", "az", "de", "ru", "es", "pt", "fr", "ar"];
     public static Loc I { get; } = new();
 
     private readonly Dictionary<string, IReadOnlyDictionary<string, string>> _tables = new(StringComparer.Ordinal);
@@ -39,11 +41,44 @@ public sealed class Loc : INotifyPropertyChanged
         Language = lang;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item[]"));
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Language)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsRtl)));
     }
 
     public string this[string key] => _current.TryGetValue(key, out var v) ? v
         : _tables["en"].TryGetValue(key, out var e) ? e : key;
     public bool Has(string key) => _current.ContainsKey(key);
+
+    /// <summary>Right-to-left script (Arabic): the window mirrors its layout.</summary>
+    public bool IsRtl => Language == "ar";
+
+    public string Pick(Localized text) => Text(text.Tr, text.En);
+
+    /// <summary>
+    /// Built-in bilingual text (tips, checks, tweaks): Turkish/English as written, other languages from "@English text" entries
+    /// in their table. Texts with values in them ("RAM runs at 2133 MHz…") match "@RAM runs at {0} MHz…" templates.
+    /// </summary>
+    public string Text(string tr, string en)
+    {
+        if (Language == "tr") return tr;
+        if (Language == "en") return en;
+        if (_current.TryGetValue("@" + en, out var v)) return v;
+        foreach (var (re, tmpl) in Templates(Language))
+            if (re.Match(en) is { Success: true } m)
+                return string.Format(CultureInfo.CurrentCulture, tmpl, [.. m.Groups.Values.Skip(1).Select(g => (object)g.Value)]);
+        return en;
+    }
+
+    private readonly Dictionary<string, List<(Regex, string)>> _templates = [];
+
+    private List<(Regex, string)> Templates(string lang)
+    {
+        if (_templates.TryGetValue(lang, out var list)) return list;
+        list = [];
+        foreach (var (k, v) in _tables[lang])
+            if (k.StartsWith('@') && k.Contains("{0}"))
+                list.Add((new Regex("^" + Regex.Replace(Regex.Escape(k[1..]), @"\\\{(\d)}", "(.+?)") + "$", RegexOptions.CultureInvariant), v));
+        return _templates[lang] = list;
+    }
 
     public string Format(string key, params object[] args) => string.Format(CultureInfo.CurrentCulture, this[key], args);
 }

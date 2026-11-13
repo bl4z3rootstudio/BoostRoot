@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using BoostRoot.ViewModels;
+using BoostRoot.ViewModels.Localization;
 
 namespace BoostRoot.App;
 
@@ -42,6 +43,13 @@ public sealed partial class App : Application
             AccentPalette.Changed += a => Avalonia.Threading.Dispatcher.UIThread.Post(() => ApplyAccent(a));
             SetupTray(desktop, window, services);
             SetupAutoBoost(services);
+            void Flow() => window.FlowDirection = Loc.I.IsRtl ? Avalonia.Media.FlowDirection.RightToLeft : Avalonia.Media.FlowDirection.LeftToRight;
+            Flow();
+            Loc.I.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName != nameof(Loc.IsRtl)) return;
+                Avalonia.Threading.Dispatcher.UIThread.Post(() => { Flow(); Relayout(window); }, Avalonia.Threading.DispatcherPriority.Background);
+            };
         }
         base.OnFrameworkInitializationCompleted();
     }
@@ -92,6 +100,13 @@ public sealed partial class App : Application
         });
         timer.Start();
         services.SessionStartedFor = id => _auto.MarkHandled(id);
+    }
+
+    /// <summary>After a language switch, text widths change everywhere; re-measure the whole tree so nothing stays clipped.</summary>
+    public static void Relayout(Avalonia.Visual root)
+    {
+        foreach (var v in Avalonia.VisualTree.VisualExtensions.GetSelfAndVisualDescendants(root))
+            if (v is Avalonia.Layout.Layoutable l) l.InvalidateMeasure();
     }
 
     private bool _exiting;

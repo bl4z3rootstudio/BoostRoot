@@ -701,7 +701,7 @@ public sealed class WindowsAppServices : IAppServices
         items.Add(new("pf.power", high, high ? "✓" : Loc.I["pf.powerFix"]));
         var s = Sensors.Read();
         if (s.GpuTempC is { } t) items.Add(new("pf.gpuTemp", t < 70, $"{t:0}°C"));
-        if (CheckDriver() is { } d && d.AgeDays >= 0) items.Add(new("pf.driver", !d.IsOld, $"{d.AgeDays} gün / days", d.IsOld ? "driver" : ""));
+        if (CheckDriver() is { } d && d.AgeDays >= 0) items.Add(new("pf.driver", !d.IsOld, Loc.I.Format("pf.days", d.AgeDays), d.IsOld ? "driver" : ""));
         try
         {
             var c = new DriveInfo(Path.GetPathRoot(Environment.SystemDirectory) ?? "C:\\");
@@ -740,7 +740,7 @@ public sealed class WindowsAppServices : IAppServices
     public Task HideWindowsUpdateAsync(WinUpdate update, CancellationToken ct) => PowerShellRunner.RunAsync(WindowsUpdateJson.HideScript(update.Id), ct, TimeSpan.FromMinutes(5));
 
     public async Task<IReadOnlyList<BloatApp>> ScanBloatAsync(CancellationToken ct) =>
-        Bloatware.Match(await PowerShellRunner.RunAsync(Bloatware.ListScript, ct, TimeSpan.FromMinutes(2)), Loc.I.Language == "tr");
+        Bloatware.Match(await PowerShellRunner.RunAsync(Bloatware.ListScript, ct, TimeSpan.FromMinutes(2)), (tr, en) => Loc.I.Text(tr, en));
 
     public async Task<bool> RemoveBloatAsync(BloatApp app, CancellationToken ct) =>
         (await PowerShellRunner.RunAsync(Bloatware.RemoveScript(app.PackageFullName), ct, TimeSpan.FromMinutes(3))).Contains("OK", StringComparison.Ordinal);

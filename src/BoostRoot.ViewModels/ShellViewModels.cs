@@ -5,13 +5,19 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace BoostRoot.ViewModels;
 
-public sealed partial class NavItemViewModel(string key, string icon, ObservableObject page) : ObservableObject
+public sealed partial class NavItemViewModel : ObservableObject
 {
-    public string Key { get; } = key;
+    public NavItemViewModel(string key, string icon, ObservableObject page)
+    {
+        Key = key; Icon = icon; Page = page;
+        Loc.I.PropertyChanged += (_, _) => OnPropertyChanged(nameof(Title)); // live language switch
+    }
+
+    public string Key { get; }
     public string Title => Loc.I["nav." + Key];
     /// <summary>SVG path data for the icon.</summary>
-    public string Icon { get; } = icon;
-    public ObservableObject Page { get; } = page;
+    public string Icon { get; }
+    public ObservableObject Page { get; }
     [ObservableProperty] public partial bool IsActive { get; set; }
 }
 

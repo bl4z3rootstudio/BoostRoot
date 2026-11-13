@@ -39,7 +39,7 @@
             </StackPanel>
             <Button x:Name="ResetButton" Grid.Column="1" Classes="ghost" VerticalAlignment="Top" Content="{Binding [tests.reset], Source={x:Static loc:Loc.I}}" />
           </Grid>
-          <StackPanel x:Name="Keyboard" Spacing="6" />
+          <StackPanel x:Name="Keyboard" Spacing="6" FlowDirection="LeftToRight" />
           <StackPanel Orientation="Horizontal" Spacing="28">
             <TextBlock Classes="muted"><Run Text="{Binding [tests.keys], Source={x:Static loc:Loc.I}}" /><Run Text=": " /><Run Text="{Binding KeysTested}" Foreground="{StaticResource Text}" FontWeight="SemiBold" /></TextBlock>
             <TextBlock Classes="muted"><Run Text="{Binding [tests.rollover], Source={x:Static loc:Loc.I}}" /><Run Text=": " /><Run Text="{Binding Rollover}" Foreground="{StaticResource Text}" FontWeight="SemiBold" /></TextBlock>

@@ -35,7 +35,7 @@ public sealed class LanguageNameConverter : IValueConverter
     private static readonly Dictionary<string, string> Names = new()
     {
         ["tr"] = "Türkçe", ["en"] = "English", ["az"] = "Azərbaycanca", ["de"] = "Deutsch",
-        ["ru"] = "Русский", ["es"] = "Español", ["pt"] = "Português",
+        ["ru"] = "Русский", ["es"] = "Español", ["pt"] = "Português", ["fr"] = "Français", ["ar"] = "العربية",
     };
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         value is string s && Names.TryGetValue(s, out var n) ? n : value;

@@ -57,7 +57,7 @@ public sealed partial class CrosshairViewModel : ObservableObject
         _services = services;
         _useAsOverlay = useAsOverlay;
         var tr = Loc.I.Language == "tr";
-        Targets = [.. CrosshairTargets.All.Select(t => new CrosshairTargetRow(t, tr ? t.HowTr : t.HowEn))];
+        Targets = [.. CrosshairTargets.All.Select(t => new CrosshairTargetRow(t, Loc.I.Text(t.HowTr, t.HowEn)))];
         foreach (var d in services.LoadCrosshairs()) Saved.Add(d);
         Rebuild();
     }

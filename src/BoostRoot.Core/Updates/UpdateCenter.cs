@@ -159,7 +159,9 @@ public static class Bloatware
     public static string RemoveScript(string fullName) => fullName.All(c => char.IsLetterOrDigit(c) || c is '.' or '_' or '-' or '~')
         ? $"Remove-AppxPackage -Package '{fullName}'; 'OK'" : "'BAD'";
 
-    public static IReadOnlyList<BloatApp> Match(string json, bool turkish)
+    public static IReadOnlyList<BloatApp> Match(string json, bool turkish) => Match(json, (tr, en) => turkish ? tr : en);
+
+    public static IReadOnlyList<BloatApp> Match(string json, Func<string, string, string> pick)
     {
         var res = new List<BloatApp>();
         try
@@ -173,7 +175,7 @@ public static class Bloatware
                 if (Protected.Any(p => name.StartsWith(p, StringComparison.OrdinalIgnoreCase))) continue;
                 var k = Known.FirstOrDefault(k => name.StartsWith(k.Prefix, StringComparison.OrdinalIgnoreCase));
                 if (k.Prefix is null || res.Any(r => r.Name == name)) continue;
-                res.Add(new BloatApp(full, name, turkish ? k.Tr : k.En));
+                res.Add(new BloatApp(full, name, pick(k.Tr, k.En)));
             }
         }
         catch (JsonException) { }

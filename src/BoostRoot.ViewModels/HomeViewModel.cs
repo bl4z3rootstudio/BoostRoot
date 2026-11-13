@@ -91,13 +91,13 @@ public sealed partial class HomeViewModel : ObservableObject
         Tips = null;
         if (Selected?.Entry.Profile is not { } p) return;
         var tr = Loc.I.Language == "tr";
-        Tips = p.Tips is { } t ? (tr ? t.Tr : t.En) : null;
+        Tips = p.Tips is { } t ? Loc.I.Pick(t) : null;
         var total = _services.Playtime.Total(p.Id);
         PlaytimeText = total > TimeSpan.Zero ? Loc.I.Format("home.playtime", BoostRoot.Core.Fps.PlaytimeLog.Format(total)) : null;
         foreach (var key in p.Levels[SelectedLevel].Set.Keys)
         {
             if (!p.Notes.TryGetValue(key, out var n)) continue;
-            Changes.Add(new ChangeRow(tr ? n.Text.Tr : n.Text.En, Loc.I["impact." + n.FpsImpact], n.FpsImpact == "high"));
+            Changes.Add(new ChangeRow(Loc.I.Pick(n.Text), Loc.I["impact." + n.FpsImpact], n.FpsImpact == "high"));
         }
         NoFileChanges = p.Levels[SelectedLevel].Set.Count == 0;
         Changes.Add(new ChangeRow(Loc.I["change.windows"], Loc.I["impact.medium"], false));
@@ -221,6 +221,7 @@ public sealed partial class HomeViewModel : ObservableObject
     {
         _services = services;
         _settings = services.LoadSettings();
+        Loc.I.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(Loc.Language)) { RefreshChanges(); OnPropertyChanged(nameof(GamesTitle)); } };
         Reload();
     }
 

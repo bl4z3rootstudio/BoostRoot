@@ -43,7 +43,7 @@ public sealed partial class ScanViewModel(IAppServices services, Action<Hardware
     private void Show(HardwareReport r)
     {
         var tr = Loc.I.Language == "tr";
-        string T(string a, string b) => tr ? a : b;
+        string T(string a, string b) => Loc.I.Text(a, b);
         var hw = r.Info;
         Parts.Clear();
         var issueIds = r.Issues.Select(i => i.Id).ToHashSet();
@@ -58,7 +58,7 @@ public sealed partial class ScanViewModel(IAppServices services, Action<Hardware
         var n = hw.Networks.OrderByDescending(x => x.SpeedMbps).FirstOrDefault();
         Parts.Add(new(T("İnternet", "Network"), n is null ? "—" : (n.IsWireless ? "Wi-Fi" : T("Kablolu", "Wired")) + $" · {n.SpeedMbps} Mbps", n?.Name ?? "", !issueIds.Contains("net-100mbps") && !issueIds.Contains("net-wifi")));
         Issues.Clear();
-        foreach (var i in r.Issues) Issues.Add(new(i.Id.Split('-')[0].ToUpperInvariant(), tr ? i.Title.Tr : i.Title.En, tr ? i.Fix.Tr : i.Fix.En));
+        foreach (var i in r.Issues) Issues.Add(new(i.Id.Split('-')[0].ToUpperInvariant(), Loc.I.Pick(i.Title), Loc.I.Pick(i.Fix)));
         Score = r.Score.Total;
         ScoreLabel = Score switch
         {

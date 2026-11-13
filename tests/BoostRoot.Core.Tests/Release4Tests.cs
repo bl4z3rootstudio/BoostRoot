@@ -33,14 +33,24 @@ public class Release4Tests
         var en = Loc.Load("en");
         foreach (var lang in Loc.Languages)
         {
-            var t = Loc.Load(lang);
-            Assert.True(t.Count >= 70, lang);
+            var t = Loc.Load(lang).Where(kv => !kv.Key.StartsWith('@')).ToDictionary();
+            Assert.True(t.Count >= en.Count - 15, $"{lang}: only {t.Count} of {en.Count} keys translated");
             Assert.All(t, kv => Assert.True(en.ContainsKey(kv.Key), $"{lang}:{kv.Key} not in en"));
             Assert.All(t, kv => Assert.Equal(System.Text.RegularExpressions.Regex.Matches(en[kv.Key], @"\{\d\}").Count,
                 System.Text.RegularExpressions.Regex.Matches(kv.Value, @"\{\d\}").Count));
         }
         Assert.Equal("Einstellungen", Loc.Load("de")["nav.settings"]);
-        Assert.False(Loc.Load("de").ContainsKey("pf.battery")); // indexer falls back to English for these
+        Assert.Equal("Stromquelle", Loc.Load("de")["pf.battery"]);
+    }
+
+    [Fact]
+    public void BuiltInTexts_TranslateIncludingTemplates()
+    {
+        var de = Loc.Load("de");
+        Assert.Equal("Du bist per WLAN verbunden", de["@You're on Wi-Fi"]);
+        Assert.True(de.ContainsKey("@RAM runs at {0} MHz, rated {1} MHz"));
+        foreach (var lang in Loc.Languages.Except(["tr", "en"]))
+            Assert.True(Loc.Load(lang).Count(kv => kv.Key.StartsWith('@')) > 150, lang);
     }
 
     [Fact]

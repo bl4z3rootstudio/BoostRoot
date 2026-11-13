@@ -80,7 +80,7 @@ public sealed partial class NetViewModel(IAppServices services) : ObservableObje
         finally
         {
             var tr = Loc.I.Language == "tr";
-            foreach (var a in NetAnalysis.Advice(services.NetworkAdapters(), stats, speed)) Advice.Add(tr ? a.Tr : a.En);
+            foreach (var a in NetAnalysis.Advice(services.NetworkAdapters(), stats, speed)) Advice.Add(Loc.I.Pick(a));
             IsRunning = false;
         }
     }
@@ -89,7 +89,7 @@ public sealed partial class NetViewModel(IAppServices services) : ObservableObje
 public sealed partial class JunkRowViewModel(JunkScan scan) : ObservableObject
 {
     public JunkScan Scan { get; } = scan;
-    public string Name => Loc.I.Language == "tr" ? Scan.Category.Name.Tr : Scan.Category.Name.En;
+    public string Name => Loc.I.Pick(Scan.Category.Name);
     public string Size => ToolsViewModel.Bytes(Scan.Bytes);
     [ObservableProperty] public partial bool IsChecked { get; set; } = !scan.Category.RequiresConfirm;
 }
@@ -111,9 +111,9 @@ public sealed partial class StartupRowViewModel(StartupItem item, IAppServices s
 public sealed partial class TweakRowViewModel(BoostRoot.Core.Tweaks.WindowsTweak tweak, bool on, IAppServices services) : ObservableObject
 {
     private static bool Tr => Loc.I.Language == "tr";
-    public string Name => Tr ? tweak.Name.Tr : tweak.Name.En;
-    public string Description => Tr ? tweak.Description.Tr : tweak.Description.En;
-    public string? Warning => tweak.Warning is { } w ? (Tr ? w.Tr : w.En) : null;
+    public string Name => Loc.I.Pick(tweak.Name);
+    public string Description => Loc.I.Pick(tweak.Description);
+    public string? Warning => tweak.Warning is { } w ? Loc.I.Pick(w) : null;
     public bool HasWarning => tweak.Warning is not null;
     public bool RequiresRestart => tweak.RequiresRestart;
     [ObservableProperty] public partial bool IsOn { get; set; } = on;
@@ -174,8 +174,7 @@ public sealed partial class ToolsViewModel(IAppServices services) : ObservableOb
                 _driverUrl = d.DownloadUrl;
                 DriverIsOld = d.IsOld;
                 DriverText = d.AgeDays < 0 ? d.Gpu.Name
-                    : tr ? $"{d.Gpu.Name} · sürücü {d.AgeDays} günlük{(d.IsOld ? " — güncelle" : " — güncel")}"
-                         : $"{d.Gpu.Name} · driver is {d.AgeDays} days old{(d.IsOld ? " — update it" : " — up to date")}";
+                    : Loc.I.Format(d.IsOld ? "upd.gpuOld" : "upd.gpuOk", d.Gpu.Name, d.AgeDays);
             }
         }
         finally { IsBusy = false; }
