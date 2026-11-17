@@ -97,7 +97,66 @@
               <ComboBox.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding Converter={x:Static v:LocKeyConverter.Corner}}" /></DataTemplate></ComboBox.ItemTemplate>
             </ComboBox>
           </Grid>
+          <ToggleSwitch IsChecked="{Binding OverlayIcons}" Content="{Binding [settings.overlayIcons], Source={x:Static loc:Loc.I}}" />
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock VerticalAlignment="Center" Text="{Binding [settings.overlayColor], Source={x:Static loc:Loc.I}}" />
+            <ItemsControl Grid.Column="1" ItemsSource="{Binding OverlayColors}">
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String">
+                <Button Width="26" Height="26" Padding="0" CornerRadius="13" Background="{Binding}" BorderBrush="#40FFFFFF" BorderThickness="1"
+                        Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).SetOverlayColorCommand}" CommandParameter="{Binding}" />
+              </DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Grid>
+          <Grid ColumnDefinitions="*,Auto,48" ColumnSpacing="8">
+            <TextBlock VerticalAlignment="Center" Text="{Binding [settings.overlayOpacity], Source={x:Static loc:Loc.I}}" />
+            <Slider Grid.Column="1" Width="200" Minimum="0" Maximum="100" Value="{Binding OverlayOpacity}" />
+            <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding OverlayOpacity, StringFormat={}%{0}}" />
+          </Grid>
+          <Grid ColumnDefinitions="*,Auto,48" ColumnSpacing="8">
+            <TextBlock VerticalAlignment="Center" Text="{Binding [settings.overlayScale], Source={x:Static loc:Loc.I}}" />
+            <Slider Grid.Column="1" Width="200" Minimum="60" Maximum="200" Value="{Binding OverlayScale}" />
+            <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding OverlayScale, StringFormat={}%{0}}" />
+          </Grid>
           <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [settings.overlayNote], Source={x:Static loc:Loc.I}}" />
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h2" Text="{Binding [settings.extras], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [settings.extrasSub], Source={x:Static loc:Loc.I}}" />
+          <ToggleSwitch IsChecked="{Binding SessionReport}" Content="{Binding [settings.sessionReport], Source={x:Static loc:Loc.I}}" />
+          <ToggleSwitch IsChecked="{Binding StutterDetect}" Content="{Binding [settings.stutter], Source={x:Static loc:Loc.I}}" />
+          <ToggleSwitch IsChecked="{Binding PacketLossAlert}" Content="{Binding [settings.packetLoss], Source={x:Static loc:Loc.I}}" />
+          <ToggleSwitch IsChecked="{Binding Notifications}" Content="{Binding [settings.notifications], Source={x:Static loc:Loc.I}}" />
+          <ToggleSwitch IsChecked="{Binding PauseDownloads}" Content="{Binding [settings.pauseDownloads], Source={x:Static loc:Loc.I}}" />
+          <ToggleSwitch IsChecked="{Binding Hotkeys}" Content="{Binding [settings.hotkeys], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [settings.hotkeysList], Source={x:Static loc:Loc.I}}" />
+          <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="{Binding [settings.fpsCap], Source={x:Static loc:Loc.I}}" />
+              <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding FpsCapHint}" />
+            </StackPanel>
+            <ComboBox Grid.Column="1" ItemsSource="{Binding FpsCaps}" SelectedItem="{Binding FpsCap}" MinWidth="110">
+              <ComboBox.ItemTemplate><DataTemplate x:DataType="x:Int32"><TextBlock Text="{Binding Converter={x:Static v:LocKeyConverter.FpsCap}}" /></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button Grid.Column="2" Classes="ghost" Command="{Binding UseSuggestedCapCommand}" Content="{Binding [settings.useSuggested], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h2" Text="{Binding [settings.share], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [settings.shareSub], Source={x:Static loc:Loc.I}}" />
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <TextBox IsReadOnly="True" Text="{Binding ShareSettingsCode}" />
+            <Button Grid.Column="1" Classes="primary" Command="{Binding ExportSettingsCommand}" Content="{Binding [settings.copyCode], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <TextBox Watermark="BR1-..." Text="{Binding ImportCode}" />
+            <Button Grid.Column="1" Classes="ghost" Command="{Binding ImportSettingsCommand}" Content="{Binding [settings.applyCode], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+          <TextBlock Foreground="{StaticResource AccentLight}" Text="{Binding ShareSettingsStatus}" />
         </StackPanel>
       </Border>
       <Border Classes="card">

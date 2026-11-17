@@ -6,6 +6,7 @@ using BoostRoot.Core.Session;
 using BoostRoot.Games;
 using BoostRoot.Platform.Windows;
 using BoostRoot.ViewModels;
+using BoostRoot.ViewModels.Localization;
 
 namespace BoostRoot.App;
 
@@ -30,6 +31,8 @@ public sealed class GameSession : IDisposable
     private readonly IClipRecorder? _clips;
     public event Action? Ended;
     public static GameSession? Current { get; private set; }
+    /// <summary>Report of the last finished game (shown on the Stats page too).</summary>
+    public static SessionSummary? LastSummary { get; private set; }
 
     private DateTime? _startedAt;
     private bool _timerRes;
@@ -38,6 +41,14 @@ public sealed class GameSession : IDisposable
     /// <summary>Automatic FPS logging: the whole session's frame stats are stored as an "auto" run.</summary>
     public Action<BoostRoot.Core.Fps.FpsRun>? RecordFps { get; set; }
     private readonly List<double> _log = [];
+    // Stutters, temperatures and packet loss: sampled once per 2 s tick (no extra timers).
+    private int _spikes, _stutters;
+    private readonly List<string> _causes = [];
+    private double? _maxGpu, _maxCpu;
+    private readonly Queue<bool> _pingOk = new();
+    private DateTime _lastLossAlert, _lastHeatAlert;
+    private readonly BoostRoot.Core.Net.IcmpPinger _pinger = new();
+    private IReadOnlyList<string> _pausedServices = [];
     public Func<IReadOnlyList<string>, bool>? RaisePriority { get; set; }
     private readonly IReadOnlyList<string> _names;
 
@@ -63,12 +74,43 @@ public sealed class GameSession : IDisposable
     }
 
     private readonly Func<IFrameSource> _startFrames;
+    private bool _gameStarted;
+
+    private void Sample()
+    {
+        var spikes = Interlocked.Exchange(ref _spikes, 0);
+        if (!_settings.StutterDetect && !_settings.SessionReport && !_settings.Notifications && !_settings.PacketLossAlert) return;
+        BoostRoot.Core.Monitoring.SensorSnapshot x;
+        try { x = _sensors.Read(); } catch (Exception) { return; }
+        if (x.GpuTempC is { } g) _maxGpu = Math.Max(_maxGpu ?? 0, g);
+        if (x.CpuTempC is { } c) _maxCpu = Math.Max(_maxCpu ?? 0, c);
+        if (spikes > 0 && _settings.StutterDetect) { _stutters++; _causes.Add(StutterAnalyzer.Cause(x)); }
+        var now = DateTime.UtcNow;
+        if (_settings.Notifications && (x.GpuTempC >= 88 || x.CpuTempC >= 92) && now - _lastHeatAlert > TimeSpan.FromMinutes(5))
+        {
+            _lastHeatAlert = now;
+            ToastOverlay.Show(Loc.I.Pick(new($"Sıcaklık yüksek: ekran kartı {x.GpuTempC:0}°C, işlemci {x.CpuTempC:0}°C", $"Running hot: GPU {x.GpuTempC:0}°C, CPU {x.CpuTempC:0}°C")), 4);
+        }
+        if (_settings.PacketLossAlert)
+            _ = Task.Run(async () =>
+            {
+                var r = await _pinger.PingAsync("1.1.1.1", TimeSpan.FromMilliseconds(900), CancellationToken.None);
+                lock (_pingOk) { _pingOk.Enqueue(r is not null); while (_pingOk.Count > 10) _pingOk.Dequeue(); }
+                int lost; lock (_pingOk) lost = _pingOk.Count(ok => !ok);
+                if (lost >= 3 && DateTime.UtcNow - _lastLossAlert > TimeSpan.FromMinutes(2))
+                {
+                    _lastLossAlert = DateTime.UtcNow;
+                    Dispatcher.UIThread.Post(() => ToastOverlay.Show(Loc.I.Pick(new("Paket kaybı var: internet bağlantın dalgalanıyor", "Packet loss: your connection is unstable")), 4));
+                }
+            });
+    }
 
     private void Tick()
     {
+        if (_startedAt is not null) Sample();
         switch (_watcher.Tick(TimeSpan.FromSeconds(2)))
         {
-            case GameWatcher.State.Running when _hotkeys is null:
+            case GameWatcher.State.Running when !_gameStarted:
                 OnGameStarted();
                 break;
             case GameWatcher.State.Ended or GameWatcher.State.TimedOut:
@@ -84,11 +126,18 @@ public sealed class GameSession : IDisposable
         try { RaisePriority?.Invoke(_names); } catch (Exception) { }
         _frames = _startFrames();
         _frames.Frame += _fps.Add;
-        _frames.Frame += ms => { lock (_log) if (_log.Count < 2_000_000) _log.Add(ms); };
-        _hotkeys = new HotkeyService([
+        _frames.Frame += ms =>
+        {
+            lock (_log) if (_log.Count < 2_000_000) _log.Add(ms);
+            // A frame 3x slower than the current average (and visibly slow) counts as a hitch.
+            if (_fps.Fps is { } avg && avg > 0 && ms > 25 && ms > 3000 / avg) Interlocked.Increment(ref _spikes);
+        };
+        if (_settings.PauseDownloads) _ = Task.Run(() => _pausedServices = BackgroundDownloads.Pause());
+        if (_settings.Hotkeys) _hotkeys = new HotkeyService([
             (HkOverlay, HotkeyService.Alt, VK_O), (HkCrosshair, HotkeyService.Alt, VK_C),
             (HkSaveReplay, HotkeyService.Alt, VK_F10), (HkRecord, HotkeyService.Alt, VK_F9), (HkScreenshot, HotkeyService.Alt, VK_F1)]);
-        _hotkeys.Pressed += id => Dispatcher.UIThread.Post(() => OnHotkey(id));
+        if (_hotkeys is not null) _hotkeys.Pressed += id => Dispatcher.UIThread.Post(() => OnHotkey(id));
+        _gameStarted = true;
         if (_settings.CrosshairOrDefault.Enabled) ToggleCrosshair();
         if (_settings.ClipsOrDefault.ReplayEnabled) _clips?.StartReplay(_entry.DisplayName);
     }
@@ -126,13 +175,22 @@ public sealed class GameSession : IDisposable
         _clips?.StopAll();
         if (_stretched) DisplayChanger.Restore();
         if (_timerRes) TimerResolution.Release();
+        if (_pausedServices.Count > 0) { var ps = _pausedServices; _ = Task.Run(() => BackgroundDownloads.Resume(ps)); }
         if (_startedAt is { } st && _entry.Profile is { } pr)
         {
             RecordPlaytime?.Invoke(pr.Id, _entry.DisplayName, st, DateTime.UtcNow);
             List<double> log;
             lock (_log) { log = [.. _log]; _log.Clear(); }
-            if (log.Count > 600 && BoostRoot.Core.Fps.FrameStats.From(log) is { } stats)
+            var stats = log.Count > 600 ? BoostRoot.Core.Fps.FrameStats.From(log) : null;
+            if (stats is not null)
                 try { RecordFps?.Invoke(new(pr.Id, _entry.DisplayName, DateTime.UtcNow, "auto", stats)); } catch (Exception) { }
+            var length = DateTime.UtcNow - st;
+            if (_settings.SessionReport && length > TimeSpan.FromMinutes(2))
+            {
+                var summary = new SessionSummary(_entry.DisplayName, length, stats, _stutters, _causes.Count > 0 ? SessionSummary.MostCommon(_causes) : null, _maxGpu, _maxCpu);
+                LastSummary = summary;
+                try { ToastOverlay.Show(summary.Text(Loc.I.Pick), 12); } catch (Exception) { }
+            }
         }
         Ended?.Invoke();
     }

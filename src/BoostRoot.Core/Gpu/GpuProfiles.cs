@@ -22,6 +22,8 @@ public static class NvidiaSettings
     /// <summary>"Threaded optimization" (OGL_THREAD_CONTROL): 1 = on.</summary>
     public const uint ThreadedOptimization = 0x20C1221E, ThreadedOn = 1;
     /// <summary>"Shader cache size" (PS_SHADERDISKCACHE_MAX_SIZE): 0xFFFFFFFF = unlimited, so fewer shader recompiles (stutter).</summary>
+    /// <summary>"Max frame rate" (FRL_FPS): frames per second, 0 = off.</summary>
+    public const uint FrameRateLimit = 0x10835002;
     public const uint ShaderCacheSize = 0x00AC8497, ShaderCacheUnlimited = 0xFFFFFFFF;
 
     public static IReadOnlyDictionary<uint, uint> From(GpuPrefs p)
@@ -30,6 +32,7 @@ public static class NvidiaSettings
         if (p.LowLatency == true) d[PreRenderLimit] = 1;
         if (p.VSync == false) d[VSyncMode] = VSyncForceOff;
         if (p.TextureFiltering == "performance") d[QualityEnhancements] = HighPerformance;
+        if (p.FpsCap is >= 20 and <= 1000) d[FrameRateLimit] = (uint)p.FpsCap.Value;
         return d;
     }
 

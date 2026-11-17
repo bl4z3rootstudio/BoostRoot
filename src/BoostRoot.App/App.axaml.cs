@@ -34,13 +34,19 @@ public sealed partial class App : Application
                     if (!services.LoadSettings().AutoUndo || entry.Profile is null || services.LastBoostOperation(entry.Profile.Id) is not { } op) return;
                     try { services.Undo(op); vm.Home.Select(vm.Home.Selected); } catch (Exception) { }
                 };
-                session.Ended += () => { window.WindowState = Avalonia.Controls.WindowState.Normal; window.Activate(); };
+                session.Ended += () => { window.WindowState = Avalonia.Controls.WindowState.Normal; window.Activate(); if (vm.CurrentPage == vm.Stats) vm.Stats.Refresh(); };
             });
             desktop.Exit += (_, _) => GameSession.Current?.Dispose();
             services.ClipboardSetter = text => _ = window.Clipboard?.SetTextAsync(text);
             services.ExitForUpdate = () => Avalonia.Threading.Dispatcher.UIThread.Post(() => desktop.Shutdown());
             Avalonia.Threading.DispatcherTimer.RunOnce(() => _ = vm.CheckUpdateAsync(), TimeSpan.FromSeconds(4));
-            _ = vm.Scan.ScanCommand.ExecuteAsync(null); // score drives level recommendations
+            _ = vm.Scan.ScanCommand.ExecuteAsync(null).ContinueWith(_ => Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                // One quiet heads-up per start for things only the user can fix (driver, RAM speed).
+                if (!services.LoadSettings().Notifications || vm.Scan.Report is not { } r) return;
+                var issue = r.Issues.FirstOrDefault(i => i.Id is "gpu-driver-old" or "ram-xmp");
+                if (issue is not null) BoostRoot.App.Overlay.ToastOverlay.Show(Loc.I.Pick(issue.Title), 5);
+            })); // score drives level recommendations
 
             ApplyAccent(AccentPalette.Get(services.LoadSettings().Accent));
             AccentPalette.Changed += a => Avalonia.Threading.Dispatcher.UIThread.Post(() => ApplyAccent(a));

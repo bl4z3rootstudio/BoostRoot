@@ -111,6 +111,49 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty] public partial bool TrayIcon { get; set; }
     [ObservableProperty] public partial bool AutoBoost { get; set; }
     [ObservableProperty] public partial bool StartWithWindows { get; set; }
+    [ObservableProperty] public partial bool SessionReport { get; set; }
+    [ObservableProperty] public partial bool StutterDetect { get; set; }
+    [ObservableProperty] public partial bool PacketLossAlert { get; set; }
+    [ObservableProperty] public partial bool PauseDownloads { get; set; }
+    [ObservableProperty] public partial bool Notifications { get; set; }
+    [ObservableProperty] public partial bool Hotkeys { get; set; }
+    [ObservableProperty] public partial bool OverlayIcons { get; set; }
+    [ObservableProperty] public partial string OverlayColor { get; set; }
+    [ObservableProperty] public partial int OverlayOpacity { get; set; }
+    [ObservableProperty] public partial int OverlayScale { get; set; }
+    [ObservableProperty] public partial int FpsCap { get; set; }
+    [ObservableProperty] public partial string? ShareSettingsCode { get; set; }
+    [ObservableProperty] public partial string? ImportCode { get; set; }
+    [ObservableProperty] public partial string? ShareSettingsStatus { get; set; }
+    public IReadOnlyList<string> OverlayColors { get; } = ["#FFFFFF", "#00FF66", "#22D3EE", "#FACC15", "#F472B6", "#A855F7"];
+    public IReadOnlyList<int> FpsCaps { get; } = [0, 60, 75, 120, 144, 165, 240, 300];
+    /// <summary>Monitor-based suggestion shown next to the cap picker.</summary>
+    public string FpsCapHint => _services.MonitorHz is > 0 and var hz
+        ? Loc.I.Format("settings.fpsCapHint", hz, BoostRoot.Core.Session.GameStats.SuggestedCap(hz)) : "";
+
+    [RelayCommand] public void UseSuggestedCap() { if (_services.MonitorHz > 0) FpsCap = BoostRoot.Core.Session.GameStats.SuggestedCap(_services.MonitorHz); }
+    [RelayCommand] public void SetOverlayColor(string c) => OverlayColor = c;
+
+    /// <summary>Everything except personal paths/webhooks, as a short code to send to a friend.</summary>
+    [RelayCommand]
+    public void ExportSettings()
+    {
+        ShareSettingsCode = SettingsCode.Encode(Current);
+        _services.CopyToClipboard(ShareSettingsCode);
+        ShareSettingsStatus = Loc.I["settings.codeCopied"];
+    }
+
+    [RelayCommand]
+    public void ImportSettings()
+    {
+        if (SettingsCode.Decode(ImportCode ?? "", Current) is not { } s) { ShareSettingsStatus = Loc.I["settings.codeBad"]; return; }
+        _base = s;
+        _loading = true;
+        Load(s);
+        _loading = false;
+        Save();
+        ShareSettingsStatus = Loc.I["settings.codeApplied"];
+    }
     private bool _loading = true;
 
     partial void OnStartWithWindowsChanged(bool value)
@@ -164,6 +207,17 @@ public sealed partial class SettingsViewModel : ObservableObject
         _services = services;
         _onChanged = onChanged;
         var s = _base = services.LoadSettings();
+        Load(s);
+        Accents = [.. AccentPalette.All.Select(a => new AccentChoiceViewModel(a.Key, a.Hex, a.Key == Accent))];
+        _appsLoadPending = true;
+        _loading = false;
+        Metrics = [.. AppSettings.AllMetrics.Select(m => new MetricToggleViewModel(m, s.Metrics.Contains(m), Save))];
+        Loc.I.SetLanguage(s.Language);
+        _ready = true;
+    }
+
+    private void Load(AppSettings s)
+    {
         Language = s.Language;
         Sounds = s.Sounds;
         Animations = s.Animations;
@@ -179,12 +233,9 @@ public sealed partial class SettingsViewModel : ObservableObject
         TrayIcon = s.TrayIcon;
         AutoBoost = s.AutoBoost;
         StartWithWindows = s.StartWithWindows;
-        Accents = [.. AccentPalette.All.Select(a => new AccentChoiceViewModel(a.Key, a.Hex, a.Key == Accent))];
-        _appsLoadPending = true;
-        _loading = false;
-        Metrics = [.. AppSettings.AllMetrics.Select(m => new MetricToggleViewModel(m, s.Metrics.Contains(m), Save))];
-        Loc.I.SetLanguage(s.Language);
-        _ready = true;
+        (SessionReport, StutterDetect, PacketLossAlert, PauseDownloads, Notifications, Hotkeys) = (s.SessionReport, s.StutterDetect, s.PacketLossAlert, s.PauseDownloads, s.Notifications, s.Hotkeys);
+        (OverlayIcons, OverlayColor, OverlayOpacity, OverlayScale, FpsCap) = (s.OverlayIcons, s.OverlayColor, s.OverlayOpacity, s.OverlayScale, s.FpsCap);
+        if (Metrics is not null) foreach (var m in Metrics) m.IsOn = s.Metrics.Contains(m.Key);
     }
 
     partial void OnLanguageChanged(string value) { Loc.I.SetLanguage(value); Save(); }
@@ -192,12 +243,15 @@ public sealed partial class SettingsViewModel : ObservableObject
     protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
-        if (e.PropertyName is not nameof(Language)) Save();
+        if (e.PropertyName is not (nameof(Language) or nameof(ShareSettingsCode) or nameof(ImportCode) or nameof(ShareSettingsStatus)) && !_loading) Save();
     }
 
     public AppSettings Current => _base with
     {
         AutoUndo = AutoUndo, Accent = Accent ?? "purple", TrayIcon = TrayIcon, AutoBoost = AutoBoost, StartWithWindows = StartWithWindows,
+        SessionReport = SessionReport, StutterDetect = StutterDetect, PacketLossAlert = PacketLossAlert, PauseDownloads = PauseDownloads,
+        Notifications = Notifications, Hotkeys = Hotkeys, OverlayIcons = OverlayIcons, OverlayColor = OverlayColor ?? "#FFFFFF",
+        OverlayOpacity = Math.Clamp(OverlayOpacity, 0, 100), OverlayScale = Math.Clamp(OverlayScale, 60, 200), FpsCap = Math.Clamp(FpsCap, 0, 1000),
         Language = Language ?? "tr", Sounds = Sounds, Animations = Animations, Offline = Offline,
         CloseList = [.. (CloseList ?? "").Split([',', ';', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],
         OverlayMetrics = [.. Metrics.Where(m => m.IsOn).Select(m => m.Key)],
@@ -231,6 +285,7 @@ public sealed partial class MainViewModel : ObservableObject
 {
     public IReadOnlyList<NavItemViewModel> Nav { get; }
     public TestsViewModel Tests { get; }
+    public StatsViewModel Stats { get; }
     public HomeViewModel Home { get; }
     public SettingsViewModel Settings { get; }
     public ScanViewModel Scan { get; }
@@ -313,6 +368,7 @@ public sealed partial class MainViewModel : ObservableObject
         Monitor = new MonitorViewModel(services, () => Settings.Current);
         Updates = new UpdatesViewModel(services);
         Tests = new TestsViewModel();
+        Stats = new StatsViewModel(services);
         Home.CurrentCrosshairCode = () => Crosshair.Design.ToValorantCode();
         Home.ApplySharedCrosshair = code => { if (BoostRoot.Core.Crosshair.CrosshairDesign.FromValorantCode(code) is { } d) Crosshair.Load(d); };
         Nav =
@@ -320,6 +376,7 @@ public sealed partial class MainViewModel : ObservableObject
             new("boost", "M13 2 4 14h7l-1 8 9-12h-7z", Home),
             new("scan", "M3 3h18v14H3zM8 21h8M12 17v4", Scan),
             new("fps", "M3 12h4l3 8 4-16 3 8h4", Fps),
+            new("stats", "M4 20V10M10 20V4M16 20v-8M22 20H2", Stats),
             new("stress", "M12 2a7 7 0 0 0-4 12.7V18h8v-3.3A7 7 0 0 0 12 2zM9 22h6", Stress),
             new("net", "M2 9a15 15 0 0 1 20 0M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M12 20h.01", Net),
             new("clips", "M4 6h12v12H4zM16 10l5-3v10l-5-3", Clips),
@@ -344,5 +401,6 @@ public sealed partial class MainViewModel : ObservableObject
         if (item.Page == Settings) Settings.EnsureAppsLoaded();
         if (item.Page == Monitor) { Monitor.RunChecks(); Monitor.RefreshProcesses(); }
         if (item.Page == Fps) Fps.Reload();
+        if (item.Page == Stats) Stats.Refresh();
     }
 }

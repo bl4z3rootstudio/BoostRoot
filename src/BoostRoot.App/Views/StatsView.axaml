@@ -1,0 +1,86 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BoostRoot.ViewModels" xmlns:v="using:BoostRoot.App.Views" xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             x:Class="BoostRoot.App.Views.StatsView" x:DataType="vm:StatsViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="48,24" Spacing="16" MaxWidth="1000" HorizontalAlignment="Left">
+      <StackPanel Spacing="4">
+        <TextBlock Classes="h1" FontSize="32" Text="{Binding [stats.title], Source={x:Static loc:Loc.I}}" />
+        <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [stats.sub], Source={x:Static loc:Loc.I}}" />
+      </StackPanel>
+
+      <UniformGrid Columns="4">
+        <Border Classes="card" Margin="0,0,12,0"><StackPanel Spacing="6">
+          <PathIcon Data="M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zM12 7v5l3 3" Width="18" Height="18" HorizontalAlignment="Left" Foreground="{StaticResource AccentLight}" />
+          <TextBlock Classes="muted" Text="{Binding [stats.total], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="pop" FontSize="22" FontWeight="Bold" Text="{Binding TotalTime}" /></StackPanel></Border>
+        <Border Classes="card" Margin="0,0,12,0"><StackPanel Spacing="6">
+          <PathIcon Data="M3 5h18v14H3zM3 9h18M8 3v4M16 3v4" Width="18" Height="18" HorizontalAlignment="Left" Foreground="{StaticResource AccentLight}" />
+          <TextBlock Classes="muted" Text="{Binding [stats.week], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="pop" FontSize="22" FontWeight="Bold" Text="{Binding WeekTime}" /></StackPanel></Border>
+        <Border Classes="card" Margin="0,0,12,0"><StackPanel Spacing="6">
+          <PathIcon Data="M6 4l14 8-14 8z" Width="18" Height="18" HorizontalAlignment="Left" Foreground="{StaticResource AccentLight}" />
+          <TextBlock Classes="muted" Text="{Binding [stats.sessions], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="pop" FontSize="22" FontWeight="Bold" Text="{Binding TotalSessions}" /></StackPanel></Border>
+        <Border Classes="card"><StackPanel Spacing="6">
+          <PathIcon Data="M3 12h4l3 8 4-16 3 8h4" Width="18" Height="18" HorizontalAlignment="Left" Foreground="{StaticResource AccentLight}" />
+          <TextBlock Classes="muted" Text="{Binding [stats.avgFps], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="pop" FontSize="22" FontWeight="Bold" Text="{Binding AvgFps}" /></StackPanel></Border>
+      </UniformGrid>
+
+      <Border Classes="card" IsVisible="{Binding LastReport, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <StackPanel Spacing="6">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="M6 2h9l5 5v15H6zM14 2v6h6M9 13h8M9 17h6" Width="18" Height="18" Foreground="{StaticResource AccentLight}" />
+            <TextBlock Classes="h2" Text="{Binding [stats.lastReport], Source={x:Static loc:Loc.I}}" />
+          </StackPanel>
+          <TextBlock TextWrapping="Wrap" LineHeight="22" Text="{Binding LastReport}" />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card" IsVisible="{Binding Bars.Count}">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="h2" Text="{Binding [stats.chart], Source={x:Static loc:Loc.I}}" />
+          <ItemsControl ItemsSource="{Binding Bars}" Height="170">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:FpsBarViewModel">
+                <Grid RowDefinitions="Auto,*" Width="34" ToolTip.Tip="{Binding Game}">
+                  <TextBlock FontSize="10" HorizontalAlignment="Center" Classes="muted" Text="{Binding Label}" />
+                  <Border Grid.Row="1" VerticalAlignment="Bottom" CornerRadius="4" Background="{StaticResource Accent}" Height="{Binding Height, Converter={x:Static v:BarHeight.Instance}}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Classes="muted" FontSize="12" Text="{Binding [stats.chartHint], Source={x:Static loc:Loc.I}}" />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h2" Text="{Binding [stats.perGame], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" TextWrapping="Wrap" IsVisible="{Binding IsEmpty}" Text="{Binding [stats.empty], Source={x:Static loc:Loc.I}}" />
+          <Grid ColumnDefinitions="2*,*,*,*,*" IsVisible="{Binding !IsEmpty}">
+            <TextBlock Classes="muted" Text="{Binding [stats.game], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="1" Classes="muted" Text="{Binding [stats.sessions], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="2" Classes="muted" Text="{Binding [stats.time], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="3" Classes="muted" Text="{Binding [stats.avgFps], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="4" Classes="muted" Text="{Binding [stats.bestLow], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+          <ItemsControl ItemsSource="{Binding Rows}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:StatRowViewModel">
+                <Grid ColumnDefinitions="2*,*,*,*,*" Margin="0,4">
+                  <TextBlock FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Text="{Binding Game}" />
+                  <TextBlock Grid.Column="1" Text="{Binding Sessions}" />
+                  <TextBlock Grid.Column="2" Text="{Binding Time}" />
+                  <TextBlock Grid.Column="3" Text="{Binding AvgFps}" />
+                  <TextBlock Grid.Column="4" Text="{Binding BestLow}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

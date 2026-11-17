@@ -12,7 +12,8 @@ public sealed record GpuPrefs(
     bool? RadeonBoost = null,
     bool? Chill = null,
     string? TextureFiltering = null,
-    string? Upscaler = null);
+    string? Upscaler = null,
+    int? FpsCap = null);
 
 /// <param name="FpsImpact">low | medium | high</param>
 /// <param name="VisualImpact">low | medium | high</param>

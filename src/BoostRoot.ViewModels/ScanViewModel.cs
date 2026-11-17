@@ -20,6 +20,8 @@ public sealed partial class ScanViewModel(IAppServices services, Action<Hardware
     [ObservableProperty] public partial string ScoreLabel { get; set; } = "";
     [ObservableProperty] public partial bool HasResult { get; set; }
     [ObservableProperty] public partial string? Error { get; set; }
+    /// <summary>Last scan result (null until the first scan finishes).</summary>
+    public HardwareReport? Report { get; private set; }
 
     [RelayCommand]
     public async Task ScanAsync()
@@ -30,6 +32,7 @@ public sealed partial class ScanViewModel(IAppServices services, Action<Hardware
         try
         {
             var r = await Task.Run(services.ScanHardware);
+            Report = r;
             Show(r);
             onScanned?.Invoke(r);
         }

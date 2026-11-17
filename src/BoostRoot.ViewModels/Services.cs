@@ -33,7 +33,19 @@ public sealed record AppSettings(
     string Accent = "purple",
     bool TrayIcon = true,
     bool AutoBoost = false,
-    bool StartWithWindows = false)
+    bool StartWithWindows = false,
+    // Every in-game extra can be switched off; all are cheap (no extra polling beyond the 2 s session tick).
+    bool SessionReport = true,
+    bool StutterDetect = true,
+    bool PacketLossAlert = true,
+    bool PauseDownloads = false,
+    int FpsCap = 0,
+    bool Notifications = true,
+    string OverlayColor = "#FFFFFF",
+    int OverlayOpacity = 60,
+    int OverlayScale = 100,
+    bool OverlayIcons = true,
+    bool Hotkeys = true)
 {
     /// <summary>What the overlay draws: the Studio design if one was chosen, else the simple settings.</summary>
     public BoostRoot.Core.Crosshair.CrosshairDesign OverlayCrosshair => CrosshairDesign ?? new(Color: CrosshairOrDefault.Color, Outline: CrosshairOrDefault.Outline, Dot: CrosshairOrDefault.Dot,
@@ -59,6 +71,10 @@ public interface IAppServices
     int PcScore { get; }
     /// <summary>Main graphics card maker (Unknown until the hardware was scanned).</summary>
     BoostRoot.Core.Hardware.GpuVendor GpuVendor => BoostRoot.Core.Hardware.GpuVendor.Unknown;
+    /// <summary>Highest refresh rate of the main monitor (0 when unknown).</summary>
+    int MonitorHz => 0;
+    /// <summary>Text of the last end-of-game report, if a game finished since the app started.</summary>
+    string? LastSessionReport => null;
     BoostResult Boost(CatalogEntry entry, BoostLevel level, AppSettings settings);
     void Undo(string operationId);
     /// <summary>Starts the game through its launcher; false when BoostRoot doesn't know how.</summary>

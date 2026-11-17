@@ -90,7 +90,7 @@ public static partial class HardwareScanner
     private static extern bool EnumDisplaySettingsW(string device, int modeNum, ref DEVMODEW dm);
 #pragma warning restore SYSLIB1054
 
-    private static IReadOnlyList<DisplayInfo> Displays()
+    public static IReadOnlyList<DisplayInfo> Displays()
     {
         var list = new List<DisplayInfo>();
         var dd = new DISPLAY_DEVICEW { cb = Marshal.SizeOf<DISPLAY_DEVICEW>() };

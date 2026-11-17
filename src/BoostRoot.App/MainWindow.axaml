@@ -22,6 +22,7 @@
     <DataTemplate DataType="vm:MonitorViewModel"><v:MonitorView /></DataTemplate>
     <DataTemplate DataType="vm:UpdatesViewModel"><v:UpdatesView /></DataTemplate>
     <DataTemplate DataType="vm:TestsViewModel"><v:TestsView /></DataTemplate>
+    <DataTemplate DataType="vm:StatsViewModel"><v:StatsView /></DataTemplate>
     <DataTemplate DataType="vm:PlaceholderViewModel"><v:PlaceholderView /></DataTemplate>
   </Window.DataTemplates>
   <Panel>

@@ -32,7 +32,7 @@ internal sealed partial class AppJsonContext : JsonSerializerContext;
 public sealed class WindowsAppServices : IAppServices
 {
     /// <summary>Safe tweaks applied with every boost (spec 6.6). Advanced tweaks are opt-in on their own screen.</summary>
-    public static IReadOnlyList<string> SafeTweaks { get; } = ["power-high", "gamedvr-off", "gamemode-on", "windowed-opt"];
+    public static IReadOnlyList<string> SafeTweaks { get; } = ["power-high", "gamedvr-off", "gamemode-on", "windowed-opt", "games-priority"];
 
     private readonly IFileSystem _fs = PhysicalFileSystem.Instance;
     private readonly WindowsRegistry _registry = new();
@@ -117,6 +117,16 @@ public sealed class WindowsAppServices : IAppServices
         }
     }
     private bool _scanTried;
+    public int MonitorHz
+    {
+        get
+        {
+            if (_monitorHz < 0) { try { _monitorHz = HardwareScanner.Displays().Select(d => Math.Max(d.CurrentHz, d.MaxHz)).DefaultIfEmpty(0).First(); } catch (Exception) { _monitorHz = 0; } }
+            return _monitorHz;
+        }
+    }
+    private int _monitorHz = -1;
+    public string? LastSessionReport => GameSession.LastSummary?.Text(BoostRoot.ViewModels.Localization.Loc.I.Pick);
 
     /// <summary>Game being boosted: gives profiles {install}, {steam}, {gameDir}, {documents}.</summary>
     private InstalledGame? _currentGame;
@@ -167,7 +177,8 @@ public sealed class WindowsAppServices : IAppServices
         {
             try
             {
-                var n = exeNames.Sum(exeName => _gpu.Apply(result.OperationId, exeName, prefs));
+                var capped = prefs with { FpsCap = settings.FpsCap > 0 ? settings.FpsCap : null };
+                var n = exeNames.Sum(exeName => _gpu.Apply(result.OperationId, exeName, capped));
                 if (n > 0) result = result with { Steps = [.. result.Steps, new StepResult("gpu-profile", StepStatus.Done, "NVIDIA", n)] };
             }
             catch (Exception ex) when (ex is InvalidOperationException or EntryPointNotFoundException or SEHException or AccessViolationException)
