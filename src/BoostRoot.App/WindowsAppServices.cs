@@ -129,6 +129,7 @@ public sealed class WindowsAppServices : IAppServices
         }
     }
     private int _monitorHz = -1;
+    public string? SaveWeeklyCard(BoostRoot.Core.Session.WeeklyReport week) => WeeklyCardRenderer.Save(week);
     public string? LastSessionReport => GameSession.LastSummary?.Text(BoostRoot.ViewModels.Localization.Loc.I.Pick);
 
     /// <summary>Game being boosted: gives profiles {install}, {steam}, {gameDir}, {documents}.</summary>
@@ -709,6 +710,10 @@ public sealed class WindowsAppServices : IAppServices
 
     public IReadOnlyList<DnsServer> SystemDns() => DnsBenchmark.System();
     public Task<DnsResult> MeasureDnsAsync(DnsServer server, CancellationToken ct) => DnsBenchmark.MeasureAsync(server, ct);
+    public bool SetDns(string address) => DnsChanger.Set(address);
+    public bool RestoreDns() => DnsChanger.Restore();
+    public bool DnsChangedByBoostRoot => DnsChanger.HasBackup;
+    public void FlushDns() => DnsChanger.FlushDns();
 
     private static readonly HashSet<string> SystemProcs = new(StringComparer.OrdinalIgnoreCase)
     { "explorer", "BoostRoot", "ApplicationFrameHost", "SystemSettings", "TextInputHost", "ShellExperienceHost", "SearchHost", "StartMenuExperienceHost", "LockApp", "dwm", "csrss", "winlogon" };

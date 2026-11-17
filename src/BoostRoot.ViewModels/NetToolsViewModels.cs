@@ -17,6 +17,71 @@ public sealed partial class NetViewModel(IAppServices services) : ObservableObje
     [ObservableProperty] public partial bool DnsRunning { get; set; }
     [ObservableProperty] public partial string? DnsAdvice { get; set; }
 
+    // ---- "İnternet'i iyileştir": everything that really helps, nothing that pretends to lower physical ping ----
+    public ObservableCollection<string> ImproveSteps { get; } = [];
+    [ObservableProperty] public partial bool Improving { get; set; }
+    [ObservableProperty] public partial DnsServer? SuggestedDns { get; set; }
+    [ObservableProperty] public partial string? DnsQuestion { get; set; }
+    [ObservableProperty] public partial bool DnsChanged { get; set; } = services.DnsChangedByBoostRoot;
+    private DnsServer? _bestSwitchable;
+
+    [RelayCommand]
+    public async Task ImproveAsync(CancellationToken ct)
+    {
+        if (Improving) return;
+        Improving = true;
+        ImproveSteps.Clear();
+        SuggestedDns = null;
+        DnsQuestion = null;
+        try
+        {
+            foreach (var id in new[] { "net-throttle-off", "games-priority" })
+                if (!services.AppliedTweaks().ContainsKey(id))
+                    try { services.SetTweak(id, true); } catch (Exception) { }
+            ImproveSteps.Add(Loc.I["improve.throttle"]);
+            await Task.Run(services.FlushDns, ct);
+            ImproveSteps.Add(Loc.I["improve.flush"]);
+            ImproveSteps.Add(Loc.I["improve.downloads"]);
+            await RunDnsAsync(ct);
+            // Only resolvers that do not filter or log for ads are offered for switching.
+            var current = services.SystemDns();
+            var rows = Dns.Where(d => DnsSwitchable.Contains(d.Address)).ToList();
+            var best = rows.Where(r => r.Ms != "—").OrderBy(r => double.Parse(r.Ms.Split(' ')[0], System.Globalization.CultureInfo.InvariantCulture)).FirstOrDefault();
+            var cur = Dns.Where(d => d.Current && d.Ms != "—").Select(d => double.Parse(d.Ms.Split(' ')[0], System.Globalization.CultureInfo.InvariantCulture)).DefaultIfEmpty(double.MaxValue).Min();
+            if (best is not null && current.All(c => c.Address != best.Address) && cur - double.Parse(best.Ms.Split(' ')[0], System.Globalization.CultureInfo.InvariantCulture) > 8)
+            {
+                _bestSwitchable = new DnsServer(best.Name, best.Address);
+                SuggestedDns = _bestSwitchable;
+                DnsQuestion = Loc.I.Format("improve.askDns", best.Name, best.Address);
+            }
+            else ImproveSteps.Add(Loc.I["dns.fine"]);
+            ImproveSteps.Add(Loc.I["improve.honest"]);
+        }
+        finally { Improving = false; }
+    }
+
+    private static readonly HashSet<string> DnsSwitchable = ["1.1.1.1", "8.8.8.8", "9.9.9.9"];
+
+    [RelayCommand]
+    public void ApplyDns()
+    {
+        if (_bestSwitchable is not { } s) return;
+        var ok = services.SetDns(s.Address);
+        ImproveSteps.Add(ok ? Loc.I.Format("improve.dnsDone", s.Name) : Loc.I["improve.dnsFail"]);
+        DnsQuestion = null;
+        DnsChanged = services.DnsChangedByBoostRoot;
+    }
+
+    [RelayCommand] public void SkipDns() => DnsQuestion = null;
+
+    [RelayCommand]
+    public void RestoreDns()
+    {
+        var ok = services.RestoreDns();
+        ImproveSteps.Add(ok ? Loc.I["improve.dnsRestored"] : Loc.I["improve.dnsFail"]);
+        DnsChanged = services.DnsChangedByBoostRoot;
+    }
+
     [RelayCommand]
     public async Task RunDnsAsync(CancellationToken ct)
     {

@@ -27,6 +27,19 @@
           <TextBlock Classes="pop" FontSize="22" FontWeight="Bold" Text="{Binding AvgFps}" /></StackPanel></Border>
       </UniformGrid>
 
+      <Border Classes="card" IsVisible="{Binding WeekSummary, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+          <StackPanel Spacing="6">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <PathIcon Data="M7 2h2v2h6V2h2v2h4v17H3V4h4zM5 9v10h14V9z" Width="18" Height="18" Foreground="{StaticResource AccentLight}" />
+              <TextBlock Classes="h2" Text="{Binding [week.title], Source={x:Static loc:Loc.I}}" />
+            </StackPanel>
+            <TextBlock TextWrapping="Wrap" LineHeight="22" Text="{Binding WeekSummary}" />
+            <TextBlock Classes="muted" FontSize="11" Text="{Binding WeekCardPath}" IsVisible="{Binding WeekCardPath, Converter={x:Static ObjectConverters.IsNotNull}}" />
+          </StackPanel>
+          <Button Grid.Column="1" Classes="primary" VerticalAlignment="Center" Command="{Binding SaveWeekCardCommand}" Content="{Binding [week.save], Source={x:Static loc:Loc.I}}" />
+        </Grid>
+      </Border>
       <Border Classes="card" IsVisible="{Binding LastReport, Converter={x:Static ObjectConverters.IsNotNull}}">
         <StackPanel Spacing="6">
           <StackPanel Orientation="Horizontal" Spacing="8">

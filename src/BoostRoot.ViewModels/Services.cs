@@ -46,7 +46,8 @@ public sealed record AppSettings(
     int OverlayScale = 100,
     bool OverlayIcons = true,
     bool Hotkeys = true,
-    IReadOnlyList<ManualGame>? ManualGames = null)
+    IReadOnlyList<ManualGame>? ManualGames = null,
+    bool NetBoost = false)
 {
     /// <summary>What the overlay draws: the Studio design if one was chosen, else the simple settings.</summary>
     public BoostRoot.Core.Crosshair.CrosshairDesign OverlayCrosshair => CrosshairDesign ?? new(Color: CrosshairOrDefault.Color, Outline: CrosshairOrDefault.Outline, Dot: CrosshairOrDefault.Dot,
@@ -79,6 +80,8 @@ public interface IAppServices
     int MonitorHz => 0;
     /// <summary>Text of the last end-of-game report, if a game finished since the app started.</summary>
     string? LastSessionReport => null;
+    /// <summary>Renders the weekly report picture; returns its path.</summary>
+    string? SaveWeeklyCard(BoostRoot.Core.Session.WeeklyReport week) => null;
     BoostResult Boost(CatalogEntry entry, BoostLevel level, AppSettings settings);
     void Undo(string operationId);
     /// <summary>Starts the game through its launcher; false when BoostRoot doesn't know how.</summary>
@@ -97,6 +100,12 @@ public interface IAppServices
     Task<SpeedResult> SpeedTestAsync(IProgress<double>? progress, CancellationToken ct);
     IReadOnlyList<DnsServer> SystemDns();
     Task<DnsResult> MeasureDnsAsync(DnsServer server, CancellationToken ct);
+    /// <summary>Switches connected adapters to a public resolver (Cloudflare/Google/Quad9), keeping a backup.</summary>
+    bool SetDns(string address) => false;
+    /// <summary>Puts the DNS back exactly as it was before BoostRoot changed it.</summary>
+    bool RestoreDns() => false;
+    bool DnsChangedByBoostRoot => false;
+    void FlushDns() { }
 
     // Tools
     IReadOnlyList<JunkScan> ScanJunk();

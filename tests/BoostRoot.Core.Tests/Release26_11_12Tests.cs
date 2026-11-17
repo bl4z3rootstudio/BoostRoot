@@ -121,3 +121,21 @@ public class GameDoctorTests
         Assert.False(BoostRoot.Core.Tools.AsarProbe.MainJsLooksBroken(Asar("\"use strict\";const a=require('electron');")));
     }
 }
+
+public class WeeklyReportTests
+{
+    [Fact]
+    public void Week_SumsLastSevenDays_AndPicksTopGame()
+    {
+        var now = new DateTime(2026, 11, 18, 12, 0, 0, DateTimeKind.Utc);
+        PlaySession[] s = [new("v", "VALORANT", now.AddDays(-1), now.AddDays(-1).AddHours(2)), new("c", "CS2", now.AddDays(-2), now.AddDays(-2).AddMinutes(30)),
+            new("v", "VALORANT", now.AddDays(-10), now.AddDays(-10).AddHours(1))];
+        FpsRun[] r = [new("v", "VALORANT", now.AddDays(-1), "auto", new(1000, 10, 200, 120, 90, 5, 0)), new("v", "VALORANT", now.AddDays(-9), "auto", new(1000, 10, 100, 60, 50, 9, 0))];
+        var w = BoostRoot.Core.Session.WeeklyReport.Build(s, r, now);
+        Assert.Equal(TimeSpan.FromMinutes(150), w.Played);
+        Assert.Equal(2, w.Sessions);
+        Assert.Equal("VALORANT", w.TopGame);
+        Assert.Equal(200, w.AvgFps);
+        Assert.Equal(TimeSpan.FromHours(1), w.PreviousWeek);
+    }
+}

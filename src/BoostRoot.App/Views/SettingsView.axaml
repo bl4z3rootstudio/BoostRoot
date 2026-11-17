@@ -129,6 +129,7 @@
           <ToggleSwitch IsChecked="{Binding StutterDetect}" Content="{Binding [settings.stutter], Source={x:Static loc:Loc.I}}" />
           <ToggleSwitch IsChecked="{Binding PacketLossAlert}" Content="{Binding [settings.packetLoss], Source={x:Static loc:Loc.I}}" />
           <ToggleSwitch IsChecked="{Binding Notifications}" Content="{Binding [settings.notifications], Source={x:Static loc:Loc.I}}" />
+          <ToggleSwitch IsChecked="{Binding NetBoost}" Content="{Binding [settings.netBoost], Source={x:Static loc:Loc.I}}" />
           <ToggleSwitch IsChecked="{Binding PauseDownloads}" Content="{Binding [settings.pauseDownloads], Source={x:Static loc:Loc.I}}" />
           <ToggleSwitch IsChecked="{Binding Hotkeys}" Content="{Binding [settings.hotkeys], Source={x:Static loc:Loc.I}}" />
           <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [settings.hotkeysList], Source={x:Static loc:Loc.I}}" />

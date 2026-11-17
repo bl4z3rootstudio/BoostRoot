@@ -73,3 +73,16 @@ public static class GameStats
     /// <summary>Suggested FPS cap: a few frames above the monitor refresh rate keeps input lag low and the PC cooler.</summary>
     public static int SuggestedCap(int monitorHz) => monitorHz <= 0 ? 0 : monitorHz + Math.Max(3, monitorHz / 20);
 }
+
+public sealed record WeeklyReport(TimeSpan Played, int Sessions, string? TopGame, TimeSpan TopGameTime, double? AvgFps, TimeSpan PreviousWeek)
+{
+    public static WeeklyReport Build(IEnumerable<PlaySession> sessions, IEnumerable<FpsRun> runs, DateTime nowUtc)
+    {
+        var from = nowUtc.AddDays(-7);
+        var week = sessions.Where(s => s.End >= from).ToList();
+        var prev = sessions.Where(s => s.End >= from.AddDays(-7) && s.End < from).Aggregate(TimeSpan.Zero, (a, s) => a + s.Length);
+        var top = week.GroupBy(s => s.GameName).Select(g => (Name: g.Key, Time: g.Aggregate(TimeSpan.Zero, (a, s) => a + s.Length))).OrderByDescending(x => x.Time).FirstOrDefault();
+        var fps = runs.Where(r => r.Label == "auto" && r.At >= from).Select(r => r.Stats.AvgFps).ToList();
+        return new(week.Aggregate(TimeSpan.Zero, (a, s) => a + s.Length), week.Count, top.Name, top.Time, fps.Count > 0 ? Math.Round(fps.Average()) : null, prev);
+    }
+}

@@ -115,6 +115,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty] public partial bool StutterDetect { get; set; }
     [ObservableProperty] public partial bool PacketLossAlert { get; set; }
     [ObservableProperty] public partial bool PauseDownloads { get; set; }
+    [ObservableProperty] public partial bool NetBoost { get; set; }
     [ObservableProperty] public partial bool Notifications { get; set; }
     [ObservableProperty] public partial bool Hotkeys { get; set; }
     [ObservableProperty] public partial bool OverlayIcons { get; set; }
@@ -234,7 +235,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         TrayIcon = s.TrayIcon;
         AutoBoost = s.AutoBoost;
         StartWithWindows = s.StartWithWindows;
-        (SessionReport, StutterDetect, PacketLossAlert, PauseDownloads, Notifications, Hotkeys) = (s.SessionReport, s.StutterDetect, s.PacketLossAlert, s.PauseDownloads, s.Notifications, s.Hotkeys);
+        (SessionReport, StutterDetect, PacketLossAlert, PauseDownloads, Notifications, Hotkeys, NetBoost) = (s.SessionReport, s.StutterDetect, s.PacketLossAlert, s.PauseDownloads, s.Notifications, s.Hotkeys, s.NetBoost);
         (OverlayIcons, OverlayColor, OverlayOpacity, OverlayScale, FpsCap) = (s.OverlayIcons, s.OverlayColor, s.OverlayOpacity, s.OverlayScale, s.FpsCap);
         if (Metrics is not null) foreach (var m in Metrics) m.IsOn = s.Metrics.Contains(m.Key);
     }
@@ -250,7 +251,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     public AppSettings Current => _base with
     {
         AutoUndo = AutoUndo, Accent = Accent ?? "purple", TrayIcon = TrayIcon, AutoBoost = AutoBoost, StartWithWindows = StartWithWindows,
-        SessionReport = SessionReport, StutterDetect = StutterDetect, PacketLossAlert = PacketLossAlert, PauseDownloads = PauseDownloads,
+        SessionReport = SessionReport, StutterDetect = StutterDetect, PacketLossAlert = PacketLossAlert, PauseDownloads = PauseDownloads, NetBoost = NetBoost,
         Notifications = Notifications, Hotkeys = Hotkeys, OverlayIcons = OverlayIcons, OverlayColor = OverlayColor ?? "#FFFFFF",
         OverlayOpacity = Math.Clamp(OverlayOpacity, 0, 100), OverlayScale = Math.Clamp(OverlayScale, 60, 200), FpsCap = Math.Clamp(FpsCap, 0, 1000),
         Language = Language ?? "tr", Sounds = Sounds, Animations = Animations, Offline = Offline,

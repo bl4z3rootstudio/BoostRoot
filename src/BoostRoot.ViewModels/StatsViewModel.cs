@@ -22,6 +22,17 @@ public sealed partial class StatsViewModel(IAppServices services) : ObservableOb
     [ObservableProperty] public partial string WeekTime { get; set; } = "—";
     [ObservableProperty] public partial string? LastReport { get; set; }
     [ObservableProperty] public partial bool IsEmpty { get; set; } = true;
+    [ObservableProperty] public partial string? WeekSummary { get; set; }
+    [ObservableProperty] public partial string? WeekCardPath { get; set; }
+    private WeeklyReport? _week;
+
+    /// <summary>Saves the weekly report as a picture (Pictures\BoostRoot) to share with friends.</summary>
+    [RelayCommand]
+    public void SaveWeekCard()
+    {
+        if (_week is not { } w) return;
+        try { WeekCardPath = services.SaveWeeklyCard(w); } catch (Exception) { WeekCardPath = null; }
+    }
 
     [RelayCommand]
     public void Refresh()
@@ -44,6 +55,14 @@ public sealed partial class StatsViewModel(IAppServices services) : ObservableOb
         var max = recent.Count > 0 ? recent.Max(r => r.Stats.AvgFps) : 1;
         Bars = [.. recent.Select(r => new FpsBarViewModel(r.GameName, r.Stats.AvgFps, Math.Max(0.04, r.Stats.AvgFps / Math.Max(1, max)), $"{r.Stats.AvgFps:0}"))];
         LastReport = services.LastSessionReport;
+        _week = WeeklyReport.Build(sessions, runs, DateTime.UtcNow);
+        WeekSummary = _week.Sessions == 0 ? null : string.Join("\n", new[]
+        {
+            Loc.I.Format("week.played", PlaytimeLog.Format(_week.Played), _week.Sessions),
+            _week.TopGame is { } tg ? Loc.I.Format("week.top", tg, PlaytimeLog.Format(_week.TopGameTime)) : null,
+            _week.AvgFps is { } af ? Loc.I.Format("week.fps", $"{af:0}") : null,
+            _week.PreviousWeek > TimeSpan.Zero ? Loc.I.Format("week.prev", PlaytimeLog.Format(_week.PreviousWeek)) : null,
+        }.Where(x => x is not null));
         IsEmpty = rows.Count == 0;
     }
 }

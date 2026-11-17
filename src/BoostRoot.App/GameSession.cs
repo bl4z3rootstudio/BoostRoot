@@ -74,6 +74,17 @@ public sealed class GameSession : IDisposable
     }
 
     private readonly Func<IFrameSource> _startFrames;
+
+    /// <summary>Apps that upload/download in the background and make ping jumpy (sync clients, torrents). Never game launchers or voice chat.</summary>
+    private static readonly string[] BandwidthHogs = ["OneDrive", "Dropbox", "GoogleDriveFS", "qbittorrent", "uTorrent", "BitTorrent", "Creative Cloud", "EpicWebHelper"];
+
+    private void NetBoostStart()
+    {
+        foreach (var name in BandwidthHogs)
+            foreach (var p in System.Diagnostics.Process.GetProcessesByName(name))
+                using (p) try { if (!p.CloseMainWindow() || !p.WaitForExit(1500)) p.Kill(); } catch (Exception) { }
+        DnsChanger.FlushDns();
+    }
     private bool _gameStarted;
 
     private void Sample()
@@ -132,7 +143,8 @@ public sealed class GameSession : IDisposable
             // A frame 3x slower than the current average (and visibly slow) counts as a hitch.
             if (_fps.Fps is { } avg && avg > 0 && ms > 25 && ms > 3000 / avg) Interlocked.Increment(ref _spikes);
         };
-        if (_settings.PauseDownloads) _ = Task.Run(() => _pausedServices = BackgroundDownloads.Pause());
+        if (_settings.PauseDownloads || _settings.NetBoost) _ = Task.Run(() => _pausedServices = BackgroundDownloads.Pause());
+        if (_settings.NetBoost) _ = Task.Run(NetBoostStart);
         if (_settings.Hotkeys) _hotkeys = new HotkeyService([
             (HkOverlay, HotkeyService.Alt, VK_O), (HkCrosshair, HotkeyService.Alt, VK_C),
             (HkSaveReplay, HotkeyService.Alt, VK_F10), (HkRecord, HotkeyService.Alt, VK_F9), (HkScreenshot, HotkeyService.Alt, VK_F1)]);
