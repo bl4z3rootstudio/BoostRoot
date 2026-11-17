@@ -41,6 +41,7 @@ public static class LaunchCommands
             new LaunchCommand($"com.epicgames.launcher://apps/{Uri.EscapeDataString(ns)}%3A{Uri.EscapeDataString(item)}%3A{Uri.EscapeDataString(g.SourceId)}?action=launch&silent=true", null, true),
         "riot" when g.Extra.TryGetValue("client", out var c) && c.Length > 0 =>
             new LaunchCommand(c.Replace('/', '\\'), $"--launch-product={g.SourceId} --launch-patchline=live", false),
+        "manual" when g.Extra.TryGetValue("exe", out var exe) && exe.Length > 0 => new LaunchCommand(exe, null, false),
         _ => null,
     };
 }

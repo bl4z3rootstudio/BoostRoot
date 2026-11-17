@@ -34,6 +34,15 @@
             <CheckBox IsChecked="{Binding IsStretched}" Content="{Binding [home.stretch], Source={x:Static loc:Loc.I}}" />
             <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" MaxWidth="620" HorizontalAlignment="Left" Text="{Binding [home.stretchNote], Source={x:Static loc:Loc.I}}" />
           </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding HasSelection}">
+            <Button Classes="ghost" Click="OnPickCover">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="M3 5h18v14H3zM3 16l5-5 4 4 3-3 6 6M15 9a1.5 1.5 0 1 0 0-.1" Width="14" Height="14" />
+                <TextBlock Text="{Binding [home.changeCover], Source={x:Static loc:Loc.I}}" />
+              </StackPanel>
+            </Button>
+            <Button Classes="ghost" IsVisible="{Binding SelectedIsManual}" Command="{Binding RemoveManualGameCommand}" Content="{Binding [home.removeGame], Source={x:Static loc:Loc.I}}" />
+          </StackPanel>
           <Expander Header="{Binding [share.title], Source={x:Static loc:Loc.I}}" MaxWidth="620" HorizontalAlignment="Left" IsVisible="{Binding HasSelection}">
             <StackPanel Spacing="8">
               <Button Classes="ghost" HorizontalAlignment="Left" Command="{Binding ShareCommand}" Content="{Binding [share.copy], Source={x:Static loc:Loc.I}}" />
@@ -136,14 +145,20 @@
     </Border>
     <!-- Game grid -->
     <DockPanel Margin="48,24,48,24">
-      <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,0,0,14">
+      <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="0,0,0,14">
         <StackPanel VerticalAlignment="Center">
           <TextBlock Classes="h2" Text="{Binding GamesTitle}" />
           <TextBlock Classes="muted" FontSize="11" Text="{Binding LibraryText}" />
           <TextBlock FontSize="11" Foreground="{StaticResource AccentLight}" Text="{Binding LastSession}" IsVisible="{Binding LastSession, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
         </StackPanel>
         <TextBox Grid.Column="2" Width="240" Margin="0,0,12,0" Text="{Binding SearchText}" PlaceholderText="{Binding [home.search], Source={x:Static loc:Loc.I}}" />
-        <ToggleSwitch Grid.Column="3" IsChecked="{Binding ShowAll}" OnContent="{Binding [home.showAll], Source={x:Static loc:Loc.I}}" OffContent="{Binding [home.showAll], Source={x:Static loc:Loc.I}}" />
+        <Button Grid.Column="3" Classes="ghost" Margin="0,0,12,0" Click="OnAddGame" ToolTip.Tip="{Binding [home.addGameTip], Source={x:Static loc:Loc.I}}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <PathIcon Data="M12 5v14M5 12h14" Width="14" Height="14" />
+            <TextBlock Text="{Binding [home.addGame], Source={x:Static loc:Loc.I}}" />
+          </StackPanel>
+        </Button>
+        <ToggleSwitch Grid.Column="4" IsChecked="{Binding ShowAll}" OnContent="{Binding [home.showAll], Source={x:Static loc:Loc.I}}" OffContent="{Binding [home.showAll], Source={x:Static loc:Loc.I}}" />
       </Grid>
       <ScrollViewer>
         <ItemsControl ItemsSource="{Binding Games}">

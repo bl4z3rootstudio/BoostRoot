@@ -631,5 +631,18 @@
  "settings.shareSub": "Отправьте свои настройки другу кодом или примените его код. Папки и аккаунты не включаются.",
  "settings.copyCode": "Скопировать код",
  "settings.applyCode": "Применить код",
- "settings.fpsCapOff": "Выкл."
+ "settings.fpsCapOff": "Выкл.",
+ "home.addGame": "Добавить игру",
+ "home.addGameTip": "Добавьте игру, которой нет в списке, выбрав её .exe",
+ "home.changeCover": "Сменить обложку",
+ "home.removeGame": "Убрать из списка",
+ "scan.gainTitle": "Реальная разница FPS с BoostRoot",
+ "scan.gainSub": "Это не прогноз: значения измерены на вашем ПК в тесте FPS до и после Boost.",
+ "scan.without": "Без BoostRoot",
+ "scan.with": "С BoostRoot",
+ "scan.gain": "Разница",
+ "scan.lows": "1% low",
+ "scan.measured": "Измерено",
+ "scan.gainEmpty": "Пока нет измерений. В тесте FPS измерьте игру до и после Boost — результат появится здесь.",
+ "scan.measure": "Перейти к тесту FPS"
 }

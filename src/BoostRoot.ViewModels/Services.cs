@@ -45,7 +45,8 @@ public sealed record AppSettings(
     int OverlayOpacity = 60,
     int OverlayScale = 100,
     bool OverlayIcons = true,
-    bool Hotkeys = true)
+    bool Hotkeys = true,
+    IReadOnlyList<ManualGame>? ManualGames = null)
 {
     /// <summary>What the overlay draws: the Studio design if one was chosen, else the simple settings.</summary>
     public BoostRoot.Core.Crosshair.CrosshairDesign OverlayCrosshair => CrosshairDesign ?? new(Color: CrosshairOrDefault.Color, Outline: CrosshairOrDefault.Outline, Dot: CrosshairOrDefault.Dot,
@@ -58,6 +59,9 @@ public sealed record AppSettings(
     public ClipSettings ClipsOrDefault => Clips ?? new();
     public bool IsStretched(string profileId) => StretchGames?.Contains(profileId) == true;
 }
+
+/// <summary>A game the user added by picking its .exe (not found by any launcher scan).</summary>
+public sealed record ManualGame(string Name, string ExePath);
 
 public sealed record CrosshairSettings(bool Enabled = false, string Color = "#00FF66", int Size = 8, int Thickness = 2, int Gap = 3, bool Dot = false, bool Outline = true);
 
@@ -132,6 +136,8 @@ public interface IAppServices
     // Covers + advanced tweaks
     /// <summary>Finds/downloads cover art for one game; null when none exists (a generated cover is shown).</summary>
     Task<string?> FetchCoverAsync(CatalogEntry entry, CancellationToken ct);
+    /// <summary>Copies a picture the user picked as the game's cover; returns the new cover path.</summary>
+    string? SetCustomCover(CatalogEntry entry, string imagePath) => null;
     IReadOnlyList<WindowsTweak> AdvancedTweaks { get; }
     /// <summary>tweak id → operation id of tweaks currently applied by BoostRoot.</summary>
     IReadOnlyDictionary<string, string> AppliedTweaks();

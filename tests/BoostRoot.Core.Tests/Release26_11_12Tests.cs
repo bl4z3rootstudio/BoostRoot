@@ -69,4 +69,13 @@ public class Release26_11_12Tests
         Assert.Equal(165u, on[BoostRoot.Core.Gpu.NvidiaSettings.FrameRateLimit]);
         Assert.False(BoostRoot.Core.Gpu.NvidiaSettings.From(new BoostRoot.Core.Profiles.GpuPrefs()).ContainsKey(BoostRoot.Core.Gpu.NvidiaSettings.FrameRateLimit));
     }
+
+    [Fact]
+    public void ManualGame_LaunchesItsExe_AndSurvivesSettingsCode()
+    {
+        var g = new BoostRoot.Games.InstalledGame("manual", "manual-mygame", "My Game", @"C:\Games\My", new Dictionary<string, string> { ["exe"] = @"C:\Games\My\game.exe" });
+        Assert.Equal(@"C:\Games\My\game.exe", BoostRoot.Games.LaunchCommands.For(g)!.FileName);
+        var s = AppSettings.Default with { ManualGames = [new("My Game", @"C:\Games\My\game.exe")] };
+        Assert.Single(SettingsCode.Decode(SettingsCode.Encode(s), s)!.ManualGames!); // code leaves personal paths alone
+    }
 }

@@ -122,7 +122,7 @@ public sealed partial class HomeViewModel : ObservableObject
     public ObservableCollection<GameCardViewModel> Games { get; } = [];
     public ObservableCollection<LevelOptionViewModel> Levels { get; } = [.. Enum.GetValues<BoostLevel>().Select(l => new LevelOptionViewModel(l))];
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasSelection), nameof(RecommendedText), nameof(CanStretch))] [NotifyCanExecuteChangedFor(nameof(BoostCommand), nameof(UndoCommand))]
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasSelection), nameof(RecommendedText), nameof(CanStretch), nameof(SelectedIsManual))] [NotifyCanExecuteChangedFor(nameof(BoostCommand), nameof(UndoCommand))]
     public partial GameCardViewModel? Selected { get; set; }
 
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(BoostCommand))] public partial bool IsBusy { get; set; }
@@ -186,6 +186,35 @@ public sealed partial class HomeViewModel : ObservableObject
     [ObservableProperty] public partial string? ShareInput { get; set; }
     [ObservableProperty] public partial string? ShareStatus { get; set; }
     public Action<string>? CopyText { get; set; }
+
+    /// <summary>Set by the shell: stores the manual games list in settings.</summary>
+    public Action<Func<IReadOnlyList<ManualGame>, IReadOnlyList<ManualGame>>>? ManualGamesChanged { get; set; }
+    public bool SelectedIsManual => Selected?.Entry.Game?.Source == "manual";
+
+    /// <summary>Adds a game the scan did not find, from its .exe; selects it.</summary>
+    public void AddManualGame(string exePath, string name)
+    {
+        if (!exePath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)) return;
+        ManualGamesChanged?.Invoke(list => [.. list.Where(m => !m.ExePath.Equals(exePath, StringComparison.OrdinalIgnoreCase)), new ManualGame(name, exePath)]);
+        Reload();
+        Select(Games.FirstOrDefault(g => g.Entry.Game?.Extra.TryGetValue("exe", out var e) == true && e.Equals(exePath, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    [RelayCommand]
+    public void RemoveManualGame()
+    {
+        if (Selected?.Entry.Game is not { Source: "manual" } g || !g.Extra.TryGetValue("exe", out var exe)) return;
+        ManualGamesChanged?.Invoke(list => [.. list.Where(m => !m.ExePath.Equals(exe, StringComparison.OrdinalIgnoreCase))]);
+        Reload();
+    }
+
+    /// <summary>Uses a picture from disk as the selected game's cover.</summary>
+    public void SetCover(string imagePath)
+    {
+        if (Selected is not { } g || _services.SetCustomCover(g.Entry, imagePath) is not { } path) return;
+        g.Cover = null; // force the image to reload even if the path is the same
+        g.Cover = path;
+    }
     public Action<string>? ApplySharedCrosshair { get; set; }
     public Func<string?>? CurrentCrosshairCode { get; set; }
 

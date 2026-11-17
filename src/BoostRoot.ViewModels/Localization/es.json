@@ -626,5 +626,18 @@
  "settings.shareSub": "Envía tus ajustes a un amigo como código o aplica el suyo. Nunca se incluyen carpetas ni cuentas.",
  "settings.copyCode": "Copiar código",
  "settings.applyCode": "Aplicar código",
- "settings.fpsCapOff": "Desactivado"
+ "settings.fpsCapOff": "Desactivado",
+ "home.addGame": "Añadir juego",
+ "home.addGameTip": "Añade un juego que no aparece eligiendo su .exe",
+ "home.changeCover": "Cambiar portada",
+ "home.removeGame": "Quitar de la lista",
+ "scan.gainTitle": "Diferencia real de FPS con BoostRoot",
+ "scan.gainSub": "No son estimaciones: se midieron en tu PC en la Prueba de FPS, antes y después de Boost.",
+ "scan.without": "Sin BoostRoot",
+ "scan.with": "Con BoostRoot",
+ "scan.gain": "Diferencia",
+ "scan.lows": "1% mínimo",
+ "scan.measured": "Medido",
+ "scan.gainEmpty": "Aún no hay mediciones. En la Prueba de FPS mide un juego antes y después de Boost; el resultado aparecerá aquí.",
+ "scan.measure": "Ir a la Prueba de FPS"
 }

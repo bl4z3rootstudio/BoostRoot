@@ -626,5 +626,18 @@
  "settings.shareSub": "Ayarlarını kodla dostuna göndər və ya onun kodunu tətbiq et. Qovluq və hesab məlumatları koda daxil olmur.",
  "settings.copyCode": "Kodu kopyala",
  "settings.applyCode": "Kodu tətbiq et",
- "settings.fpsCapOff": "Bağlı"
+ "settings.fpsCapOff": "Bağlı",
+ "home.addGame": "Oyun əlavə et",
+ "home.addGameTip": "Siyahıda olmayan oyunu .exe faylını seçərək əlavə et",
+ "home.changeCover": "Üz qabığını dəyiş",
+ "home.removeGame": "Siyahıdan çıxar",
+ "scan.gainTitle": "BoostRoot ilə real FPS fərqi",
+ "scan.gainSub": "Bunlar təxmin deyil: FPS Testində sənin kompüterində Boost-dan əvvəl və sonra ölçülüb.",
+ "scan.without": "BoostRoot-suz",
+ "scan.with": "BoostRoot-lu",
+ "scan.gain": "Fərq",
+ "scan.lows": "%1 ən aşağı",
+ "scan.measured": "Ölçülüb",
+ "scan.gainEmpty": "Hələ ölçmə yoxdur. FPS Testində oyunu Boost-dan əvvəl və sonra ölç; nəticə burada görünəcək.",
+ "scan.measure": "FPS Testinə keç"
 }

@@ -38,6 +38,7 @@
             </TextBlock>
           </StackPanel>
         </Border>
+        <TextBlock DockPanel.Dock="Bottom" Classes="muted" FontSize="11" Margin="8,4,0,0" Text="{Binding VersionLabel}" />
         <TextBlock DockPanel.Dock="Bottom" Classes="muted" FontSize="11" Margin="8,12,0,0" TextWrapping="Wrap"
                    Text="{Binding [app.tagline], Source={x:Static loc:Loc.I}}" />
         <Button DockPanel.Dock="Bottom" Classes="nav" Command="{Binding ReportBugCommand}" ToolTip.Tip="{Binding [bug.tip], Source={x:Static loc:Loc.I}}">

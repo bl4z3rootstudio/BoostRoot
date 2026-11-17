@@ -54,6 +54,41 @@
           </DataTemplate>
         </ItemsControl.ItemTemplate>
       </ItemsControl>
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="M3 12h4l3 8 4-16 3 8h4" Width="18" Height="18" Foreground="{StaticResource AccentLight}" />
+            <TextBlock Classes="h2" Text="{Binding [scan.gainTitle], Source={x:Static loc:Loc.I}}" />
+          </StackPanel>
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [scan.gainSub], Source={x:Static loc:Loc.I}}" />
+          <Grid ColumnDefinitions="2*,*,*,*,*,*" IsVisible="{Binding HasGains}">
+            <TextBlock Classes="muted" Text="{Binding [stats.game], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="1" Classes="muted" Text="{Binding [scan.without], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="2" Classes="muted" Text="{Binding [scan.with], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="3" Classes="muted" Text="{Binding [scan.gain], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="4" Classes="muted" Text="{Binding [scan.lows], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="5" Classes="muted" Text="{Binding [scan.measured], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+          <ItemsControl ItemsSource="{Binding Gains}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:FpsGainRow">
+                <Grid ColumnDefinitions="2*,*,*,*,*,*" Margin="0,4">
+                  <TextBlock FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Text="{Binding Game}" />
+                  <TextBlock Grid.Column="1" Text="{Binding Without}" />
+                  <TextBlock Grid.Column="2" FontWeight="Bold" Foreground="{StaticResource AccentLight}" Text="{Binding With}" />
+                  <TextBlock Grid.Column="3" FontWeight="Bold" Foreground="{StaticResource Good}" Text="{Binding Gain}" />
+                  <TextBlock Grid.Column="4" Text="{Binding Lows}" />
+                  <TextBlock Grid.Column="5" Classes="muted" Text="{Binding Date}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding !HasGains}">
+            <TextBlock Classes="muted" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="620" Text="{Binding [scan.gainEmpty], Source={x:Static loc:Loc.I}}" />
+          </StackPanel>
+          <Button Classes="primary" HorizontalAlignment="Left" Command="{Binding GoFpsTestCommand}" Content="{Binding [scan.measure], Source={x:Static loc:Loc.I}}" />
+        </StackPanel>
+      </Border>
     </StackPanel>
   </ScrollViewer>
 </UserControl>

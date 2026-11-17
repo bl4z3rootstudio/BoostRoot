@@ -286,6 +286,8 @@ public sealed partial class MainViewModel : ObservableObject
     public IReadOnlyList<NavItemViewModel> Nav { get; }
     public TestsViewModel Tests { get; }
     public StatsViewModel Stats { get; }
+    /// <summary>Shown under the sidebar so everyone can see which version they run.</summary>
+    public string VersionLabel => "BoostRoot v" + AppVersion.Current;
     public HomeViewModel Home { get; }
     public SettingsViewModel Settings { get; }
     public ScanViewModel Scan { get; }
@@ -353,6 +355,7 @@ public sealed partial class MainViewModel : ObservableObject
             Favorites = on ? [.. (s.Favorites ?? []).Append(id).Distinct()] : [.. (s.Favorites ?? []).Where(x => x != id)],
         });
         Home.CopyText = services.CopyToClipboard;
+        Home.ManualGamesChanged = change => Settings.Update(s => s with { ManualGames = change(s.ManualGames ?? []) });
         Home.StretchChanged = (id, on) => Settings.Update(s => s with
         {
             StretchGames = on ? [.. (s.StretchGames ?? []).Append(id).Distinct()] : [.. (s.StretchGames ?? []).Where(x => x != id)],
@@ -369,6 +372,7 @@ public sealed partial class MainViewModel : ObservableObject
         Updates = new UpdatesViewModel(services);
         Tests = new TestsViewModel();
         Stats = new StatsViewModel(services);
+        Scan.OpenFpsTest = () => Navigate(Nav!.First(n => n.Page == Fps));
         Home.CurrentCrosshairCode = () => Crosshair.Design.ToValorantCode();
         Home.ApplySharedCrosshair = code => { if (BoostRoot.Core.Crosshair.CrosshairDesign.FromValorantCode(code) is { } d) Crosshair.Load(d); };
         Nav =
@@ -402,5 +406,6 @@ public sealed partial class MainViewModel : ObservableObject
         if (item.Page == Monitor) { Monitor.RunChecks(); Monitor.RefreshProcesses(); }
         if (item.Page == Fps) Fps.Reload();
         if (item.Page == Stats) Stats.Refresh();
+        if (item.Page == Scan) Scan.RefreshGains();
     }
 }

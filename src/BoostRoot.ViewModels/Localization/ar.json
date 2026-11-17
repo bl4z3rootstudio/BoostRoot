@@ -632,5 +632,18 @@
  "settings.shareSub": "أرسل إعداداتك لصديق كرمز أو طبّق رمزه. لا تُضمَّن المجلدات والحسابات أبداً.",
  "settings.copyCode": "نسخ الرمز",
  "settings.applyCode": "تطبيق الرمز",
- "settings.fpsCapOff": "إيقاف"
+ "settings.fpsCapOff": "إيقاف",
+ "home.addGame": "إضافة لعبة",
+ "home.addGameTip": "أضف لعبة غير موجودة باختيار ملف .exe الخاص بها",
+ "home.changeCover": "تغيير الغلاف",
+ "home.removeGame": "إزالة من القائمة",
+ "scan.gainTitle": "فرق FPS الحقيقي مع BoostRoot",
+ "scan.gainSub": "هذه ليست تقديرات: تم قياسها على جهازك في اختبار FPS قبل Boost وبعده.",
+ "scan.without": "بدون BoostRoot",
+ "scan.with": "مع BoostRoot",
+ "scan.gain": "الفرق",
+ "scan.lows": "أدنى 1%",
+ "scan.measured": "تم القياس",
+ "scan.gainEmpty": "لا توجد قياسات بعد. في اختبار FPS قِس لعبة قبل Boost وبعده وستظهر النتيجة هنا.",
+ "scan.measure": "الذهاب إلى اختبار FPS"
 }

@@ -20,6 +20,29 @@ public sealed partial class ScanViewModel(IAppServices services, Action<Hardware
     [ObservableProperty] public partial string ScoreLabel { get; set; } = "";
     [ObservableProperty] public partial bool HasResult { get; set; }
     [ObservableProperty] public partial string? Error { get; set; }
+    /// <summary>Measured (never estimated) FPS with and without BoostRoot, per game, from the FPS test's before/after runs.</summary>
+    public ObservableCollection<FpsGainRow> Gains { get; } = [];
+    [ObservableProperty] public partial bool HasGains { get; set; }
+    /// <summary>Opens the FPS test page (set by the shell).</summary>
+    public Action? OpenFpsTest { get; set; }
+    [RelayCommand] public void GoFpsTest() => OpenFpsTest?.Invoke();
+
+    public void RefreshGains()
+    {
+        Gains.Clear();
+        try
+        {
+            var all = services.FpsHistory.All();
+            foreach (var id in all.Select(r => r.GameId).Distinct())
+                if (services.FpsHistory.Comparison(id) is var (b, a))
+                    Gains.Add(new FpsGainRow(a.GameName, $"{b.Stats.AvgFps:0}", $"{a.Stats.AvgFps:0}",
+                        $"{(BoostRoot.Core.Fps.FrameStats.Gain(b.Stats, a.Stats) >= 0 ? "+" : "")}{BoostRoot.Core.Fps.FrameStats.Gain(b.Stats, a.Stats):0.#}%",
+                        $"{b.Stats.Low1:0} → {a.Stats.Low1:0}", a.At.ToLocalTime().ToString("d", System.Globalization.CultureInfo.CurrentCulture)));
+        }
+        catch (Exception) { }
+        HasGains = Gains.Count > 0;
+    }
+
     /// <summary>Last scan result (null until the first scan finishes).</summary>
     public HardwareReport? Report { get; private set; }
 
@@ -33,6 +56,7 @@ public sealed partial class ScanViewModel(IAppServices services, Action<Hardware
         {
             var r = await Task.Run(services.ScanHardware);
             Report = r;
+            RefreshGains();
             Show(r);
             onScanned?.Invoke(r);
         }
@@ -73,3 +97,6 @@ public sealed partial class ScanViewModel(IAppServices services, Action<Hardware
         HasResult = true;
     }
 }
+
+/// <summary>One measured game: average FPS before and after Boost, 1% lows, and when it was measured.</summary>
+public sealed record FpsGainRow(string Game, string Without, string With, string Gain, string Lows, string Date);

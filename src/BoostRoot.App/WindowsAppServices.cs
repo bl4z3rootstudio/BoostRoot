@@ -103,7 +103,10 @@ public sealed class WindowsAppServices : IAppServices
     {
         var env = WindowsEnvironment.Locators(_fs, _registry);
         IGameLocator[] locators = [new SteamLocator(env), new EpicLocator(env), new RiotLocator(env), new XboxLocator(env), new MinecraftLocator(env), new RobloxLocator(env)];
-        return GameCatalog.Match(Profiles, locators.SelectMany(l => l.Locate()));
+        var manual = (LoadSettings().ManualGames ?? []).Where(m => File.Exists(m.ExePath))
+            .Select(m => new InstalledGame("manual", "manual-" + GameLibrary.Slug(Path.GetFileNameWithoutExtension(m.ExePath)), m.Name, Path.GetDirectoryName(m.ExePath)!,
+                new Dictionary<string, string> { ["exe"] = m.ExePath }));
+        return GameCatalog.Match(Profiles, locators.SelectMany(l => l.Locate()).Concat(manual));
     }
 
     /// <summary>Neutral mid score until the hardware scanner (PC Karnesi) has run.</summary>
@@ -202,6 +205,12 @@ public sealed class WindowsAppServices : IAppServices
     public bool Launch(CatalogEntry entry)
     {
         if (entry.Game is null || LaunchCommands.For(entry.Game) is not { } cmd) return false;
+        if (entry.Game.Source == "manual")
+        {
+            // Many games only find their data when started from their own folder.
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(cmd.FileName) { WorkingDirectory = Path.GetDirectoryName(cmd.FileName)!, UseShellExecute = true })?.Dispose();
+            return true;
+        }
         _processes.Start(cmd.FileName, cmd.Arguments, cmd.UseShellExecute);
         return true;
     }
@@ -242,8 +251,58 @@ public sealed class WindowsAppServices : IAppServices
     {
         var id = entry.Profile?.Id ?? entry.Game?.SourceId;
         if (id is null) return null;
-        var path = Path.Combine(_coversDir, id + ".jpg");
-        return File.Exists(path) ? path : null;
+        // Custom picture first, then store art, then the generated poster.
+        foreach (var name in new[] { id + ".custom.png", id + ".jpg", id + ".gen.png" })
+        {
+            var path = Path.Combine(_coversDir, name);
+            if (File.Exists(path)) return path;
+        }
+        return null;
+    }
+
+    /// <summary>Uses a picture the user chose as the game's cover (copied, so the original can move).</summary>
+    public string? SetCustomCover(CatalogEntry e, string imagePath)
+    {
+        var id = e.Profile?.Id ?? e.Game?.SourceId;
+        if (id is null || !File.Exists(imagePath)) return null;
+        Directory.CreateDirectory(_coversDir);
+        var target = Path.Combine(_coversDir, id + ".custom.png");
+        File.Copy(imagePath, target, true);
+        return target;
+    }
+
+    /// <summary>Poster with the game's own .exe icon (or initials) for games without store art.</summary>
+    private async Task<string?> GeneratedCoverAsync(CatalogEntry e, string id)
+    {
+        var target = Path.Combine(_coversDir, id + ".gen.png");
+        if (File.Exists(target)) return target;
+        var icon = await Task.Run(() => GameExe(e) is { } exe ? ExeIcon.Extract(exe) : null);
+        try { await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => CoverPoster.Save(e.DisplayName, icon, target)); }
+        catch (Exception) { return null; }
+        return File.Exists(target) ? target : null;
+    }
+
+    /// <summary>The game's main .exe: manual path, the profile's exe name, else the biggest .exe near the install folder.</summary>
+    private static string? GameExe(CatalogEntry e)
+    {
+        if (e.Game is not { } g) return null;
+        if (g.Extra.TryGetValue("exe", out var manual) && File.Exists(manual)) return manual;
+        if (!Directory.Exists(g.InstallPath)) return null;
+        try
+        {
+            var opts = new EnumerationOptions { RecurseSubdirectories = true, MaxRecursionDepth = 4, IgnoreInaccessible = true };
+            var exes = Directory.EnumerateFiles(g.InstallPath, "*.exe", opts).Take(400).ToList();
+            var names = new List<string>();
+            if (e.Profile?.Detect.TryGetValue("exe", out var x) == true) names.Add(x);
+            if (e.Profile?.Detect.TryGetValue("process", out var p) == true) names.AddRange(p.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Where(n => !n.StartsWith("dir:", StringComparison.Ordinal)));
+            // Prefer the small launcher exe (it carries the nice icon), e.g. VALORANT.exe over VALORANT-Win64-Shipping.exe.
+            foreach (var n in names.OrderBy(n => n.Length))
+                if (exes.FirstOrDefault(f => Path.GetFileName(f).Equals(n, StringComparison.OrdinalIgnoreCase)) is { } hit) return hit;
+            string[] skip = ["unins", "crash", "redist", "setup", "vc_", "dxsetup", "helper", "report", "updater", "launcher_", "uninstall"];
+            return exes.Where(f => !skip.Any(k => Path.GetFileName(f).Contains(k, StringComparison.OrdinalIgnoreCase)))
+                .OrderByDescending(f => new FileInfo(f).Length).FirstOrDefault();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return null; }
     }
 
     public IReadOnlyList<NetInfo> NetworkAdapters() => _lastHardware?.Networks ?? HardwareScanner.Scan(_registry).Networks;
@@ -421,13 +480,13 @@ public sealed class WindowsAppServices : IAppServices
     /// Misses are remembered for a week so we don't hammer the store.</summary>
     public async Task<string?> FetchCoverAsync(CatalogEntry e, CancellationToken ct)
     {
-        if (CoverPath(e) is { } have) return have;
+        if (CoverPath(e) is { } have && !have.EndsWith(".gen.png", StringComparison.OrdinalIgnoreCase)) return have;
         var id = e.Profile?.Id ?? e.Game?.SourceId;
         if (id is null) return null;
         Directory.CreateDirectory(_coversDir);
         var target = Path.Combine(_coversDir, id + ".jpg");
         var miss = Path.Combine(_coversDir, id + ".none");
-        if (File.Exists(miss) && File.GetLastWriteTimeUtc(miss) > DateTime.UtcNow.AddDays(-7)) return null;
+        if (File.Exists(miss) && File.GetLastWriteTimeUtc(miss) > DateTime.UtcNow.AddDays(-7)) return await GeneratedCoverAsync(e, id);
         await _coverGate.WaitAsync(ct);
         try
         {
@@ -439,7 +498,9 @@ public sealed class WindowsAppServices : IAppServices
                 File.Copy(local, target, true);
                 return target;
             }
-            if (LoadSettings().Offline) return null;
+            // Games that are never on Steam would only match a wrong store page.
+            var notOnSteam = e.Game?.Source is "riot" or "minecraft" or "roblox" or "manual" || e.Profile?.Detect.ContainsKey("riot") == true;
+            if (LoadSettings().Offline || notOnSteam) return await GeneratedCoverAsync(e, id);
             if (appId is null || !appId.All(char.IsAsciiDigit)) appId = await SteamSearchAsync(e.DisplayName, ct);
             if (appId is not null)
             {
@@ -451,9 +512,9 @@ public sealed class WindowsAppServices : IAppServices
                 }
             }
             await File.WriteAllTextAsync(miss, appId ?? "", ct);
-            return null;
+            return await GeneratedCoverAsync(e, id);
         }
-        catch (Exception ex) when (ex is HttpRequestException or IOException or TaskCanceledException or UnauthorizedAccessException or JsonException) { return null; }
+        catch (Exception ex) when (ex is HttpRequestException or IOException or TaskCanceledException or UnauthorizedAccessException or JsonException) { return await GeneratedCoverAsync(e, id); }
         finally { _coverGate.Release(); }
     }
 
