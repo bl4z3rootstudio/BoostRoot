@@ -19,10 +19,14 @@ public static class NvidiaSettings
     public const uint PreRenderLimit = 0x007BA09E;
     public const uint VSyncMode = 0x00A879CF, VSyncForceOff = 0x08416747;
     public const uint QualityEnhancements = 0x00CE2691, HighPerformance = 20, Performance = 10;
+    /// <summary>"Threaded optimization" (OGL_THREAD_CONTROL): 1 = on.</summary>
+    public const uint ThreadedOptimization = 0x20C1221E, ThreadedOn = 1;
+    /// <summary>"Shader cache size" (PS_SHADERDISKCACHE_MAX_SIZE): 0xFFFFFFFF = unlimited, so fewer shader recompiles (stutter).</summary>
+    public const uint ShaderCacheSize = 0x00AC8497, ShaderCacheUnlimited = 0xFFFFFFFF;
 
     public static IReadOnlyDictionary<uint, uint> From(GpuPrefs p)
     {
-        var d = new Dictionary<uint, uint> { [PreferredPState] = PreferMaxPerformance };
+        var d = new Dictionary<uint, uint> { [PreferredPState] = PreferMaxPerformance, [ThreadedOptimization] = ThreadedOn, [ShaderCacheSize] = ShaderCacheUnlimited };
         if (p.LowLatency == true) d[PreRenderLimit] = 1;
         if (p.VSync == false) d[VSyncMode] = VSyncForceOff;
         if (p.TextureFiltering == "performance") d[QualityEnhancements] = HighPerformance;

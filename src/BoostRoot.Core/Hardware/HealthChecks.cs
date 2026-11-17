@@ -34,6 +34,14 @@ public static class HealthChecks
             list.Add(new("net-100mbps", IssueSeverity.Warning,
                 new($"Kablolu bağlantı {n.SpeedMbps} Mbps'e düşmüş", $"Wired link is only {n.SpeedMbps} Mbps"),
                 new("Kabloyu ve modemdeki girişi kontrol et; Cat5e/Cat6 kablo 1 Gbps verir.", "Check the cable and router port; a Cat5e/Cat6 cable gives 1 Gbps.")));
+        if (hw.GameModeOn == false)
+            list.Add(new("gamemode-off", IssueSeverity.Warning,
+                new("Windows Oyun Modu kapalı", "Windows Game Mode is off"),
+                new("Boost'un güvenli ayarları açar; ya da Ayarlar > Oyun > Oyun Modu'nu aç.", "Boost's safe tweaks turn it on, or open Settings > Gaming > Game Mode.")));
+        if (hw.HagsOn == false && hw.MainGpu?.Vendor is GpuVendor.Nvidia or GpuVendor.Amd)
+            list.Add(new("hags-off", IssueSeverity.Info,
+                new("Donanım hızlandırmalı GPU zamanlaması kapalı", "Hardware-accelerated GPU scheduling is off"),
+                new("Ayarlar > Sistem > Ekran > Grafik > Varsayılan grafik ayarları'ndan aç ve bilgisayarı yeniden başlat. NVIDIA Reflex / AMD Anti-Lag ile birlikte gecikmeyi düşürür.", "Turn it on in Settings > System > Display > Graphics > Default graphics settings and restart. Lowers latency together with NVIDIA Reflex / AMD Anti-Lag.")));
         if (hw.SystemDiskFreePercent < 10)
             list.Add(new("disk-full", IssueSeverity.Warning,
                 new($"Sistem diski dolu (%{100 - hw.SystemDiskFreePercent:0} dolu)", $"System disk is almost full ({100 - hw.SystemDiskFreePercent:0}% used)"),

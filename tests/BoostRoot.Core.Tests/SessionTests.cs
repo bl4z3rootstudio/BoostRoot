@@ -112,7 +112,9 @@ public class GpuProfileTests
     public void Nvidia_SettingsFromPrefs_AndBackupRoundTrip()
     {
         var d = BoostRoot.Core.Gpu.NvidiaSettings.From(new BoostRoot.Core.Profiles.GpuPrefs(LowLatency: true, VSync: false, TextureFiltering: "performance"));
-        Assert.Equal(4, d.Count);
+        Assert.Equal(6, d.Count);
+        Assert.Equal(1u, d[BoostRoot.Core.Gpu.NvidiaSettings.ThreadedOptimization]);
+        Assert.Equal(0xFFFFFFFFu, d[BoostRoot.Core.Gpu.NvidiaSettings.ShaderCacheSize]);
         Assert.Equal(BoostRoot.Core.Gpu.NvidiaSettings.VSyncForceOff, d[BoostRoot.Core.Gpu.NvidiaSettings.VSyncMode]);
         var enc = BoostRoot.Core.Gpu.NvidiaSettings.Encode(false, new Dictionary<uint, uint?> { [0x1057EB71] = 0, [0x007BA09E] = null });
         var (created, prev) = BoostRoot.Core.Gpu.NvidiaSettings.Decode(enc);
@@ -128,8 +130,30 @@ public class GpuProfileTests
         var journal = new BoostRoot.Core.Safety.Journal(fs, "C:/j");
         var drv = new FakeDrv();
         var ch = new BoostRoot.Core.Gpu.GpuProfileChanger(drv, journal);
-        Assert.Equal(1, ch.Apply("op1", "cs2.exe", new BoostRoot.Core.Profiles.GpuPrefs()));
+        Assert.Equal(3, ch.Apply("op1", "cs2.exe", new BoostRoot.Core.Profiles.GpuPrefs()));
         new BoostRoot.Core.Safety.UndoService(journal, [ch]).RevertOperation("op1");
         Assert.Equal("cs2.exe|created=1", drv.Reverted);
+    }
+
+}
+
+public class FpsDefaultsTests
+{
+    [Fact]
+    public void Recommender_CompetitiveGamesUseCompetitiveOnNvidiaAndAmd()
+    {
+        var p = BoostRoot.Core.Profiles.GameLibrary.Parse("Shooter X;fps", [])[0];
+        Assert.Equal(BoostRoot.Core.Profiles.BoostLevel.Competitive, BoostRoot.Core.Profiles.Recommender.Recommend(p, 90, BoostRoot.Core.Hardware.GpuVendor.Nvidia));
+        Assert.Equal(BoostRoot.Core.Profiles.BoostLevel.Competitive, BoostRoot.Core.Profiles.Recommender.Recommend(p, 90, BoostRoot.Core.Hardware.GpuVendor.Amd));
+    }
+
+    [Fact]
+    public void Health_FlagsGameModeOffAndHagsOff()
+    {
+        var hw = new BoostRoot.Core.Hardware.HardwareInfo("cpu", 8, [new("RTX 4060", BoostRoot.Core.Hardware.GpuVendor.Nvidia, 8192, "1", new DateOnly(2026, 11, 1))],
+            16, [], [], 50, true, [], 26100, GameModeOn: false, HagsOn: false);
+        var ids = BoostRoot.Core.Hardware.HealthChecks.Evaluate(hw, new DateOnly(2026, 11, 18)).Select(i => i.Id).ToList();
+        Assert.Contains("gamemode-off", ids);
+        Assert.Contains("hags-off", ids);
     }
 }

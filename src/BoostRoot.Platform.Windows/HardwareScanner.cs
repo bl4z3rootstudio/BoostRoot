@@ -22,7 +22,10 @@ public static partial class HardwareScanner
             freePct,
             null,
             Networks(),
-            Environment.OSVersion.Version.Build);
+            Environment.OSVersion.Version.Build,
+            // Game Mode is on unless explicitly disabled; HAGS: HwSchMode 2 = on, 1 = off.
+            registry.GetValue(RegistryHive.CurrentUser, @"Software\Microsoft\GameBar", "AutoGameModeEnabled")?.Data is { } gm ? gm != "0" : true,
+            registry.GetValue(RegistryHive.LocalMachine, @"SYSTEM\CurrentControlSet\Control\GraphicsDrivers", "HwSchMode")?.Data is { } hs ? hs == "2" : null);
     }
 
     [StructLayout(LayoutKind.Sequential)]

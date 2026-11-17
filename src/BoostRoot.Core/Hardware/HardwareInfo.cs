@@ -24,7 +24,9 @@ public sealed record HardwareInfo(
     double SystemDiskFreePercent,
     bool? SystemDiskIsSsd,
     IReadOnlyList<NetInfo> Networks,
-    int WindowsBuild)
+    int WindowsBuild,
+    bool? GameModeOn = null,
+    bool? HagsOn = null)
 {
     /// <summary>The discrete GPU if there is one, else the first.</summary>
     public GpuInfo? MainGpu => Gpus.OrderByDescending(g => g.VramMb).FirstOrDefault();

@@ -241,7 +241,7 @@ public sealed partial class HomeViewModel : ObservableObject
 
     public BoostLevel SelectedLevel => Levels.FirstOrDefault(l => l.IsSelected)?.Level ?? BoostLevel.Balanced;
 
-    private BoostLevel Recommended(GameProfile p) => Recommender.Recommend(p, _services.PcScore);
+    private BoostLevel Recommended(GameProfile p) => Recommender.Recommend(p, _services.PcScore, _services.GpuVendor);
 
     public void Reload()
     {

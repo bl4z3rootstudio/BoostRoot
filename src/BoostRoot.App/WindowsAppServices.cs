@@ -108,6 +108,15 @@ public sealed class WindowsAppServices : IAppServices
 
     /// <summary>Neutral mid score until the hardware scanner (PC Karnesi) has run.</summary>
     public int PcScore { get; private set; } = 60;
+    public GpuVendor GpuVendor
+    {
+        get
+        {
+            if (_lastHardware is null && !_scanTried) { _scanTried = true; try { _lastHardware = HardwareScanner.Scan(_registry); } catch (Exception) { } }
+            return _lastHardware?.MainGpu?.Vendor ?? GpuVendor.Unknown;
+        }
+    }
+    private bool _scanTried;
 
     /// <summary>Game being boosted: gives profiles {install}, {steam}, {gameDir}, {documents}.</summary>
     private InstalledGame? _currentGame;

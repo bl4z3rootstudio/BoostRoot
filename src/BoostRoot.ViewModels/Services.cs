@@ -57,6 +57,8 @@ public interface IAppServices
 {
     IReadOnlyList<CatalogEntry> LoadCatalog();
     int PcScore { get; }
+    /// <summary>Main graphics card maker (Unknown until the hardware was scanned).</summary>
+    BoostRoot.Core.Hardware.GpuVendor GpuVendor => BoostRoot.Core.Hardware.GpuVendor.Unknown;
     BoostResult Boost(CatalogEntry entry, BoostLevel level, AppSettings settings);
     void Undo(string operationId);
     /// <summary>Starts the game through its launcher; false when BoostRoot doesn't know how.</summary>

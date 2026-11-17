@@ -37,7 +37,7 @@
       "rus:Settings/EAresBoolSettingName::ImproveClarity": "False",
       "rus:Settings/EAresIntSettingName::AnisotropicFiltering": "1",
       "gus:/Script/ShooterGame.ShooterGameUserSettings/bUseVSync": "False"
-    } },
+    }, "gpu": { "lowLatency": true, "vSync": false, "radeonBoost": false, "chill": false, "textureFiltering": "performance", "upscaler": "off" } },
     "competitive": { "set": {
       "rus:Settings/EAresIntSettingName::MaterialQuality": "0",
       "rus:Settings/EAresIntSettingName::TextureQuality": "0",
@@ -62,8 +62,8 @@
     "gus:/Script/ShooterGame.ShooterGameUserSettings/bUseVSync": { "text": { "tr": "Dikey eşitleme kapalı (gecikme düşer)", "en": "V-Sync off (lower latency)" }, "fpsImpact": "high", "visualImpact": "low" }
   },
   "tips": {
-    "tr": "Oyun içinde elle kontrol et: Video > Grafik Kalitesi > Çok iş parçacıklı işleme AÇIK, Vinyet KAPALI, Gölgeler KAPALI, Kenar yumuşatma YOK. Çözünürlük, tuşlar, sens ve nişangaha dokunulmadı.",
-    "en": "Check in game: Video > Graphics Quality > Multithreaded Rendering ON, Vignette OFF, Shadows OFF, Anti-Aliasing NONE. Resolution, keybinds, sensitivity and crosshair were not touched."
+    "tr": "Oyun içinde elle kontrol et: Video > Grafik Kalitesi > Çok iş parçacıklı işleme AÇIK, Vinyet KAPALI, Gölgeler KAPALI, Kenar yumuşatma YOK, NVIDIA Reflex: Açık + Boost (AMD'de Radeon Anti-Lag açık). Çözünürlük, tuşlar, sens ve nişangaha dokunulmadı.",
+    "en": "Check in game: Video > Graphics Quality > Multithreaded Rendering ON, Vignette OFF, Shadows OFF, Anti-Aliasing NONE, NVIDIA Reflex: On + Boost (AMD: Radeon Anti-Lag on). Resolution, keybinds, sensitivity and crosshair were not touched."
   },
   "verifiedOn": "2026-11",
   "stretchKeys": [
