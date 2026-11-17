@@ -18,7 +18,7 @@ public sealed record GitHubRelease(
 internal sealed partial class UpdateJsonContext : JsonSerializerContext;
 
 /// <param name="Setup">Installer asset; <param name="Sha256">expected hash from SHA256SUMS.txt.</param></param>
-public sealed record UpdateInfo(AppVersion Version, string Notes, ReleaseAsset Setup, string? Sha256);
+public sealed record UpdateInfo(AppVersion Version, string Notes, ReleaseAsset Setup, string? Sha256, ReleaseAsset? Portable = null, string? PortableSha256 = null);
 
 /// <summary>GitHub Releases based updates: tag "v26.11.2" (or "26.11.2"), asset "BoostRoot-Setup-26.11.2.exe",
 /// and "SHA256SUMS.txt" listing every asset's hash.</summary>
@@ -38,7 +38,9 @@ public static class Updater
     {
         if (r.Draft || r.Prerelease || !AppVersion.TryParse(r.Tag.TrimStart('v', 'V'), out var v) || v.CompareTo(current) <= 0) return null;
         var setup = r.Assets.FirstOrDefault(a => a.Name.StartsWith("BoostRoot-Setup", StringComparison.OrdinalIgnoreCase) && a.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase));
-        return setup is null ? null : new UpdateInfo(v, r.Body ?? "", setup, sums is null ? null : HashFor(sums, setup.Name));
+        var portable = r.Assets.FirstOrDefault(a => a.Name.StartsWith("BoostRoot-Portable", StringComparison.OrdinalIgnoreCase) && a.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+        return setup is null ? null : new UpdateInfo(v, r.Body ?? "", setup, sums is null ? null : HashFor(sums, setup.Name),
+            portable, sums is null || portable is null ? null : HashFor(sums, portable.Name));
     }
 
     /// <summary>Reads "hash  filename" lines (sha256sum format).</summary>

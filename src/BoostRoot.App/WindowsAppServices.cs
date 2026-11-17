@@ -507,11 +507,52 @@ public sealed class WindowsAppServices : IAppServices
     /// <summary>Called after the installer starts so the app can close (the installer replaces it).</summary>
     public Action? ExitForUpdate { get; set; }
 
+    /// <summary>The installer leaves unins000.exe next to the app; the portable zip does not.</summary>
+    private static bool IsPortable => !File.Exists(Path.Combine(AppContext.BaseDirectory, "unins000.exe"));
+
     public async Task<bool> InstallUpdateAsync(UpdateInfo update, IProgress<double>? progress, CancellationToken ct)
     {
+        // Portable copy: running the installer would put the new version somewhere else and the user would keep
+        // opening the old one (update offered again forever), so replace the files in place instead.
+        if (IsPortable && update.Portable is { } zip && update.PortableSha256 is { } zipSha)
+            return await UpdatePortableAsync(zip, zipSha, progress, ct);
         if (update.Sha256 is null) return false; // never run an unverified installer
         var path = Path.Combine(Path.GetTempPath(), update.Setup.Name);
-        using (var resp = await _http.GetAsync(update.Setup.Url, HttpCompletionOption.ResponseHeadersRead, ct))
+        if (!await DownloadVerifiedAsync(update.Setup, update.Sha256, path, progress, ct)) return false;
+        _processes.Start(path, "/SILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS", true);
+        ExitForUpdate?.Invoke();
+        return true;
+    }
+
+    private async Task<bool> UpdatePortableAsync(ReleaseAsset zip, string sha, IProgress<double>? progress, CancellationToken ct)
+    {
+        var work = Path.Combine(Path.GetTempPath(), "BoostRoot-update");
+        try { if (Directory.Exists(work)) Directory.Delete(work, true); } catch (IOException) { }
+        Directory.CreateDirectory(work);
+        var zipPath = Path.Combine(work, zip.Name);
+        if (!await DownloadVerifiedAsync(zip, sha, zipPath, progress, ct)) return false;
+        var files = Path.Combine(work, "files");
+        System.IO.Compression.ZipFile.ExtractToDirectory(zipPath, files, true);
+        var dir = AppContext.BaseDirectory.TrimEnd('\\', '/');
+        var exe = Environment.ProcessPath ?? Path.Combine(dir, "BoostRoot.exe");
+        var script = Path.Combine(work, "apply.cmd");
+        // Wait for this process to exit, copy the new files over the old ones, start the app again.
+        File.WriteAllText(script, string.Join("\r\n",
+            "@echo off",
+            ":wait",
+            $"tasklist /FI \"PID eq {Environment.ProcessId}\" | find \"{Environment.ProcessId}\" >nul && (timeout /t 1 /nobreak >nul & goto wait)",
+            $"robocopy \"{files}\" \"{dir}\" /E /R:5 /W:1 /NFL /NDL /NJH /NJS >nul",
+            $"start \"\" \"{exe}\"",
+            ""));
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("cmd.exe", $"/c \"{script}\"")
+            { CreateNoWindow = true, UseShellExecute = false, WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden });
+        ExitForUpdate?.Invoke();
+        return true;
+    }
+
+    private async Task<bool> DownloadVerifiedAsync(ReleaseAsset asset, string sha, string path, IProgress<double>? progress, CancellationToken ct)
+    {
+        using (var resp = await _http.GetAsync(asset.Url, HttpCompletionOption.ResponseHeadersRead, ct))
         {
             resp.EnsureSuccessStatusCode();
             await using var src = await resp.Content.ReadAsStreamAsync(ct);
@@ -522,16 +563,14 @@ public sealed class WindowsAppServices : IAppServices
             {
                 await dst.WriteAsync(buf.AsMemory(0, n), ct);
                 done += n;
-                if (update.Setup.Size > 0) progress?.Report(done / (double)update.Setup.Size);
+                if (asset.Size > 0) progress?.Report(done / (double)asset.Size);
             }
         }
         await using (var f = File.OpenRead(path))
         {
             var hash = Convert.ToHexStringLower(await System.Security.Cryptography.SHA256.HashDataAsync(f, ct));
-            if (hash != update.Sha256) { File.Delete(path); return false; }
+            if (hash != sha) { f.Close(); File.Delete(path); return false; }
         }
-        _processes.Start(path, "/SILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS", true);
-        ExitForUpdate?.Invoke();
         return true;
     }
 

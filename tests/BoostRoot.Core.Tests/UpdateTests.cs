@@ -13,6 +13,17 @@ public class UpdateTests
         """;
 
     [Fact]
+    public void Evaluate_PicksPortableZipWithItsOwnHash()
+    {
+        var json = Json.Replace("""{"name":"SHA256SUMS.txt""", """{"name":"BoostRoot-Portable-26.12.1.zip","browser_download_url":"https://github.com/x/p.zip","size":99},{"name":"SHA256SUMS.txt""");
+        var sums = "aaa  BoostRoot-Setup-26.12.1.exe\nbbb  BoostRoot-Portable-26.12.1.zip\n";
+        var u = Updater.Evaluate(Updater.ParseRelease(json)!, AppVersion.Parse("26.11.2"), sums)!;
+        Assert.Equal("BoostRoot-Portable-26.12.1.zip", u.Portable!.Name);
+        Assert.Equal("bbb", u.PortableSha256);
+        Assert.Equal("aaa", u.Sha256);
+    }
+
+    [Fact]
     public void Evaluate_FindsNewerVerifiedRelease()
     {
         var r = Updater.ParseRelease(Json)!;
