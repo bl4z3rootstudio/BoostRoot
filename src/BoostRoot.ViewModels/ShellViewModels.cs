@@ -287,6 +287,7 @@ public sealed partial class MainViewModel : ObservableObject
     public IReadOnlyList<NavItemViewModel> Nav { get; }
     public TestsViewModel Tests { get; }
     public StatsViewModel Stats { get; }
+    public DoctorViewModel Doctor { get; }
     /// <summary>Shown under the sidebar so everyone can see which version they run.</summary>
     public string VersionLabel => "BoostRoot v" + AppVersion.Current;
     public HomeViewModel Home { get; }
@@ -373,6 +374,7 @@ public sealed partial class MainViewModel : ObservableObject
         Updates = new UpdatesViewModel(services);
         Tests = new TestsViewModel();
         Stats = new StatsViewModel(services);
+        Doctor = new DoctorViewModel(services);
         Scan.OpenFpsTest = () => Navigate(Nav!.First(n => n.Page == Fps));
         Home.CurrentCrosshairCode = () => Crosshair.Design.ToValorantCode();
         Home.ApplySharedCrosshair = code => { if (BoostRoot.Core.Crosshair.CrosshairDesign.FromValorantCode(code) is { } d) Crosshair.Load(d); };
@@ -382,6 +384,7 @@ public sealed partial class MainViewModel : ObservableObject
             new("scan", "M2 3h20v14H13v2h4v2H7v-2h4v-2H2zm2 2v10h16V5zm2 7h3v2H6zm5-3h3v5h-3zm5-2h2v7h-2z", Scan),
             new("fps", "M2 13h4l2.5-6 4 12 3.5-9 1.5 3H22v2h-5.8L15 12.5 11.6 21 7.6 9.5 7.3 10.3 7 15H2z", Fps),
             new("stats", "M11 2.05V13h10.95A10 10 0 1 1 11 2.05zM13 2.05A10 10 0 0 1 21.95 11H13z", Stats),
+            new("doctor", "M10 2h4v6h6v4h-6v6h-4v-6H4V8h6z", Doctor),
             new("stress", "M13 2c.5 3-1.5 4.5-3 6.5-1.3 1.8-2 3.3-2 5.5a6 6 0 0 0 12 0c0-3-1.6-5.2-3-6.6 0 1.8-.8 3-2 3.6.4-3.5-.4-6.6-2-9zM12 22a3 3 0 0 1-3-3c0-1.6 1.2-2.6 2-3.5.3 1.2 1 1.8 1.8 2.2.4-.6.6-1.2.6-2 1 .9 1.6 2 1.6 3.3a3 3 0 0 1-3 3z", Stress),
             new("net", "M12 4c4 0 7.6 1.6 10.3 4.2l-1.5 1.5A12.5 12.5 0 0 0 12 6a12.5 12.5 0 0 0-8.8 3.7L1.7 8.2A14.5 14.5 0 0 1 12 4zm0 5c2.6 0 5 1 6.7 2.8l-1.5 1.5A7.4 7.4 0 0 0 12 11a7.4 7.4 0 0 0-5.2 2.3l-1.5-1.5A9.4 9.4 0 0 1 12 9zm0 5c1.3 0 2.5.5 3.4 1.4L12 19l-3.4-3.6c.9-.9 2.1-1.4 3.4-1.4z", Net),
             new("clips", "M4 6h12v12H4zM16 10l5-3v10l-5-3", Clips),
@@ -408,5 +411,6 @@ public sealed partial class MainViewModel : ObservableObject
         if (item.Page == Fps) Fps.Reload();
         if (item.Page == Stats) Stats.Refresh();
         if (item.Page == Scan) Scan.RefreshGains();
+        if (item.Page == Doctor) Doctor.LoadGames(Home.Selected?.Entry.Profile?.Id);
     }
 }

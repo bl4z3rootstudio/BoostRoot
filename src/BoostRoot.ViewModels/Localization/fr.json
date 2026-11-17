@@ -652,5 +652,19 @@
  "mon.diskFree": "Libre sur C:",
  "mon.uptime": "Temps allumé",
  "mon.yes": "Oui",
- "mon.no": "Non"
+ "mon.no": "Non",
+ "nav.doctor": "Docteur des jeux",
+ "doc.title": "Docteur des jeux",
+ "doc.sub": "Le jeu ne démarre pas, plante ou saccade ? Choisissez-le : BoostRoot analyse le jeu et le PC, corrige ce qu'il peut en un clic et explique le reste pas à pas.",
+ "doc.pick": "Jeu",
+ "doc.scan": "Analyser",
+ "doc.fixAll": "Tout corriger",
+ "doc.scanning": "Analyse...",
+ "doc.clean": "Aucun problème trouvé",
+ "doc.found": "{0} problèmes trouvés",
+ "doc.failed": "Analyse impossible",
+ "doc.fixed": "Corrigé",
+ "doc.notFixed": "Correction automatique impossible ; essayez les étapes ci-dessous",
+ "doc.howTo": "Comment corriger",
+ "doc.fix": "Corriger"
 }

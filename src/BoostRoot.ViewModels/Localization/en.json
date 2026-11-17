@@ -498,5 +498,19 @@
  "mon.diskFree": "C: free space",
  "mon.uptime": "Uptime",
  "mon.yes": "Yes",
- "mon.no": "No"
+ "mon.no": "No",
+ "nav.doctor": "Game Doctor",
+ "doc.title": "Game Doctor",
+ "doc.sub": "Game won't start, crashes or stutters? Pick it and BoostRoot scans the game and your PC, fixes what it can with one click and explains the rest step by step.",
+ "doc.pick": "Game",
+ "doc.scan": "Scan",
+ "doc.fixAll": "Fix all",
+ "doc.scanning": "Scanning...",
+ "doc.clean": "No problems found for this game",
+ "doc.found": "{0} problems found",
+ "doc.failed": "Scan failed",
+ "doc.fixed": "Fixed",
+ "doc.notFixed": "Could not fix automatically; try the steps below",
+ "doc.howTo": "How to fix",
+ "doc.fix": "Fix"
 }

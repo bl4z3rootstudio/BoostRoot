@@ -138,6 +138,10 @@ public interface IAppServices
     Task<string?> FetchCoverAsync(CatalogEntry entry, CancellationToken ct);
     /// <summary>Copies a picture the user picked as the game's cover; returns the new cover path.</summary>
     string? SetCustomCover(CatalogEntry entry, string imagePath) => null;
+    /// <summary>Game Doctor: what is wrong with this game / PC (read-only).</summary>
+    Task<IReadOnlyList<BoostRoot.Core.Tools.DoctorFinding>> DiagnoseGameAsync(CatalogEntry entry) => Task.FromResult<IReadOnlyList<BoostRoot.Core.Tools.DoctorFinding>>([]);
+    /// <summary>Applies one Game Doctor fix; true when it worked.</summary>
+    Task<bool> FixGameAsync(CatalogEntry entry, string findingId) => Task.FromResult(false);
     IReadOnlyList<WindowsTweak> AdvancedTweaks { get; }
     /// <summary>tweak id → operation id of tweaks currently applied by BoostRoot.</summary>
     IReadOnlyDictionary<string, string> AppliedTweaks();

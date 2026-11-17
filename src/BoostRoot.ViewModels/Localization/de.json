@@ -651,5 +651,19 @@
  "mon.diskFree": "C: frei",
  "mon.uptime": "Laufzeit",
  "mon.yes": "Ja",
- "mon.no": "Nein"
+ "mon.no": "Nein",
+ "nav.doctor": "Spiel-Doktor",
+ "doc.title": "Spiel-Doktor",
+ "doc.sub": "Spiel startet nicht, stürzt ab oder ruckelt? Wähle es aus: BoostRoot prüft Spiel und PC, behebt mit einem Klick, was geht, und erklärt den Rest Schritt für Schritt.",
+ "doc.pick": "Spiel",
+ "doc.scan": "Prüfen",
+ "doc.fixAll": "Alles beheben",
+ "doc.scanning": "Wird geprüft...",
+ "doc.clean": "Keine Probleme gefunden",
+ "doc.found": "{0} Probleme gefunden",
+ "doc.failed": "Prüfung fehlgeschlagen",
+ "doc.fixed": "Behoben",
+ "doc.notFixed": "Automatisch nicht behebbar; versuche die Schritte unten",
+ "doc.howTo": "So behebst du es",
+ "doc.fix": "Beheben"
 }

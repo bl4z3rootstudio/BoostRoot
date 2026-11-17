@@ -652,5 +652,19 @@
  "mon.diskFree": "Livre no C:",
  "mon.uptime": "Tempo ligado",
  "mon.yes": "Sim",
- "mon.no": "Não"
+ "mon.no": "Não",
+ "nav.doctor": "Doutor de jogos",
+ "doc.title": "Doutor de jogos",
+ "doc.sub": "O jogo não abre, fecha sozinho ou trava? Escolha-o: o BoostRoot verifica o jogo e o PC, corrige o que puder com um clique e explica o resto passo a passo.",
+ "doc.pick": "Jogo",
+ "doc.scan": "Verificar",
+ "doc.fixAll": "Corrigir tudo",
+ "doc.scanning": "Verificando...",
+ "doc.clean": "Nenhum problema encontrado",
+ "doc.found": "{0} problemas encontrados",
+ "doc.failed": "Falha na verificação",
+ "doc.fixed": "Corrigido",
+ "doc.notFixed": "Não foi possível corrigir automaticamente; tente os passos abaixo",
+ "doc.howTo": "Como corrigir",
+ "doc.fix": "Corrigir"
 }

@@ -79,3 +79,45 @@ public class Release26_11_12Tests
         Assert.Single(SettingsCode.Decode(SettingsCode.Encode(s), s)!.ManualGames!); // code leaves personal paths alone
     }
 }
+
+public class GameDoctorTests
+{
+    private static BoostRoot.Core.Tools.DoctorFacts Healthy(string source = "steam") =>
+        new("Game", source, true, true, true, false, 100, 100, true, null, false, false, false, false, 30, false);
+
+    [Fact]
+    public void HealthyGame_SaysAllGood_PlusOptionalVerify()
+    {
+        var f = BoostRoot.Core.Tools.GameDoctor.Evaluate(Healthy());
+        Assert.Equal("all-good", f[0].Id);
+        Assert.Contains(f, x => x.Id == "steam-verify" && x.CanAutoFix);
+    }
+
+    [Fact]
+    public void Problems_HaveAFixOrManualSteps()
+    {
+        var facts = Healthy("riot") with { VcRedistInstalled = false, VanguardRunning = false, RiotClientBroken = true, GameRunningButNoWindow = true, HasCompatFlags = true, DriverAgeDays = 400, PendingReboot = true, SystemDiskFreeGb = 3 };
+        var f = BoostRoot.Core.Tools.GameDoctor.Evaluate(facts);
+        Assert.DoesNotContain(f, x => x.Id == "all-good");
+        foreach (var id in new[] { "vcredist", "vanguard", "riot-client", "stuck-process", "compat-flags", "driver-old", "reboot", "disk-space" }) Assert.Contains(f, x => x.Id == id);
+        Assert.All(f, x => Assert.True(x.CanAutoFix || x.Manual is not null, x.Id));
+    }
+
+    [Fact]
+    public void Asar_DetectsProtobufInMainJs()
+    {
+        static MemoryStream Asar(string mainJs)
+        {
+            var body = System.Text.Encoding.UTF8.GetBytes(mainJs);
+            var json = System.Text.Encoding.UTF8.GetBytes("{\"files\":{\"dist\":{\"files\":{\"main\":{\"files\":{\"main.js\":{\"size\":" + body.Length + ",\"offset\":\"0\"}}}}}}}");
+            var ms = new MemoryStream();
+            var w = new BinaryWriter(ms);
+            w.Write(4); w.Write(json.Length + 8); w.Write(json.Length + 4); w.Write(json.Length);
+            w.Write(json); w.Write(body);
+            ms.Position = 0;
+            return ms;
+        }
+        Assert.True(BoostRoot.Core.Tools.AsarProbe.MainJsLooksBroken(Asar("option optimize_for = LITE_RUNTIME;\nmessage X {}")));
+        Assert.False(BoostRoot.Core.Tools.AsarProbe.MainJsLooksBroken(Asar("\"use strict\";const a=require('electron');")));
+    }
+}

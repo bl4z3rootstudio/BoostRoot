@@ -498,5 +498,19 @@
  "mon.diskFree": "C: boş alan",
  "mon.uptime": "Açık kalma süresi",
  "mon.yes": "Evet",
- "mon.no": "Hayır"
+ "mon.no": "Hayır",
+ "nav.doctor": "Oyun Doktoru",
+ "doc.title": "Oyun Doktoru",
+ "doc.sub": "Oyun açılmıyor, çöküyor ya da kasıyor mu? Oyunu seç, BoostRoot bilgisayarını ve oyunu tarasın; düzeltebildiğini tek tıkla düzeltsin, düzeltemediğini adım adım anlatsın.",
+ "doc.pick": "Oyun",
+ "doc.scan": "Tara",
+ "doc.fixAll": "Hepsini düzelt",
+ "doc.scanning": "Taranıyor...",
+ "doc.clean": "Bu oyunda sorun bulunamadı",
+ "doc.found": "{0} sorun bulundu",
+ "doc.failed": "Tarama yapılamadı",
+ "doc.fixed": "Düzeltildi",
+ "doc.notFixed": "Otomatik düzeltilemedi; aşağıdaki adımları dene",
+ "doc.howTo": "Nasıl düzeltilir",
+ "doc.fix": "Düzelt"
 }

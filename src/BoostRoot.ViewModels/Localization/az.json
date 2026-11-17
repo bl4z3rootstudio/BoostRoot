@@ -654,5 +654,19 @@
  "mon.diskFree": "C: boş yer",
  "mon.uptime": "İşləmə müddəti",
  "mon.yes": "Bəli",
- "mon.no": "Xeyr"
+ "mon.no": "Xeyr",
+ "nav.doctor": "Oyun Həkimi",
+ "doc.title": "Oyun Həkimi",
+ "doc.sub": "Oyun açılmır, çökür və ya donur? Oyunu seç: BoostRoot oyunu və kompüteri yoxlayır, bacardığını bir kliklə düzəldir, qalanını addım-addım izah edir.",
+ "doc.pick": "Oyun",
+ "doc.scan": "Yoxla",
+ "doc.fixAll": "Hamısını düzəlt",
+ "doc.scanning": "Yoxlanılır...",
+ "doc.clean": "Problem tapılmadı",
+ "doc.found": "{0} problem tapıldı",
+ "doc.failed": "Yoxlama alınmadı",
+ "doc.fixed": "Düzəldildi",
+ "doc.notFixed": "Avtomatik düzəlmədi; aşağıdakı addımları sına",
+ "doc.howTo": "Necə düzəltmək olar",
+ "doc.fix": "Düzəlt"
 }

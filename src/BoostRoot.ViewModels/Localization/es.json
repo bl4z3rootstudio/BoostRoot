@@ -654,5 +654,19 @@
  "mon.diskFree": "Libre en C:",
  "mon.uptime": "Tiempo encendido",
  "mon.yes": "Sí",
- "mon.no": "No"
+ "mon.no": "No",
+ "nav.doctor": "Doctor de juegos",
+ "doc.title": "Doctor de juegos",
+ "doc.sub": "¿El juego no abre, se cierra o va a tirones? Elígelo: BoostRoot revisa el juego y tu PC, arregla lo que puede con un clic y explica el resto paso a paso.",
+ "doc.pick": "Juego",
+ "doc.scan": "Analizar",
+ "doc.fixAll": "Arreglar todo",
+ "doc.scanning": "Analizando...",
+ "doc.clean": "No se encontraron problemas",
+ "doc.found": "{0} problemas encontrados",
+ "doc.failed": "No se pudo analizar",
+ "doc.fixed": "Arreglado",
+ "doc.notFixed": "No se pudo arreglar automáticamente; prueba los pasos de abajo",
+ "doc.howTo": "Cómo arreglarlo",
+ "doc.fix": "Arreglar"
 }

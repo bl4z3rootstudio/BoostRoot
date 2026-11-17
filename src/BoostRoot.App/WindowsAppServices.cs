@@ -260,6 +260,15 @@ public sealed class WindowsAppServices : IAppServices
         return null;
     }
 
+    private GameDoctorWindows Doctor => _doctor ??= new GameDoctorWindows(_registry, GameExe, LastBoostOperation, Undo, ScanJunk, CleanJunk,
+        () => { _ = GpuVendor; return _lastHardware?.MainGpu?.DriverDate; });
+    private GameDoctorWindows? _doctor;
+
+    public async Task<IReadOnlyList<DoctorFinding>> DiagnoseGameAsync(CatalogEntry entry) =>
+        GameDoctor.Evaluate(await Task.Run(() => Doctor.Collect(entry)));
+
+    public Task<bool> FixGameAsync(CatalogEntry entry, string findingId) => Doctor.FixAsync(entry, findingId);
+
     /// <summary>Uses a picture the user chose as the game's cover (copied, so the original can move).</summary>
     public string? SetCustomCover(CatalogEntry e, string imagePath)
     {
