@@ -709,7 +709,7 @@ public sealed class WindowsAppServices : IAppServices
 
     public bool KillProcess(int pid)
     {
-        try { using var p = System.Diagnostics.Process.GetProcessById(pid); if (p.ProcessName is "explorer" or "BoostRoot" or "csrss" or "winlogon" or "dwm") return false; p.CloseMainWindow(); if (!p.WaitForExit(1500)) p.Kill(); return true; }
+        try { using var p = System.Diagnostics.Process.GetProcessById(pid); if (p.ProcessName is "explorer" or "BoostRoot" or "csrss" or "winlogon" or "dwm" || BoostRoot.Core.Boost.BoostOrchestrator.NeverClose.Contains(p.ProcessName.ToLowerInvariant())) return false; p.CloseMainWindow(); if (!p.WaitForExit(1500)) p.Kill(); return true; }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception) { return false; }
     }
 

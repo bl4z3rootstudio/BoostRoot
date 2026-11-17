@@ -53,6 +53,9 @@ public sealed class BoostOrchestrator(
         "vgc", "vgtray", "easyanticheat", "easyanticheat_eos", "beservice", "battleye", "faceit", "faceitservice",
         "splitwire", "goodbyedpi", "zapret", "winws", "byedpi", "boostroot", "boostroot.agent",
         "nvcontainer", "nvdisplay.container", "radeonsoftware", "amdrsserv", "atieclxx",
+        // Game launchers and their updaters: closing one mid-update can leave its files broken (e.g. Riot Client "JavaScript error").
+        "riot client", "riotclientservices", "riotclientux", "riotclientuxrender", "riotclientcrashhandler", "valorant", "valorant-win64-shipping",
+        "steamservice", "eabackgroundservice", "gamingservices",
     ];
 
     private static string Bare(string name) => Path.GetFileNameWithoutExtension(name).ToLowerInvariant();
