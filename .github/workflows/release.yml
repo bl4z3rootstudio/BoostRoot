@@ -39,6 +39,22 @@ jobs:
           $exe = Get-ChildItem pm -Filter "PresentMon-*-x64.exe" | Where-Object { $_.Name -notmatch 'Setup|Capture' } | Select-Object -First 1
           Copy-Item $exe.FullName publish/app/tools/PresentMon.exe
           Invoke-WebRequest https://raw.githubusercontent.com/GameTechDev/PresentMon/main/LICENSE.txt -OutFile publish/app/tools/PresentMon-LICENSE.txt
+      - name: Bundle ffmpeg (clips work without a download)
+        shell: pwsh
+        run: |
+          $base = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest"
+          $name = "ffmpeg-n7.1-latest-win64-gpl-7.1.zip"
+          Invoke-WebRequest "$base/$name" -OutFile ff.zip
+          $sums = (Invoke-WebRequest "$base/checksums.sha256").Content
+          $expected = (($sums -split "`n") | Where-Object { $_.TrimEnd().EndsWith($name) } | Select-Object -First 1).Split(' ')[0].Trim().ToLower()
+          $actual = (Get-FileHash ff.zip -Algorithm SHA256).Hash.ToLower()
+          if ($expected -ne $actual) { throw "ffmpeg checksum mismatch" }
+          Expand-Archive ff.zip -DestinationPath ff
+          New-Item -ItemType Directory -Force publish/app/tools/ffmpeg | Out-Null
+          $bin = Get-ChildItem ff -Recurse -Filter ffmpeg.exe | Select-Object -First 1
+          Copy-Item $bin.FullName publish/app/tools/ffmpeg/ffmpeg.exe
+          Get-ChildItem ff -Recurse -Filter LICENSE.txt | Select-Object -First 1 | Copy-Item -Destination publish/app/tools/ffmpeg/LICENSE.txt
+          "FFmpeg (GPL) by the FFmpeg developers, build from https://github.com/BtbN/FFmpeg-Builds. Source: https://ffmpeg.org/download.html" | Set-Content publish/app/tools/ffmpeg/README.txt
       - name: Remove debug symbols
         shell: pwsh
         run: Get-ChildItem publish/app -Recurse -Include *.pdb | Remove-Item

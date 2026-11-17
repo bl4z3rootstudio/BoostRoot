@@ -483,5 +483,20 @@
  "scan.lows": "%1 en düşük",
  "scan.measured": "Ölçüm",
  "scan.gainEmpty": "Henüz ölçüm yok. FPS Testi'nde bir oyunu Boost'tan önce ve sonra ölç; sonuç burada görünür.",
- "scan.measure": "FPS Testi'ne git"
+ "scan.measure": "FPS Testi'ne git",
+ "settings.clipFolderDefault": "Varsayılan: Videolar\\BoostRoot",
+ "settings.pickFolder": "Klasör seç",
+ "settings.defaultFolder": "Varsayılan",
+ "mon.cpuTemp": "İşlemci sıcaklığı",
+ "mon.cpuClock": "İşlemci hızı",
+ "mon.throttle": "İşlemci yavaşladı mı",
+ "mon.gpuTemp": "Ekran kartı sıcaklığı",
+ "mon.hotspot": "Ekran kartı en sıcak nokta",
+ "mon.gpuPower": "Ekran kartı gücü",
+ "mon.down": "İndirme",
+ "mon.up": "Yükleme",
+ "mon.diskFree": "C: boş alan",
+ "mon.uptime": "Açık kalma süresi",
+ "mon.yes": "Evet",
+ "mon.no": "Hayır"
 }

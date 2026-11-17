@@ -165,7 +165,13 @@
           <ToggleSwitch IsChecked="{Binding CrosshairEnabled}" Content="{Binding [settings.chEnabled], Source={x:Static loc:Loc.I}}" />
           <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
             <TextBlock VerticalAlignment="Center" Text="{Binding [settings.chColor], Source={x:Static loc:Loc.I}}" />
-            <TextBox Grid.Column="1" Width="140" Text="{Binding CrosshairColor}" />
+            <ItemsControl Grid.Column="1" ItemsSource="{Binding OverlayColors}" HorizontalAlignment="Right">
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String">
+                <Button Width="26" Height="26" Padding="0" CornerRadius="13" Background="{Binding}" BorderBrush="#40FFFFFF" BorderThickness="1"
+                        Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).SetCrosshairColorCommand}" CommandParameter="{Binding}" />
+              </DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
             <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="{Binding [settings.chSize], Source={x:Static loc:Loc.I}}" />
             <NumericUpDown Grid.Row="1" Grid.Column="1" Width="140" Minimum="0" Maximum="40" FormatString="0" Value="{Binding CrosshairSize}" />
             <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{Binding [settings.chThickness], Source={x:Static loc:Loc.I}}" />
@@ -196,7 +202,11 @@
             </ComboBox>
           </Grid>
           <TextBlock Text="{Binding [settings.clipFolder], Source={x:Static loc:Loc.I}}" />
-          <TextBox Text="{Binding ClipFolder}" />
+          <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+            <TextBox IsReadOnly="True" Text="{Binding ClipFolder}" PlaceholderText="{Binding [settings.clipFolderDefault], Source={x:Static loc:Loc.I}}" />
+            <Button Grid.Column="1" Classes="primary" Click="OnPickClipFolder" Content="{Binding [settings.pickFolder], Source={x:Static loc:Loc.I}}" />
+            <Button Grid.Column="2" Classes="ghost" Click="OnResetClipFolder" Content="{Binding [settings.defaultFolder], Source={x:Static loc:Loc.I}}" />
+          </Grid>
           <TextBlock Text="{Binding [settings.discord], Source={x:Static loc:Loc.I}}" />
           <TextBox Text="{Binding DiscordWebhook}" PasswordChar="•" />
           <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [settings.hotkeys], Source={x:Static loc:Loc.I}}" />

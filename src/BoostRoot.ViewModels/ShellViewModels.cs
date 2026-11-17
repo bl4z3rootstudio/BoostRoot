@@ -133,6 +133,7 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     [RelayCommand] public void UseSuggestedCap() { if (_services.MonitorHz > 0) FpsCap = BoostRoot.Core.Session.GameStats.SuggestedCap(_services.MonitorHz); }
     [RelayCommand] public void SetOverlayColor(string c) => OverlayColor = c;
+    [RelayCommand] public void SetCrosshairColor(string c) => CrosshairColor = c;
 
     /// <summary>Everything except personal paths/webhooks, as a short code to send to a friend.</summary>
     [RelayCommand]
@@ -378,15 +379,15 @@ public sealed partial class MainViewModel : ObservableObject
         Nav =
         [
             new("boost", "M13 2 4 14h7l-1 8 9-12h-7z", Home),
-            new("scan", "M3 3h18v14H3zM8 21h8M12 17v4", Scan),
-            new("fps", "M3 12h4l3 8 4-16 3 8h4", Fps),
-            new("stats", "M4 20V10M10 20V4M16 20v-8M22 20H2", Stats),
-            new("stress", "M12 2a7 7 0 0 0-4 12.7V18h8v-3.3A7 7 0 0 0 12 2zM9 22h6", Stress),
-            new("net", "M2 9a15 15 0 0 1 20 0M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M12 20h.01", Net),
+            new("scan", "M2 3h20v14H13v2h4v2H7v-2h4v-2H2zm2 2v10h16V5zm2 7h3v2H6zm5-3h3v5h-3zm5-2h2v7h-2z", Scan),
+            new("fps", "M2 13h4l2.5-6 4 12 3.5-9 1.5 3H22v2h-5.8L15 12.5 11.6 21 7.6 9.5 7.3 10.3 7 15H2z", Fps),
+            new("stats", "M11 2.05V13h10.95A10 10 0 1 1 11 2.05zM13 2.05A10 10 0 0 1 21.95 11H13z", Stats),
+            new("stress", "M13 2c.5 3-1.5 4.5-3 6.5-1.3 1.8-2 3.3-2 5.5a6 6 0 0 0 12 0c0-3-1.6-5.2-3-6.6 0 1.8-.8 3-2 3.6.4-3.5-.4-6.6-2-9zM12 22a3 3 0 0 1-3-3c0-1.6 1.2-2.6 2-3.5.3 1.2 1 1.8 1.8 2.2.4-.6.6-1.2.6-2 1 .9 1.6 2 1.6 3.3a3 3 0 0 1-3 3z", Stress),
+            new("net", "M12 4c4 0 7.6 1.6 10.3 4.2l-1.5 1.5A12.5 12.5 0 0 0 12 6a12.5 12.5 0 0 0-8.8 3.7L1.7 8.2A14.5 14.5 0 0 1 12 4zm0 5c2.6 0 5 1 6.7 2.8l-1.5 1.5A7.4 7.4 0 0 0 12 11a7.4 7.4 0 0 0-5.2 2.3l-1.5-1.5A9.4 9.4 0 0 1 12 9zm0 5c1.3 0 2.5.5 3.4 1.4L12 19l-3.4-3.6c.9-.9 2.1-1.4 3.4-1.4z", Net),
             new("clips", "M4 6h12v12H4zM16 10l5-3v10l-5-3", Clips),
             new("updates", "M11 3h2v10l3.5-3.5 1.4 1.4L12 16.8 6.1 10.9l1.4-1.4L11 13zM4 19h16v2H4z", Updates),
             new("monitor", "M3 21V10h4v11zm7 0V3h4v18zm7 0v-7h4v7z", Monitor),
-            new("tests", "M12 2a6 6 0 0 0-6 6v8a6 6 0 0 0 12 0V8a6 6 0 0 0-6-6z", Tests),
+            new("tests", "M11 2.1V9H5.1A7 7 0 0 1 11 2.1zm2 0A7 7 0 0 1 18.9 9H13zM5 11h14v4a7 7 0 0 1-14 0z", Tests),
             new("crosshair", "M11 2h2v7h-2zM11 15h2v7h-2zM2 11h7v2H2zM15 11h7v2h-7zM11 11h2v2h-2z", Crosshair),
             new("tools", "M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z", Tools),
             new("settings", "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z", Settings),

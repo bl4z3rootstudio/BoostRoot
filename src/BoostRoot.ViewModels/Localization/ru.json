@@ -644,5 +644,20 @@
  "scan.lows": "1% low",
  "scan.measured": "Измерено",
  "scan.gainEmpty": "Пока нет измерений. В тесте FPS измерьте игру до и после Boost — результат появится здесь.",
- "scan.measure": "Перейти к тесту FPS"
+ "scan.measure": "Перейти к тесту FPS",
+ "settings.clipFolderDefault": "По умолчанию: Видео\\BoostRoot",
+ "settings.pickFolder": "Выбрать папку",
+ "settings.defaultFolder": "По умолчанию",
+ "mon.cpuTemp": "Температура ЦП",
+ "mon.cpuClock": "Частота ЦП",
+ "mon.throttle": "Троттлинг ЦП",
+ "mon.gpuTemp": "Температура ГП",
+ "mon.hotspot": "Хотспот ГП",
+ "mon.gpuPower": "Мощность ГП",
+ "mon.down": "Загрузка",
+ "mon.up": "Отдача",
+ "mon.diskFree": "Свободно на C:",
+ "mon.uptime": "Время работы",
+ "mon.yes": "Да",
+ "mon.no": "Нет"
 }

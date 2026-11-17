@@ -57,7 +57,7 @@
       <Border Classes="card">
         <StackPanel Spacing="8">
           <StackPanel Orientation="Horizontal" Spacing="8">
-            <PathIcon Data="M3 12h4l3 8 4-16 3 8h4" Width="18" Height="18" Foreground="{StaticResource AccentLight}" />
+            <PathIcon Data="M2 13h4l2.5-6 4 12 3.5-9 1.5 3H22v2h-5.8L15 12.5 11.6 21 7.6 9.5 7.3 10.3 7 15H2z" Width="18" Height="18" Foreground="{StaticResource AccentLight}" />
             <TextBlock Classes="h2" Text="{Binding [scan.gainTitle], Source={x:Static loc:Loc.I}}" />
           </StackPanel>
           <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [scan.gainSub], Source={x:Static loc:Loc.I}}" />

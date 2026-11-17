@@ -181,7 +181,8 @@ public sealed class GameSession : IDisposable
             RecordPlaytime?.Invoke(pr.Id, _entry.DisplayName, st, DateTime.UtcNow);
             List<double> log;
             lock (_log) { log = [.. _log]; _log.Clear(); }
-            var stats = log.Count > 600 ? BoostRoot.Core.Fps.FrameStats.From(log) : null;
+            // Loading screens and alt-tab produce 250 ms+ frames that are not gameplay; leaving them in made "1% low" look terrible.
+            var stats = log.Count > 600 ? BoostRoot.Core.Fps.FrameStats.From([.. log.Where(ms => ms < 250)]) : null;
             if (stats is not null)
                 try { RecordFps?.Invoke(new(pr.Id, _entry.DisplayName, DateTime.UtcNow, "auto", stats)); } catch (Exception) { }
             var length = DateTime.UtcNow - st;

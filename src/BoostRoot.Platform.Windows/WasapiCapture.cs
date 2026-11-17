@@ -129,11 +129,13 @@ public sealed partial class WasapiCapture : IDisposable
     }
 }
 
-/// <summary>Runs ffmpeg (downloaded on demand to %LOCALAPPDATA%\BoostRoot\tools).</summary>
+/// <summary>Runs ffmpeg (bundled with the app; older installs download it to %LOCALAPPDATA%\BoostRoot\tools).</summary>
 public static class Ffmpeg
 {
     public static string Dir { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BoostRoot", "tools", "ffmpeg");
-    public static string Exe => Path.Combine(Dir, "ffmpeg.exe");
+    /// <summary>Shipped with the app since 26.11.14, so clips work without any download.</summary>
+    public static string Bundled { get; } = Path.Combine(AppContext.BaseDirectory, "tools", "ffmpeg", "ffmpeg.exe");
+    public static string Exe => File.Exists(Bundled) ? Bundled : Path.Combine(Dir, "ffmpeg.exe");
     public static bool Installed => File.Exists(Exe);
 
     public static Process Start(IReadOnlyList<string> args, bool stdin = false)
@@ -199,7 +201,7 @@ public static class Ffmpeg
             using (var archive = System.IO.Compression.ZipFile.OpenRead(zip))
             {
                 var entry = archive.Entries.First(e => e.FullName.EndsWith("bin/ffmpeg.exe", StringComparison.OrdinalIgnoreCase));
-                entry.ExtractToFile(Exe, true);
+                entry.ExtractToFile(Path.Combine(Dir, "ffmpeg.exe"), true);
                 var license = archive.Entries.FirstOrDefault(e => e.Name.Equals("LICENSE.txt", StringComparison.OrdinalIgnoreCase));
                 license?.ExtractToFile(Path.Combine(Dir, "LICENSE.txt"), true);
             }

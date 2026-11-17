@@ -639,5 +639,20 @@
  "scan.lows": "%1 ən aşağı",
  "scan.measured": "Ölçülüb",
  "scan.gainEmpty": "Hələ ölçmə yoxdur. FPS Testində oyunu Boost-dan əvvəl və sonra ölç; nəticə burada görünəcək.",
- "scan.measure": "FPS Testinə keç"
+ "scan.measure": "FPS Testinə keç",
+ "settings.clipFolderDefault": "Standart: Videolar\\BoostRoot",
+ "settings.pickFolder": "Qovluq seç",
+ "settings.defaultFolder": "Standart",
+ "mon.cpuTemp": "Prosessor temperaturu",
+ "mon.cpuClock": "Prosessor sürəti",
+ "mon.throttle": "Prosessor yavaşladı",
+ "mon.gpuTemp": "Ekran kartı temperaturu",
+ "mon.hotspot": "Ekran kartı ən isti nöqtə",
+ "mon.gpuPower": "Ekran kartı gücü",
+ "mon.down": "Endirmə",
+ "mon.up": "Yükləmə",
+ "mon.diskFree": "C: boş yer",
+ "mon.uptime": "İşləmə müddəti",
+ "mon.yes": "Bəli",
+ "mon.no": "Xeyr"
 }

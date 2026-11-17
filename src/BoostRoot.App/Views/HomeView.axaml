@@ -5,9 +5,11 @@
              xmlns:local="using:BoostRoot.App"
              x:Class="BoostRoot.App.Views.HomeView"
              x:DataType="vm:HomeViewModel">
-  <DockPanel>
+  <!-- One scroll for the whole page so the game grid always gets room, even in a small window. -->
+  <ScrollViewer>
+  <StackPanel>
     <!-- Hero -->
-    <Border DockPanel.Dock="Top" Background="{StaticResource Hero}" BorderBrush="#221E33" BorderThickness="0,0,0,1" Padding="48,24,48,32">
+    <Border Background="{StaticResource Hero}" BorderBrush="#221E33" BorderThickness="0,0,0,1" Padding="48,24,48,32">
       <Grid ColumnDefinitions="*,Auto">
         <StackPanel Spacing="12" VerticalAlignment="Center">
           <TextBlock Classes="eyebrow" Text="{Binding [home.selected], Source={x:Static loc:Loc.I}}" />
@@ -154,15 +156,14 @@
         <TextBox Grid.Column="2" Width="240" Margin="0,0,12,0" Text="{Binding SearchText}" PlaceholderText="{Binding [home.search], Source={x:Static loc:Loc.I}}" />
         <Button Grid.Column="3" Classes="ghost" Margin="0,0,12,0" Click="OnAddGame" ToolTip.Tip="{Binding [home.addGameTip], Source={x:Static loc:Loc.I}}">
           <StackPanel Orientation="Horizontal" Spacing="6">
-            <PathIcon Data="M12 5v14M5 12h14" Width="14" Height="14" />
+            <PathIcon Data="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z" Width="14" Height="14" />
             <TextBlock Text="{Binding [home.addGame], Source={x:Static loc:Loc.I}}" />
           </StackPanel>
         </Button>
         <ToggleSwitch Grid.Column="4" IsChecked="{Binding ShowAll}" OnContent="{Binding [home.showAll], Source={x:Static loc:Loc.I}}" OffContent="{Binding [home.showAll], Source={x:Static loc:Loc.I}}" />
       </Grid>
-      <ScrollViewer>
         <ItemsControl ItemsSource="{Binding Games}">
-          <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:GameCardViewModel">
               <Button Classes="cover" Classes.selected="{Binding IsSelected}" Classes.dim="{Binding !IsInstalled}" Margin="0,0,14,14"
@@ -197,7 +198,7 @@
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
-      </ScrollViewer>
     </DockPanel>
-  </DockPanel>
+  </StackPanel>
+  </ScrollViewer>
 </UserControl>

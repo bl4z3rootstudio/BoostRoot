@@ -637,5 +637,20 @@
  "scan.lows": "1 % bas",
  "scan.measured": "Mesuré",
  "scan.gainEmpty": "Pas encore de mesure. Dans le test FPS, mesurez un jeu avant et après Boost ; le résultat apparaîtra ici.",
- "scan.measure": "Aller au test FPS"
+ "scan.measure": "Aller au test FPS",
+ "settings.clipFolderDefault": "Par défaut : Vidéos\\BoostRoot",
+ "settings.pickFolder": "Choisir un dossier",
+ "settings.defaultFolder": "Par défaut",
+ "mon.cpuTemp": "Température CPU",
+ "mon.cpuClock": "Fréquence CPU",
+ "mon.throttle": "CPU bridé",
+ "mon.gpuTemp": "Température GPU",
+ "mon.hotspot": "Point chaud GPU",
+ "mon.gpuPower": "Puissance GPU",
+ "mon.down": "Réception",
+ "mon.up": "Envoi",
+ "mon.diskFree": "Libre sur C:",
+ "mon.uptime": "Temps allumé",
+ "mon.yes": "Oui",
+ "mon.no": "Non"
 }

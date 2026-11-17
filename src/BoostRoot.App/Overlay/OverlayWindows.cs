@@ -56,18 +56,20 @@ public sealed class StatsOverlay : OverlayWindowBase
     // Small 24x24 path icons (same style as the app's navigation icons).
     private static readonly Dictionary<string, string> IconData = new()
     {
-        ["fps"] = "M3 12h4l3 8 4-16 3 8h4",
-        ["low1"] = "M12 4v14M6 12l6 6 6-6",
-        ["cpu"] = "M6 6h12v12H6zM9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4",
-        ["cputemp"] = "M14 14.8V4a2 2 0 0 0-4 0v10.8a4 4 0 1 0 4 0z",
-        ["gpu"] = "M2 7h20v10H2zM6 17v3M18 17v3M7 12a2 2 0 1 0 4 0 2 2 0 1 0-4 0",
-        ["gputemp"] = "M14 14.8V4a2 2 0 0 0-4 0v10.8a4 4 0 1 0 4 0z",
-        ["vram"] = "M3 8h18v8H3zM7 8v8M11 8v8M15 8v8",
-        ["ram"] = "M3 8h18v8H3zM7 8v8M11 8v8M15 8v8",
-        ["clock"] = "M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zM12 7v5l3 3",
-        ["ping"] = "M2 9a15 15 0 0 1 20 0M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M12 20h.01",
-        ["time"] = "M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zM12 7v5h4",
+        // Filled shapes only (PathIcon fills, it does not stroke).
+        ["fps"] = "M2 13h4l2.5-6 4 12 3.5-9 1.5 3H22v2h-5.8L15 12.5 11.6 21 7.6 9.5 7.3 10.3 7 15H2z",
+        ["low1"] = "M11 3h2v13l4.5-4.5 1.4 1.4L12 19.8l-6.9-6.9 1.4-1.4L11 16z",
+        ["cpu"] = "M9 2h2v3h2V2h2v3h2a2 2 0 0 1 2 2v2h3v2h-3v2h3v2h-3v2a2 2 0 0 1-2 2h-2v3h-2v-3h-2v3H9v-3H7a2 2 0 0 1-2-2v-2H2v-2h3v-2H2V9h3V7a2 2 0 0 1 2-2h2zm0 7v6h6V9z",
+        ["cputemp"] = "M10 2h4v11.3a5 5 0 1 1-4 0zm1 12.2a3 3 0 1 0 2 0V4h-2z",
+        ["gpu"] = "M2 6h20v12h-4v3h-2v-3H8v3H6v-3H2zm6 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm8 1v4h3v-4z",
+        ["gputemp"] = "M10 2h4v11.3a5 5 0 1 1-4 0zm1 12.2a3 3 0 1 0 2 0V4h-2z",
+        ["vram"] = "M2 7h20v9H2zm3 2v5h2V9zm4 0v5h2V9zm4 0v5h2V9zm4 0v5h2V9zM4 17h2v2H4zm14 0h2v2h-2z",
+        ["ram"] = "M2 7h20v9H2zm3 2v5h2V9zm4 0v5h2V9zm4 0v5h2V9zm4 0v5h2V9zM4 17h2v2H4zm14 0h2v2h-2z",
+        ["clock"] = "M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm-1 3h2v5.6l3.7 3.7-1.4 1.4L11 13.4z",
+        ["ping"] = "M2 18h3v3H2zm5-4h3v7H7zm5-4h3v11h-3zm5-5h3v16h-3z",
+        ["time"] = "M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm-1 3h2v5h4v2h-6z",
     };
+
 
     private static readonly Dictionary<string, string> Labels = new()
     {

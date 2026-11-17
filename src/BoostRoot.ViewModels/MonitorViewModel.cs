@@ -59,6 +59,11 @@ public sealed partial class MonitorViewModel(IAppServices services, Func<AppSett
     [ObservableProperty] public partial string GpuText { get; set; } = "—";
     [ObservableProperty] public partial string TempText { get; set; } = "—";
     [ObservableProperty] public partial string RamText { get; set; } = "—";
+    /// <summary>Everything else the sensors know, as small tiles (updated with the charts).</summary>
+    public ObservableCollection<DetailTile> Details { get; } = [];
+    private long _rx = -1, _tx = -1;
+    private DateTime _netAt;
+    private int _procCount;
     [ObservableProperty] public partial bool AllOk { get; set; }
     [ObservableProperty] public partial string? Status { get; set; }
     private int _ticks;
@@ -76,7 +81,56 @@ public sealed partial class MonitorViewModel(IAppServices services, Func<AppSett
         GpuText = s.GpuLoad is { } g ? $"{g:0}%{(s.GpuClockMhz is { } gm ? $" · {gm:0} MHz" : "")}" : "—";
         TempText = s.GpuTempC is { } t ? $"{t:0}°C{(s.GpuHotspotC is { } h ? $" / {h:0}°C" : "")}" : "—";
         RamText = s.RamUsedPct is { } r ? $"{r:0}%" : "—";
-        if (_ticks++ % 3 == 0) RefreshProcesses();
+        UpdateDetails(s);
+        if (_ticks++ % 3 == 0) { RefreshProcesses(); try { _procCount = System.Diagnostics.Process.GetProcesses().Length; } catch (Exception) { } }
+    }
+
+    private void UpdateDetails(BoostRoot.Core.Monitoring.SensorSnapshot s)
+    {
+        static string N(double? v, string u) => v is { } d ? $"{d:0}{u}" : "—";
+        var (down, up) = NetSpeed();
+        string disk;
+        try { var d = new DriveInfo(Path.GetPathRoot(Environment.SystemDirectory) ?? "C:\\"); disk = d.IsReady ? $"{d.AvailableFreeSpace / 1_073_741_824.0:0} GB" : "—"; } catch (Exception) { disk = "—"; }
+        var up24 = TimeSpan.FromMilliseconds(Environment.TickCount64);
+        DetailTile[] tiles =
+        [
+            new(Loc.I["mon.cpuTemp"], N(s.CpuTempC, "°C"), s.CpuTempC >= 90),
+            new(Loc.I["mon.cpuClock"], N(s.CpuMhz, " MHz"), false),
+            new(Loc.I["mon.throttle"], s.CpuThrottled ? Loc.I["mon.yes"] : Loc.I["mon.no"], s.CpuThrottled),
+            new(Loc.I["mon.gpuTemp"], N(s.GpuTempC, "°C"), s.GpuTempC >= 85),
+            new(Loc.I["mon.hotspot"], N(s.GpuHotspotC, "°C"), s.GpuHotspotC >= 100),
+            new(Loc.I["mon.gpuPower"], N(s.GpuPowerW, " W"), false),
+            new("VRAM", N(s.VramUsedMb, " MB"), false),
+            new(Loc.I["mon.down"], down, false),
+            new(Loc.I["mon.up"], up, false),
+            new(Loc.I["mon.diskFree"], disk, false),
+            new(Loc.I["mon.uptime"], $"{(int)up24.TotalHours} sa {up24.Minutes} dk", up24.TotalDays > 7),
+            new(Loc.I["mon.procs"], _procCount > 0 ? _procCount.ToString(System.Globalization.CultureInfo.CurrentCulture) : "—", false),
+        ];
+        if (Details.Count != tiles.Length) { Details.Clear(); foreach (var t in tiles) Details.Add(t); }
+        else for (var i = 0; i < tiles.Length; i++) if (Details[i] != tiles[i]) Details[i] = tiles[i];
+    }
+
+    /// <summary>Download/upload speed of all active adapters since the last tick.</summary>
+    private (string Down, string Up) NetSpeed()
+    {
+        try
+        {
+            long rx = 0, tx = 0;
+            foreach (var n in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (n.OperationalStatus != System.Net.NetworkInformation.OperationalStatus.Up || n.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Loopback) continue;
+                var st = n.GetIPStatistics();
+                rx += st.BytesReceived; tx += st.BytesSent;
+            }
+            var now = DateTime.UtcNow;
+            var secs = (now - _netAt).TotalSeconds;
+            var res = _rx < 0 || secs <= 0 ? ("—", "—") : (Rate((rx - _rx) / secs), Rate((tx - _tx) / secs));
+            (_rx, _tx, _netAt) = (rx, tx, now);
+            return res;
+        }
+        catch (Exception) { return ("—", "—"); }
+        static string Rate(double bytesPerSec) => bytesPerSec * 8 >= 1_000_000 ? $"{bytesPerSec * 8 / 1_000_000:0.0} Mbps" : $"{bytesPerSec * 8 / 1000:0} Kbps";
     }
 
     [RelayCommand]
@@ -114,3 +168,5 @@ public sealed partial class MonitorViewModel(IAppServices services, Func<AppSett
         Status = Loc.I["mon.fixed"];
     }
 }
+
+public sealed record DetailTile(string Label, string Value, bool Warn);

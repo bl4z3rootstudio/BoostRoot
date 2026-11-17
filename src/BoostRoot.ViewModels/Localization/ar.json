@@ -645,5 +645,20 @@
  "scan.lows": "أدنى 1%",
  "scan.measured": "تم القياس",
  "scan.gainEmpty": "لا توجد قياسات بعد. في اختبار FPS قِس لعبة قبل Boost وبعده وستظهر النتيجة هنا.",
- "scan.measure": "الذهاب إلى اختبار FPS"
+ "scan.measure": "الذهاب إلى اختبار FPS",
+ "settings.clipFolderDefault": "الافتراضي: Videos\\BoostRoot",
+ "settings.pickFolder": "اختيار مجلد",
+ "settings.defaultFolder": "الافتراضي",
+ "mon.cpuTemp": "حرارة المعالج",
+ "mon.cpuClock": "سرعة المعالج",
+ "mon.throttle": "خنق المعالج",
+ "mon.gpuTemp": "حرارة كرت الشاشة",
+ "mon.hotspot": "أسخن نقطة في كرت الشاشة",
+ "mon.gpuPower": "طاقة كرت الشاشة",
+ "mon.down": "التنزيل",
+ "mon.up": "الرفع",
+ "mon.diskFree": "المساحة الحرة في C:",
+ "mon.uptime": "مدة التشغيل",
+ "mon.yes": "نعم",
+ "mon.no": "لا"
 }

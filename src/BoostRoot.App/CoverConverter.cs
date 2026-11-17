@@ -12,7 +12,8 @@ public sealed class CoverConverter : IValueConverter
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not string path || !File.Exists(path)) return null;
-        try { return new Bitmap(path); }
+        // Decode at card size (2x for HiDPI) instead of full 600x900+: far less memory with a big library.
+        try { using var f = File.OpenRead(path); return Bitmap.DecodeToWidth(f, 368); }
         catch (Exception ex) when (ex is IOException or ArgumentException or NotSupportedException) { return null; }
     }
 
