@@ -39,28 +39,6 @@ jobs:
           $exe = Get-ChildItem pm -Filter "PresentMon-*-x64.exe" | Where-Object { $_.Name -notmatch 'Setup|Capture' } | Select-Object -First 1
           Copy-Item $exe.FullName publish/app/tools/PresentMon.exe
           Invoke-WebRequest https://raw.githubusercontent.com/GameTechDev/PresentMon/main/LICENSE.txt -OutFile publish/app/tools/PresentMon-LICENSE.txt
-      - name: Bundle ffmpeg (clips work without a download)
-        shell: pwsh
-        run: |
-          $base = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest"
-          Invoke-WebRequest "$base/checksums.sha256" -OutFile sums.txt
-          $lines = Get-Content sums.txt
-          $found = $null
-          foreach ($name in @("ffmpeg-n8.0-latest-win64-gpl-8.0.zip", "ffmpeg-n7.1-latest-win64-gpl-7.1.zip", "ffmpeg-master-latest-win64-gpl.zip")) {
-            $line = $lines | Where-Object { $_.TrimEnd().EndsWith($name) } | Select-Object -First 1
-            if ($line) { $found = $name; $expected = ($line -split '\s+')[0].Trim().ToLower(); break }
-          }
-          if (-not $found) { throw "no ffmpeg build listed" }
-          Write-Host "ffmpeg build: $found"
-          Invoke-WebRequest "$base/$found" -OutFile ff.zip
-          $actual = (Get-FileHash ff.zip -Algorithm SHA256).Hash.ToLower()
-          if ($expected -ne $actual) { throw "ffmpeg checksum mismatch: $expected vs $actual" }
-          Expand-Archive ff.zip -DestinationPath ff
-          New-Item -ItemType Directory -Force publish/app/tools/ffmpeg | Out-Null
-          $bin = Get-ChildItem ff -Recurse -Filter ffmpeg.exe | Select-Object -First 1
-          Copy-Item $bin.FullName publish/app/tools/ffmpeg/ffmpeg.exe
-          Get-ChildItem ff -Recurse -Filter LICENSE.txt | Select-Object -First 1 | Copy-Item -Destination publish/app/tools/ffmpeg/LICENSE.txt
-          "FFmpeg (GPL) by the FFmpeg developers, build from https://github.com/BtbN/FFmpeg-Builds. Source: https://ffmpeg.org/download.html" | Set-Content publish/app/tools/ffmpeg/README.txt
       - name: Remove debug symbols
         shell: pwsh
         run: Get-ChildItem publish/app -Recurse -Include *.pdb | Remove-Item
@@ -72,8 +50,6 @@ jobs:
         shell: pwsh
         run: |
           $v = "${{ steps.v.outputs.version }}"
-          # Portable zip stays small (no ffmpeg): old in-app updaters cut downloads at 30 s. The app fetches ffmpeg itself.
-          Remove-Item publish/app/tools/ffmpeg -Recurse -Force -ErrorAction SilentlyContinue
           Compress-Archive -Path publish/app/* -DestinationPath publish/BoostRoot-Portable-$v.zip
           Push-Location publish
           $lines = Get-ChildItem -File -Path *.exe,*.zip | ForEach-Object { "$((Get-FileHash $_ -Algorithm SHA256).Hash.ToLower())  $($_.Name)" }
