@@ -24,6 +24,10 @@ var _viewmodel: Node3D
 var _kick := 0.0
 var _rng := RandomNumberGenerator.new()
 var _bob := 0.0
+var _flash: OmniLight3D
+var _flash_mesh: MeshInstance3D
+var _tracer: MeshInstance3D
+var _fx_t := 0.0
 
 func _ready() -> void:
 	_rng.randomize()
@@ -45,6 +49,7 @@ func _ready() -> void:
 	add_child(cam)
 	cam.current = true
 	_build_viewmodel()
+	_build_fx()
 	ammo = int(weapon()["mag"])
 
 func weapon() -> Dictionary:
@@ -79,6 +84,64 @@ func _build_viewmodel() -> void:
 		mi.material_override = p[2]
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		_viewmodel.add_child(mi)
+
+func _build_fx() -> void:
+	_flash = OmniLight3D.new()
+	_flash.light_color = Color(1.0, 0.75, 0.4)
+	_flash.light_energy = 0.0
+	_flash.omni_range = 4.0
+	_flash.shadow_enabled = false
+	_viewmodel.add_child(_flash)
+	_flash.position = Vector3(0, 0.01, -0.55)
+	_flash_mesh = MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2(0.12, 0.12)
+	_flash_mesh.mesh = q
+	var fm := StandardMaterial3D.new()
+	fm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	fm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	fm.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	fm.albedo_color = Color(1.0, 0.7, 0.3, 0.9)
+	fm.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	_flash_mesh.material_override = fm
+	_flash_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_flash_mesh.visible = false
+	_viewmodel.add_child(_flash_mesh)
+	_flash_mesh.position = Vector3(0, 0.01, -0.52)
+	_tracer = MeshInstance3D.new()
+	var c := CylinderMesh.new()
+	c.top_radius = 0.006
+	c.bottom_radius = 0.006
+	c.height = 1.0
+	c.radial_segments = 4
+	c.rings = 1
+	_tracer.mesh = c
+	var tm := StandardMaterial3D.new()
+	tm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	tm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	tm.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	tm.albedo_color = Color(1.0, 0.85, 0.55, 0.55)
+	_tracer.material_override = tm
+	_tracer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_tracer.top_level = true
+	_tracer.visible = false
+	add_child(_tracer)
+
+## Muzzle flash + a short tracer from the gun to where the bullet landed (visual only).
+func _show_fx(to: Vector3) -> void:
+	_fx_t = 0.045
+	_flash.light_energy = 2.5
+	_flash_mesh.visible = true
+	_flash_mesh.rotation.z = _rng.randf() * TAU
+	var from := _flash_mesh.global_position
+	var mid := (from + to) * 0.5
+	var len := from.distance_to(to)
+	if len > 0.5:
+		_tracer.global_transform = Transform3D(Basis(), mid)
+		_tracer.look_at(to, Vector3.UP if absf((to - from).normalized().y) < 0.99 else Vector3.RIGHT)
+		_tracer.rotate_object_local(Vector3.RIGHT, PI / 2.0)
+		_tracer.scale = Vector3(1, len, 1)
+		_tracer.visible = true
 
 func set_look(y: float, p: float) -> void:
 	yaw = y
@@ -188,6 +251,12 @@ func _process(delta: float) -> void:
 		fire()
 	if can_shoot and Input.is_physical_key_pressed(KEY_R) and reloading <= 0.0 and ammo < int(weapon()["mag"]):
 		reloading = float(weapon()["reload"])
+	if _fx_t > 0.0:
+		_fx_t -= delta
+		if _fx_t <= 0.0:
+			_flash.light_energy = 0.0
+			_flash_mesh.visible = false
+			_tracer.visible = false
 	# Viewmodel: recoil kick + gentle walk bob (purely visual, bullets come from the crosshair).
 	_kick = move_toward(_kick, 0.0, delta * 6.0)
 	_bob += delta * speed_frac() * 9.0
@@ -233,4 +302,5 @@ func fire() -> void:
 		res["point"] = hit.position
 	elif hit:
 		res["point"] = hit.position
+	_show_fx(res["point"])
 	shot.emit(res)

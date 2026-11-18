@@ -69,7 +69,7 @@ func build() -> void:
 		lbl.font_size = 96
 		lbl.pixel_size = 0.012
 		lbl.modulate = Color(0.55, 0.95, 0.9, 0.55)
-		lbl.rotation_degrees = Vector3(-90, 0, 180)
+		lbl.basis = Basis(Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3(0, 1, 0))  # lying on the floor, readable from the spawn
 		lbl.position = Vector3(0, 0.02, -d)
 		lbl.shaded = false
 		add_child(lbl)

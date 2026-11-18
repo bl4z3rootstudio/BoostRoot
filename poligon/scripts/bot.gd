@@ -46,8 +46,15 @@ static func _mat(key: String, color: Color, outline := false) -> StandardMateria
 
 func _ready() -> void:
 	_rng.randomize()
-	var body_col := Color(0.16, 0.17, 0.21)
-	var accent := Color(0.95, 0.27, 0.33)
+	var palettes := [
+		[Color(0.16, 0.17, 0.21), Color(0.95, 0.27, 0.33)],
+		[Color(0.2, 0.18, 0.24), Color(0.62, 0.42, 0.98)],
+		[Color(0.18, 0.2, 0.19), Color(0.98, 0.6, 0.22)],
+		[Color(0.22, 0.2, 0.18), Color(0.3, 0.85, 0.95)],
+	]
+	var pal: Array = palettes[_rng.randi() % palettes.size()]
+	var body_col: Color = pal[0]
+	var accent: Color = pal[1]
 	hp = int(Settings.game().get("hp", 150))
 	var head_y: float = Settings.game().get("head_y", 1.6)
 	var head_r: float = Settings.game().get("head_r", 0.125)
@@ -59,6 +66,11 @@ func _ready() -> void:
 	_part(_box(Vector3(0.5, 0.12, 0.24)), Vector3(0, 1.38, 0), body_col)
 	for sx in [-0.29, 0.29]:
 		_part(_capsule(0.06, 0.62), Vector3(sx, 1.1, 0.02), body_col)
+	# Boots, belt, shoulder pads
+	for sx in [-0.11, 0.11]:
+		_part(_box(Vector3(0.13, 0.1, 0.24)), Vector3(sx, 0.05, 0.03), Color(0.08, 0.08, 0.1))
+		_part(_box(Vector3(0.14, 0.08, 0.2)), Vector3(sx * 2.6, 1.42, 0), accent, false)
+	_part(_box(Vector3(0.42, 0.07, 0.3)), Vector3(0, 0.84, 0), Color(0.1, 0.1, 0.12))
 	# Chest stripe (team colour, readable at range)
 	_part(_box(Vector3(0.3, 0.05, 0.02)), Vector3(0, 1.25, 0.17), accent, false)
 	# Neck + head + visor
@@ -68,6 +80,8 @@ func _ready() -> void:
 	head.height = head_r * 2.0
 	_part(head, Vector3(0, head_y, 0), Color(0.22, 0.23, 0.28))
 	_part(_box(Vector3(head_r * 1.5, head_r * 0.45, 0.03)), Vector3(0, head_y + 0.01, head_r * 0.85), accent, false)
+	# Hair / cap tuft so the head reads as a head from every side
+	_part(_box(Vector3(head_r * 1.2, head_r * 0.35, head_r * 1.4)), Vector3(0, head_y + head_r * 0.8, -0.01), accent.darkened(0.35), false)
 	# Hitboxes
 	_hitbox("head", _sphere_shape(head_r), Vector3(0, head_y, 0))
 	_hitbox("body", _capsule_shape(0.24, 0.8), Vector3(0, 1.12, 0))
