@@ -20,6 +20,8 @@ var strafe_dir := 1.0
 var strafe_center := Vector3.ZERO
 var strafe_width := 2.0
 var strafe_timer := 0.0
+var jiggles := 0              # peek-and-pull-back repeats before committing (jiggle peek)
+var _hold := 0.0
 var _flash := 0.0
 var _mats: Array[StandardMaterial3D] = []
 var _rng := RandomNumberGenerator.new()
@@ -193,8 +195,19 @@ func _physics_process(delta: float) -> void:
 		var len := path_from.distance_to(path_to)
 		move_t = 1.0 if len < 0.001 else minf(1.0, move_t + move_speed * delta / len)
 		global_position = path_from.lerp(path_to, move_t)
+		if move_t >= 1.0 and jiggles > 0:
+			# Jiggle: pull back behind cover, then come out again.
+			jiggles -= 1
+			var back := path_from
+			path_from = path_to
+			path_to = back
+			_hold = _rng.randf_range(0.12, 0.3)
 		if move_t >= 1.0 and _rng.randf() < 0.25:
 			Sfx.play_at("step", get_parent(), global_position, -12.0)
+	elif _hold > 0.0:
+		_hold -= delta
+		if _hold <= 0.0:
+			move_t = 0.0
 	elif strafe:
 		strafe_timer -= delta
 		if strafe_timer <= 0.0:

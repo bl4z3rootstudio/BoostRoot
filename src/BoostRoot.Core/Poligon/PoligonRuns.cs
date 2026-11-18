@@ -18,6 +18,8 @@ public static class PoligonRuns
         ["strafe"] = ("A-D Düellosu", "A-D Duel"),
         ["counter"] = ("Karşı-Strafe", "Counter-Strafe"),
         ["placement"] = ("Nişan Yüksekliği", "Crosshair Placement"),
+        ["dm"] = ("Ölüm Maçı", "Deathmatch"),
+        ["warmup"] = ("Maç Öncesi Isınma", "Pre-match Warm-up"),
         ["free"] = ("Serbest Poligon", "Free Range"),
     };
 
@@ -53,7 +55,7 @@ public static class PoligonRuns
             return (g.Key, g.Max(r => r.Score), ordered[^1].Score, ordered.Count, withReact.Count > 0 ? withReact.Average(r => r.AvgReactionMs) : 0, recent.Average(r => r.Accuracy));
         }).OrderBy(x => Array.IndexOf(Order, x.Key))];
 
-    private static readonly string[] Order = ["duel", "flick", "micro", "turn", "strafe", "counter", "placement"];
+    private static readonly string[] Order = ["warmup", "duel", "dm", "flick", "micro", "turn", "strafe", "counter", "placement"];
 }
 
 /// <summary>Reads the player's real VALORANT settings so the range matches without typing anything.</summary>

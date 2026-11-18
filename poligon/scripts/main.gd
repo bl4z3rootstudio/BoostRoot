@@ -25,6 +25,10 @@ var reactions: Array[float] = []
 var placement_errs: Array[float] = []
 var stop_times: Array[float] = []
 var died := false
+var deaths := 0
+## Warm-up routine: remaining drill ids, and per-drill results collected so far.
+var routine: Array[String] = []
+var routine_results: Array[Dictionary] = []
 var _free_slots: Array[Vector3] = []
 
 # ---- UI ----
@@ -119,15 +123,28 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # =====================================================================  drill flow
 
-func _start(id: String) -> void:
+func _start(id: String, from_routine := false) -> void:
+	if id == "warmup":
+		routine = ["flick", "micro", "strafe", "duel"]
+		routine_results.clear()
+		_start(routine.pop_front(), true)
+		selected_drill = "warmup"
+		_select_routine_drill()
+		return
+	if not from_routine:
+		routine.clear()
 	selected_drill = id
-	drill = Drills.get_drill(id)
+	drill = Drills.get_drill(id).duplicate()
+	if from_routine:
+		drill["timed"] = true
+		drill.erase("rounds")
 	_clear_bots()
 	kills = 0; shots = 0; hits = 0; heads = 0; moving_shots = 0; rounds = 0
 	reactions.clear(); placement_errs.clear(); stop_times.clear()
 	died = false
+	deaths = 0
 	elapsed = 0.0
-	time_left = float(Settings.data["duration"]) if drill.get("timed", false) else 0.0
+	time_left = (30.0 if from_routine else float(Settings.data["duration"])) if drill.get("timed", false) else 0.0
 	countdown = 3.0
 	player.global_position = Vector3.ZERO
 	player.velocity = Vector3.ZERO
@@ -135,7 +152,7 @@ func _start(id: String) -> void:
 	player.ammo = int(player.weapon()["mag"])
 	player.reloading = 0.0
 	player.can_shoot = false
-	player.can_move = id in ["counter", "free", "strafe", "flick", "micro"]
+	player.can_move = id in ["counter", "free", "strafe", "flick", "micro", "dm"]
 	xhair.set_code(String(Settings.data["xhair"]))
 	speed_bar.visible = id == "counter"
 	speed_lbl.visible = id == "counter"
@@ -174,7 +191,7 @@ func _process(delta: float) -> void:
 		lbl_sub.text = String(drill["name"])
 		if countdown <= 0.0:
 			player.can_shoot = true
-			player.can_move = true if selected_drill in ["counter", "free", "strafe", "flick", "micro"] else player.can_move
+			player.can_move = true if _cur() in ["counter", "free", "strafe", "flick", "micro", "dm"] else player.can_move
 			_msg(0.5)
 			next_spawn_ms = Time.get_ticks_msec() + 300
 		_update_hud()
@@ -203,7 +220,11 @@ func _tick_drill() -> void:
 		if b.deadline_ms > 0 and now - int(b.spawned_at) > b.deadline_ms:
 			_enemy_shoots(b)
 			return
-	match selected_drill:
+	match _cur():
+		"dm":
+			while bots.size() < 2 and now >= next_spawn_ms:
+				_spawn_peek(Settings.react_ms(), 1.0)
+				next_spawn_ms = now + rng.randi_range(350, 1100)
 		"duel":
 			if bots.is_empty() and now >= next_spawn_ms:
 				_spawn_peek(Settings.react_ms(), 1.0)
@@ -251,10 +272,19 @@ func _tick_drill() -> void:
 		"free":
 			pass
 
+## Drill id that is actually running (inside the warm-up routine this is the current step).
+var _routine_step := ""
+func _cur() -> String:
+	return _routine_step if selected_drill == "warmup" else selected_drill
+
+func _select_routine_drill() -> void:
+	_routine_step = String(drill["id"])
+	lbl_sub.text = "Isınma: " + String(drill["name"])
+
 func _new_bot(deadline: int) -> Bot:
 	var b := Bot.new()
 	add_child(b)
-	b.deadline_ms = deadline if (deadline > 0 and selected_drill != "free") else 0
+	b.deadline_ms = deadline if (deadline > 0 and _cur() != "free") else 0
 	b.spawned_at = Time.get_ticks_msec()
 	b.died.connect(_on_bot_died)
 	bots.append(b)
@@ -263,9 +293,12 @@ func _new_bot(deadline: int) -> Bot:
 ## Peek out from a random cover (duel / placement).
 func _spawn_peek(deadline: int, _speed_mult: float) -> Bot:
 	var pts: Array[Vector3] = []
+	# Real peeks vary: normal swing, wide swing, jiggle, crouch peek.
+	var kind := rng.randi() % 5 if _cur() in ["duel", "dm"] else 0
+	var step := rng.randf_range(1.6, 2.6) if kind == 1 else rng.randf_range(0.7, 1.4)
 	for attempt in 12:
 		var c: Dictionary = world.covers[rng.randi() % world.covers.size()]
-		pts = world.peek_points(c, player.global_position, rng.randf() < 0.5, rng.randf_range(0.7, 1.4))
+		pts = world.peek_points(c, player.global_position, rng.randf() < 0.5, step)
 		# Only peeks that end fully visible and start fully hidden.
 		if _visible(pts[1] + Vector3(0, 1.6, 0)) and not _visible(pts[0] + Vector3(0, 1.6, 0)):
 			break
@@ -273,6 +306,10 @@ func _spawn_peek(deadline: int, _speed_mult: float) -> Bot:
 	var speed := float(Settings.game()["run"]) * float(Settings.data["bot_speed"])
 	b.peek(pts[0], pts[1], speed)
 	b.face(player.global_position)
+	if kind == 2:
+		b.jiggles = 2
+	elif kind == 3:
+		b.scale = Vector3(1.0, 0.72, 1.0)   # crouch peek: head lower than you expect
 	# The clock starts when the enemy clears the edge of the cover, not while it is still hidden.
 	b.spawned_at = Time.get_ticks_msec() + int(0.4 / speed * 1000.0)
 	return b
@@ -323,7 +360,7 @@ func _on_shot(res: Dictionary) -> void:
 	hits += 1
 	if part == "head":
 		heads += 1
-	if bool(Settings.data["headshot_only"]) and part != "head" and selected_drill != "free":
+	if bool(Settings.data["headshot_only"]) and part != "head" and _cur() != "free":
 		Sfx.play("body", -10.0)
 		return
 	b.hit(part, player.weapon())
@@ -336,16 +373,16 @@ func _on_shot(res: Dictionary) -> void:
 func _on_bot_died(b: Bot) -> void:
 	kills += 1
 	var t := float(Time.get_ticks_msec() - int(b.spawned_at))
-	if selected_drill != "free" and selected_drill != "counter":
+	if _cur() != "free" and _cur() != "counter":
 		reactions.append(t)
 	Sfx.play("kill", -8.0)
 	var gap := {"duel": rng.randi_range(600, 1800), "placement": rng.randi_range(700, 1600), "turn": rng.randi_range(700, 1500),
-		"strafe": 450, "flick": 60, "micro": 40, "counter": 200}
-	next_spawn_ms = Time.get_ticks_msec() + int(gap.get(selected_drill, 300))
-	if selected_drill == "free":
+		"strafe": 450, "flick": 60, "micro": 40, "counter": 200, "dm": 500}
+	next_spawn_ms = Time.get_ticks_msec() + int(gap.get(_cur(), 300))
+	if _cur() == "free":
 		var pos := b.global_position
 		get_tree().create_timer(1.2).timeout.connect(func() -> void:
-			if state == State.PLAYING and selected_drill == "free":
+			if state == State.PLAYING and _cur() == "free":
 				_spawn_static(Vector3(pos.x, 0, pos.z), 0))
 
 var _impacts: Array[MeshInstance3D] = []
@@ -381,11 +418,12 @@ func _impact(p: Vector3, on_bot: bool) -> void:
 func _enemy_shoots(b: Bot) -> void:
 	Sfx.play("enemy", -2.0)
 	_vig_t = 0.6
-	if selected_drill == "duel" and bool(Settings.data["survival"]):
+	if _cur() == "duel" and bool(Settings.data["survival"]) and selected_drill != "warmup":
 		died = true
 		_finish("ÖLDÜN — %d ms içinde vuramadın" % Settings.react_ms())
 		return
 	# Not survival: count as a miss and move on.
+	deaths += 1
 	b.alive = false
 	b.queue_free()
 	bots.erase(b)
@@ -420,18 +458,47 @@ func _finish(reason := "") -> void:
 	for r in reactions:
 		speed_bonus += maxf(0.0, 1000.0 - r) / 10.0
 	var score := roundf(kills * 100.0 * (0.5 + 0.5 * acc) + speed_bonus)
-	if selected_drill == "placement" and not placement_errs.is_empty():
+	if _cur() == "placement" and not placement_errs.is_empty():
 		score = roundf(score * clampf(1.5 - _avg(placement_errs) / 20.0, 0.5, 1.5))
+	if deaths > 0:
+		score = maxf(0.0, score - deaths * 100.0)
 	var r := {
-		"drill": selected_drill, "game": Settings.data["game"], "sens": Settings.sens(), "score": score,
+		"drill": _cur(), "deaths": deaths, "game": Settings.data["game"], "sens": Settings.sens(), "score": score,
 		"kills": kills, "shots": shots, "hits": hits, "heads": heads, "acc": snappedf(acc, 0.001), "hs": snappedf(hs, 0.001),
 		"avg_react": roundf(avg_r), "died": died, "ts": int(Time.get_unix_time_from_system()), "stretched": Settings.data["stretched"],
 		"placement": snappedf(_avg(placement_errs), 0.01), "stop_ms": roundf(_avg(stop_times)), "moving_shots": moving_shots,
 		"seconds": roundf(elapsed),
 	}
+	_clear_bots()
+	if selected_drill == "warmup":
+		routine_results.append(r)
+		if not routine.is_empty():
+			# Next step of the warm-up straight away.
+			state = State.PLAYING
+			_start(routine.pop_front(), true)
+			selected_drill = "warmup"
+			_select_routine_drill()
+			return
+		# Whole routine done: one combined result.
+		r = {"drill": "warmup", "game": Settings.data["game"], "sens": Settings.sens(), "score": 0.0, "kills": 0, "shots": 0, "hits": 0, "heads": 0,
+			"ts": int(Time.get_unix_time_from_system()), "died": false, "deaths": 0}
+		var reacts: Array[float] = []
+		for x in routine_results:
+			for k in ["score", "kills", "shots", "hits", "heads", "deaths"]:
+				r[k] = float(r[k]) + float(x.get(k, 0))
+			if float(x.get("avg_react", 0)) > 0:
+				reacts.append(float(x["avg_react"]))
+		r["acc"] = snappedf(r["hits"] / r["shots"], 0.001) if r["shots"] > 0 else 0.0
+		r["hs"] = snappedf(r["heads"] / r["hits"], 0.001) if r["hits"] > 0 else 0.0
+		r["avg_react"] = roundf(_avg(reacts))
+		score = r["score"]; kills = int(r["kills"]); shots = int(r["shots"]); hits = int(r["hits"]); heads = int(r["heads"])
+		acc = r["acc"]; hs = r["hs"]; avg_r = r["avg_react"]
+		drill = Drills.get_drill("warmup")
+		reactions.clear()
+		if avg_r > 0:
+			reactions.append(avg_r)
 	var prev := Settings.best(selected_drill)
 	var is_best := Settings.add_result(r) if (kills > 0 or selected_drill != "free") else false
-	_clear_bots()
 	var t := "[center][font_size=46][b]%s[/b][/font_size]\n" % String(drill["name"])
 	if reason != "":
 		t += "[color=#ff5c63][font_size=26]%s[/font_size][/color]\n" % reason
@@ -444,6 +511,11 @@ func _finish(reason := "") -> void:
 		t += "[font_size=24]Nişan kafaya ortalama [b]%.1f°[/b] uzaktı  (%s)[/font_size]\n" % [_avg(placement_errs), "çok iyi" if _avg(placement_errs) < 4 else ("iyi" if _avg(placement_errs) < 9 else "nişanı kafa hizasında tut")]
 	if not stop_times.is_empty():
 		t += "[font_size=24]Ortalama durma süresi: [b]%d ms[/b]  (Riot ölçümü: karşı-strafe ile ~104 ms)[/font_size]\n" % roundi(_avg(stop_times))
+	if selected_drill == "warmup":
+		for x in routine_results:
+			t += "[font_size=20]%s: [b]%d[/b] puan · %d öldürme · %%%d isabet[/font_size]\n" % [Drills.get_drill(String(x["drill"]))["name"], int(x["score"]), int(x["kills"]), roundi(float(x["acc"]) * 100)]
+	if deaths > 0 and selected_drill == "dm":
+		t += "[font_size=22][color=#ff5c63]%d kez vuruldun (-%d puan)[/color][/font_size]\n" % [deaths, deaths * 100]
 	if moving_shots > 0:
 		t += "[font_size=22][color=#ffb347]Hareket ederken %d mermi attın — bunlar isabetsiz gider.[/color][/font_size]\n" % moving_shots
 	t += "\n[font_size=20][color=#9aa0b4]Boşluk: tekrar   ·   Esc: menü[/color][/font_size][/center]"
@@ -489,6 +561,7 @@ func _show_menu() -> void:
 	player.can_shoot = false
 	player.global_position = Vector3.ZERO
 	player.set_look(0, 0)
+	player.cam.get_child(0).visible = false
 	_select_drill(selected_drill)
 
 func _msg(seconds: float, big := "", small := "") -> void:
@@ -504,7 +577,7 @@ func _update_hud() -> void:
 	elif drill.has("rounds"):
 		lbl_top.text = "%d / %d" % [rounds, int(drill["rounds"])]
 	else:
-		lbl_top.text = "SERİ %d" % kills if selected_drill == "duel" else "%d" % kills
+		lbl_top.text = "SERİ %d" % kills if _cur() == "duel" else "%d" % kills
 	lbl_left.text = "Öldürme %d\nİsabet %%%d\nHS %%%d" % [kills, roundi(acc), roundi(float(heads) / hits * 100.0) if hits > 0 else 0]
 	var r := ""
 	if not reactions.is_empty():
@@ -1006,6 +1079,17 @@ func _selftest() -> void:
 		if state == State.PLAYING:
 			_finish()
 		print("drill ", id, " kills=", kills, " shots=", shots, " heads=", heads)
+	# 3b) Warm-up routine walks through all four steps and ends with one combined result.
+	_start("warmup")
+	var steps := [_cur()]
+	for i in 3:
+		_finish()
+		steps.append(_cur())
+	if state != State.PLAYING or steps != ["flick", "micro", "strafe", "duel"]:
+		fails.append("warmup steps %s" % str(steps))
+	_finish()
+	if state != State.RESULTS or routine_results.size() != 4:
+		fails.append("warmup end state=%d results=%d" % [state, routine_results.size()])
 	# 4) Movement accuracy: still = accurate first shots, running = mostly misses (like the game).
 	_start("free")
 	countdown = 0.01
