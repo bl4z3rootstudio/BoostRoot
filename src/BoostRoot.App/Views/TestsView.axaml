@@ -23,6 +23,8 @@
               </Button>
             </Panel>
             <TextBlock Classes="muted"><Run Text="{Binding [tests.clicks], Source={x:Static loc:Loc.I}}" /><Run Text=": " /><Run Text="{Binding Clicks}" Foreground="{StaticResource Text}" /></TextBlock>
+            <TextBlock Foreground="{StaticResource Bad}" TextWrapping="Wrap" Text="{Binding ChatterText}" IsVisible="{Binding ChatterBad}" />
+            <TextBlock Foreground="{StaticResource Good}" TextWrapping="Wrap" Text="{Binding ChatterText}" IsVisible="{Binding !ChatterBad}" />
           </StackPanel>
         </Border>
         <Border Grid.Column="1" Classes="card">
@@ -36,6 +38,16 @@
           </StackPanel>
         </Border>
       </Grid>
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="h2" Text="{Binding [tests.reaction], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [tests.reactionHow], Source={x:Static loc:Loc.I}}" />
+          <Border x:Name="ReactionPad" Height="170" CornerRadius="12" Background="{StaticResource Surface2}" Cursor="Hand">
+            <TextBlock x:Name="ReactionLabel" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="26" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap" Text="{Binding ReactionText}" />
+          </Border>
+          <TextBlock Classes="muted" Text="{Binding ReactionStats}" />
+        </StackPanel>
+      </Border>
       <Border Classes="card">
         <StackPanel Spacing="10">
           <Grid ColumnDefinitions="*,Auto">

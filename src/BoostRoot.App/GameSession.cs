@@ -51,6 +51,7 @@ public sealed class GameSession : IDisposable
     private IReadOnlyList<string> _pausedServices = [];
     public Func<IReadOnlyList<string>, bool>? RaisePriority { get; set; }
     private readonly IReadOnlyList<string> _names;
+    private IReadOnlyList<BackgroundEco.Changed> _eco = [];
 
     public GameSession(CatalogEntry entry, AppSettings settings, ISensors sensors, Func<IReadOnlyList<string>, bool> isRunning, Func<IReadOnlyList<string>, IFrameSource> frames, IClipRecorder? clips)
     {
@@ -146,9 +147,10 @@ public sealed class GameSession : IDisposable
         try { RaisePriority?.Invoke(_names); } catch (Exception) { }
         if (_settings.PauseDownloads || _settings.NetBoost) _ = Task.Run(() => _pausedServices = BackgroundDownloads.Pause());
         if (_settings.NetBoost) _ = Task.Run(NetBoostStart);
+        if (_settings.EcoBackground) _ = Task.Run(() => _eco = BackgroundEco.Apply(_names));
         _gameStarted = true;
         // Pure boost: nothing keeps running while you play except the cheap "is the game still open" check (for auto undo).
-        if (_settings.PureBoost) return;
+        if (_settings.PureBoost) { _ = Task.Run(() => RamCleaner.ShrinkSelf(true)); return; }
         _frames = _startFrames();
         _frames.Frame += _fps.Add;
         _frames.Frame += ms =>
@@ -204,6 +206,8 @@ public sealed class GameSession : IDisposable
         _clips?.StopAll();
         if (_stretched) DisplayChanger.Restore();
         if (_timerRes) TimerResolution.Release();
+        if (_settings.PureBoost && _gameStarted) RamCleaner.ShrinkSelf(false);
+        if (_eco.Count > 0) { var eco = _eco; _eco = []; _ = Task.Run(() => BackgroundEco.Restore(eco)); }
         if (_pausedServices.Count > 0) { var ps = _pausedServices; _ = Task.Run(() => BackgroundDownloads.Resume(ps)); }
         if (_startedAt is { } st && _entry.Profile is { } pr && !_settings.PureBoost)
         {

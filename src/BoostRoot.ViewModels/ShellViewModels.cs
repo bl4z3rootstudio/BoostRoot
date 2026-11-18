@@ -115,6 +115,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty] public partial bool StutterDetect { get; set; }
     [ObservableProperty] public partial bool PacketLossAlert { get; set; }
     [ObservableProperty] public partial bool PauseDownloads { get; set; }
+    [ObservableProperty] public partial bool EcoBackground { get; set; }
     [ObservableProperty] public partial bool NetBoost { get; set; }
     [ObservableProperty] public partial bool Notifications { get; set; }
     [ObservableProperty] public partial bool Hotkeys { get; set; }
@@ -243,6 +244,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         (OverlayIcons, OverlayColor, OverlayOpacity, OverlayScale, FpsCap) = (s.OverlayIcons, s.OverlayColor, s.OverlayOpacity, s.OverlayScale, s.FpsCap);
         OverlayHorizontal = s.OverlayHorizontal;
         Theme = s.Theme;
+        EcoBackground = s.EcoBackground;
         if (Metrics is not null) foreach (var m in Metrics) m.IsOn = s.Metrics.Contains(m.Key);
     }
 
@@ -258,7 +260,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     {
         AutoUndo = AutoUndo, Accent = Accent ?? "purple", TrayIcon = TrayIcon, AutoBoost = AutoBoost, StartWithWindows = StartWithWindows,
         SessionReport = SessionReport, StutterDetect = StutterDetect, PacketLossAlert = PacketLossAlert, PauseDownloads = PauseDownloads, NetBoost = NetBoost,
-        Notifications = Notifications, Hotkeys = Hotkeys, OverlayIcons = OverlayIcons, OverlayHorizontal = OverlayHorizontal, Theme = Theme ?? "midnight", OverlayColor = OverlayColor ?? "#FFFFFF",
+        Notifications = Notifications, Hotkeys = Hotkeys, OverlayIcons = OverlayIcons, OverlayHorizontal = OverlayHorizontal, Theme = Theme ?? "midnight", EcoBackground = EcoBackground, OverlayColor = OverlayColor ?? "#FFFFFF",
         OverlayOpacity = Math.Clamp(OverlayOpacity, 0, 100), OverlayScale = Math.Clamp(OverlayScale, 60, 200), FpsCap = Math.Clamp(FpsCap, 0, 1000),
         Language = Language ?? "tr", Sounds = Sounds, Animations = Animations, Offline = Offline,
         CloseList = [.. (CloseList ?? "").Split([',', ';', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],
@@ -374,6 +376,7 @@ public sealed partial class MainViewModel : ObservableObject
         Scan = new ScanViewModel(services, r => { Home.RefreshRecommendation(); Fps!.Cpu = r.Info.CpuName; Fps.Gpu = r.Info.MainGpu?.Name ?? r.Info.Gpus.FirstOrDefault()?.Name ?? ""; Fps.RefreshEstimate(); });
         Net = new NetViewModel(services);
         Tools = new ToolsViewModel(services);
+        Tools.UpdateSens();
         Stress = new StressViewModel(services);
         Fps = new FpsViewModel(services);
         Clips = new ClipsViewModel(services, () => Settings!.Current);

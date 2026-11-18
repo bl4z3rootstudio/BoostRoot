@@ -218,6 +218,31 @@ public sealed partial class ToolsViewModel(IAppServices services) : ObservableOb
     public ObservableCollection<JunkRowViewModel> Junk { get; } = [];
     public ObservableCollection<StartupRowViewModel> Startup { get; } = [];
     [ObservableProperty] public partial string? JunkResult { get; set; }
+    // ---- Sensitivity converter (pure maths, nothing runs until you type) ----
+    public IReadOnlyList<string> SensGames { get; } = [.. BoostRoot.Core.Input.Sensitivity.Games.Select(g => g.Name)];
+    [ObservableProperty] public partial int SensFrom { get; set; }
+    [ObservableProperty] public partial int SensTo { get; set; } = 1;
+    [ObservableProperty] public partial string SensValue { get; set; } = "0.4";
+    [ObservableProperty] public partial string SensDpi { get; set; } = "800";
+    [ObservableProperty] public partial string? SensResult { get; set; }
+    partial void OnSensFromChanged(int value) => UpdateSens();
+    partial void OnSensToChanged(int value) => UpdateSens();
+    partial void OnSensValueChanged(string value) => UpdateSens();
+    partial void OnSensDpiChanged(string value) => UpdateSens();
+
+    public void UpdateSens()
+    {
+        var games = BoostRoot.Core.Input.Sensitivity.Games;
+        var inv = System.Globalization.CultureInfo.InvariantCulture;
+        if (SensFrom < 0 || SensTo < 0 || SensFrom >= games.Count || SensTo >= games.Count
+            || !double.TryParse((SensValue ?? "").Replace(',', '.'), System.Globalization.NumberStyles.Float, inv, out var s) || s <= 0
+            || !int.TryParse(SensDpi, out var dpi) || dpi <= 0) { SensResult = null; return; }
+        var (from, to) = (games[SensFrom], games[SensTo]);
+        var conv = BoostRoot.Core.Input.Sensitivity.Convert(s, from.Id, to.Id);
+        SensResult = Loc.I.Format("tools.sensResult", to.Name, conv.ToString("0.###", inv),
+            BoostRoot.Core.Input.Sensitivity.CmPer360(s, dpi, from.Id).ToString("0.0", inv), BoostRoot.Core.Input.Sensitivity.Edpi(conv, dpi).ToString("0", inv));
+    }
+
     [ObservableProperty] public partial string? BackupResult { get; set; }
     [ObservableProperty] public partial bool BackupBusy { get; set; }
 

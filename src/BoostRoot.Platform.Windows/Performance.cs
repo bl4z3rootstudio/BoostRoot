@@ -11,6 +11,20 @@ public static partial class RamCleaner
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool EmptyWorkingSet(nint process);
 
+    /// <summary>Makes BoostRoot itself as small as possible (used by "Sadece Boost"): low priority, compacted heap, trimmed RAM.</summary>
+    public static void ShrinkSelf(bool on)
+    {
+        try
+        {
+            using var me = Process.GetCurrentProcess();
+            me.PriorityClass = on ? ProcessPriorityClass.BelowNormal : ProcessPriorityClass.Normal;
+            if (!on) return;
+            GC.Collect(2, GCCollectionMode.Aggressive, true, true);
+            EmptyWorkingSet(me.Handle);
+        }
+        catch (Exception) { }
+    }
+
     [LibraryImport("ntdll.dll")]
     private static partial int NtSetSystemInformation(int infoClass, ref int info, int length);
 

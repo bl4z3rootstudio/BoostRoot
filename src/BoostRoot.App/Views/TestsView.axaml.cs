@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Threading;
 using BoostRoot.Core.Ui;
 using BoostRoot.ViewModels;
 using BoostRoot.ViewModels.Localization;
@@ -68,7 +69,7 @@ public sealed partial class TestsView : UserControl
         MousePad.PointerPressed += (_, e) =>
         {
             var k = e.GetCurrentPoint(MousePad).Properties.PointerUpdateKind;
-            if (k == PointerUpdateKind.LeftButtonPressed) _left++;
+            if (k == PointerUpdateKind.LeftButtonPressed) { _left++; ReportChatter(_chatter.Press(_clock.Elapsed.TotalMilliseconds)); }
             else if (k == PointerUpdateKind.RightButtonPressed) _right++;
             else if (k == PointerUpdateKind.MiddleButtonPressed) _middle++;
             if (Vm is { } vm) vm.Clicks = $"{_left} / {_right} / {_middle}";
@@ -83,6 +84,59 @@ public sealed partial class TestsView : UserControl
             foreach (var k in _tested) if (_keys.TryGetValue(k, out var b)) b.Background = new SolidColorBrush(Color.Parse("#1E5E3A"));
         };
         ResetButton.Click += (_, _) => Reset();
+        ReactionPad.PointerPressed += (_, e) => { if (e.GetCurrentPoint(ReactionPad).Properties.IsLeftButtonPressed) ReactionClick(); };
+        DataContextChanged += (_, _) => ShowReaction();
+    }
+
+    // ---- Click chatter (worn switch sending double clicks) ----
+    private readonly BoostRoot.Core.Input.ClickChatter _chatter = new();
+
+    private void ReportChatter(bool _)
+    {
+        if (Vm is not { } vm || _chatter.Presses < 2) return;
+        vm.ChatterBad = _chatter.Chatters > 0;
+        vm.ChatterText = vm.ChatterBad ? Loc.I.Format("tests.chatterBad", _chatter.Chatters) : Loc.I.Format("tests.chatterOk", _chatter.Presses);
+    }
+
+    // ---- Reaction time: a timer runs only while waiting for green ----
+    private readonly BoostRoot.Core.Input.ReactionTest _reaction = new();
+    private DispatcherTimer? _reactionTimer;
+
+    private void ReactionClick()
+    {
+        var now = _clock.Elapsed.TotalMilliseconds;
+        if (_reaction.State is BoostRoot.Core.Input.ReactionState.Waiting or BoostRoot.Core.Input.ReactionState.Go)
+        {
+            _reaction.Click(now);
+            _reactionTimer?.Stop();
+        }
+        else
+        {
+            _reaction.Start(now, 1500 + Random.Shared.NextDouble() * 2500);
+            _reactionTimer ??= new DispatcherTimer(TimeSpan.FromMilliseconds(1), DispatcherPriority.Render, (_, _) =>
+            {
+                if (_reaction.Tick(_clock.Elapsed.TotalMilliseconds)) { _reactionTimer!.Stop(); ShowReaction(); }
+            });
+            _reactionTimer.Start();
+        }
+        ShowReaction();
+    }
+
+    private void ShowReaction()
+    {
+        if (Vm is not { } vm) return;
+        var (bg, text) = _reaction.State switch
+        {
+            BoostRoot.Core.Input.ReactionState.Waiting => ("#7A1F2B", Loc.I["tests.reactWait"]),
+            BoostRoot.Core.Input.ReactionState.Go => ("#1E8A4A", Loc.I["tests.reactGo"]),
+            BoostRoot.Core.Input.ReactionState.TooEarly => ("#8A5A1E", Loc.I["tests.reactEarly"]),
+            BoostRoot.Core.Input.ReactionState.Result => ("#2A2540", $"{_reaction.Last:0} ms · {Loc.I["tests.react." + BoostRoot.Core.Input.ReactionTest.Rating(_reaction.Last ?? 0)]}"),
+            _ => ("", Loc.I["tests.reactStart"]),
+        };
+        if (bg.Length > 0) ReactionPad.Background = new SolidColorBrush(Color.Parse(bg));
+        else ReactionPad.Background = Res("Surface2", Brushes.Gray);
+        vm.ReactionText = text;
+        vm.ReactionStats = _reaction.Average is { } avg ? Loc.I.Format("tests.reactStats", avg.ToString("0"), _reaction.Best?.ToString("0") ?? "-", _reaction.Results.Count) : null;
     }
 
     private void OnPadMoved(Visual relativeTo, PointerEventArgs e)
@@ -157,6 +211,8 @@ public sealed partial class TestsView : UserControl
     {
         _tested.Clear(); _down.Clear(); _maxDown = 0; _left = _right = _middle = 0;
         _mouse.Reset();
+        _chatter.Reset();
+        if (Vm is { } v0) v0.ChatterText = null;
         foreach (var b in _keys.Values) b.Background = Res("Surface2", Brushes.DimGray);
         if (Vm is { } vm) { vm.KeysTested = "0"; vm.Rollover = "0"; vm.LastKey = "—"; vm.Clicks = "0 / 0 / 0"; vm.MouseHz = vm.MousePeak = "—"; }
     }

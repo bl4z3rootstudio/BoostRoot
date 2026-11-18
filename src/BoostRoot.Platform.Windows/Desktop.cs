@@ -122,4 +122,27 @@ public static partial class DisplayChanger
     }
 
     public static void Restore() => ChangeDisplaySettingsReset(0, 0);
+
+    /// <summary>Highest refresh rate the primary display offers at its current resolution.</summary>
+    public static int MaxRefresh()
+    {
+        if (Current() is not { } cur) return 0;
+        var best = 0;
+        var dm = new DEVMODEW { dmSize = (ushort)Marshal.SizeOf<DEVMODEW>() };
+        for (var i = 0; EnumDisplaySettings(null, i, ref dm); i++)
+            if (dm.dmPelsWidth == cur.Width && dm.dmPelsHeight == cur.Height && dm.dmDisplayFrequency > best && dm.dmDisplayFrequency < 1000) best = (int)dm.dmDisplayFrequency;
+        return best;
+    }
+
+    /// <summary>Permanently sets the primary display to its highest refresh rate (same as picking it in Windows Settings).</summary>
+    public static bool SetMaxRefresh()
+    {
+        var max = MaxRefresh();
+        var dm = new DEVMODEW { dmSize = (ushort)Marshal.SizeOf<DEVMODEW>() };
+        if (max <= 0 || !EnumDisplaySettings(null, -1, ref dm)) return false;
+        if (dm.dmDisplayFrequency >= max) return true;
+        dm.dmDisplayFrequency = (uint)max;
+        dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
+        return ChangeDisplaySettings(ref dm, 0x1 /* CDS_UPDATEREGISTRY */) == 0;
+    }
 }

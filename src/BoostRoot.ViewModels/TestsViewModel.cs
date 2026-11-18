@@ -12,4 +12,8 @@ public sealed partial class TestsViewModel : ObservableObject
     [ObservableProperty] public partial string Rollover { get; set; } = "0";
     [ObservableProperty] public partial string LastKey { get; set; } = "—";
     [ObservableProperty] public partial string Clicks { get; set; } = "0 / 0 / 0";
+    [ObservableProperty] public partial string? ChatterText { get; set; }
+    [ObservableProperty] public partial bool ChatterBad { get; set; }
+    [ObservableProperty] public partial string? ReactionText { get; set; }
+    [ObservableProperty] public partial string? ReactionStats { get; set; }
 }

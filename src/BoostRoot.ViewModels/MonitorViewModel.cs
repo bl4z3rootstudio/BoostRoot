@@ -160,6 +160,7 @@ public sealed partial class MonitorViewModel(IAppServices services, Func<AppSett
     {
         var fixes = Checks.Where(c => !c.Ok).Select(c => c.Fix).ToHashSet();
         if (fixes.Contains("ram")) await Task.Run(services.CleanRam);
+        if (fixes.Contains("hz")) services.SetMaxRefresh();
         if (fixes.Contains("close-apps"))
             foreach (var p in services.TopProcesses(200).Where(p => settings().CloseList.Contains(p.Name, StringComparer.OrdinalIgnoreCase)))
                 services.KillProcess(p.Pid);

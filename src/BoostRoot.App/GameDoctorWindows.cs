@@ -25,8 +25,58 @@ internal sealed class GameDoctorWindows(BoostRoot.Platform.Windows.WindowsRegist
             VcRedist(), IsRiot(e) ? VanguardOk() : null, IsRiot(e) && RiotClientBroken(),
             exe is not null && CompatExes(e, exe).Count > 0, e.Profile is { } p && lastBoost(p.Id) is not null,
             PendingReboot(), driverDate() is { } d ? DateOnly.FromDateTime(DateTime.Today).DayNumber - d.DayNumber : 0,
-            ShaderCacheBytes() > 2L * 1024 * 1024 * 1024);
+            ShaderCacheBytes() > 2L * 1024 * 1024 * 1024,
+            g?.Source == "minecraft" && Launcher(g) == "official" ? McXmx() : null, TotalRamGb(),
+            g?.Source == "minecraft" ? Launcher(g) : null);
     }
+
+    private static string? Launcher(InstalledGame g) => g.Extra.TryGetValue("launcher", out var k) ? k : null;
+
+    private static string McProfiles => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraft", "launcher_profiles.json");
+
+    /// <summary>The most recently used official-launcher profile (its javaArgs, or the launcher default 2 GB).</summary>
+    private static System.Text.Json.Nodes.JsonObject? LastProfile(System.Text.Json.Nodes.JsonNode root)
+    {
+        if (root["profiles"] is not System.Text.Json.Nodes.JsonObject profiles) return null;
+        return profiles.Select(kv => kv.Value).OfType<System.Text.Json.Nodes.JsonObject>()
+            .OrderByDescending(p => p["lastUsed"]?.GetValue<string>() ?? "").FirstOrDefault();
+    }
+
+    private static int? McXmx()
+    {
+        try
+        {
+            if (!File.Exists(McProfiles) || System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(McProfiles)) is not { } root || LastProfile(root) is not { } p) return null;
+            return MinecraftRam.ParseXmxMb(p["javaArgs"]?.GetValue<string>()) ?? 2048;
+        }
+        catch (Exception) { return null; }
+    }
+
+    /// <summary>Sets -Xmx on every official-launcher profile (keeps a .boostroot.bak copy). The launcher must be closed or it overwrites the file.</summary>
+    private static bool FixMcRam()
+    {
+        if (Process.GetProcessesByName("MinecraftLauncher").Length > 0 || Process.GetProcessesByName("Minecraft").Length > 0) return false;
+        var text = File.ReadAllText(McProfiles);
+        if (System.Text.Json.Nodes.JsonNode.Parse(text) is not { } root || root["profiles"] is not System.Text.Json.Nodes.JsonObject profiles) return false;
+        var gb = MinecraftRam.RecommendedGb(TotalRamGb());
+        foreach (var p in profiles.Select(kv => kv.Value).OfType<System.Text.Json.Nodes.JsonObject>())
+            p["javaArgs"] = MinecraftRam.WithXmx(p["javaArgs"]?.GetValue<string>(), gb);
+        File.WriteAllText(McProfiles + ".boostroot.bak", text);
+        File.WriteAllText(McProfiles, root.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+        return McXmx() == gb * 1024;
+    }
+
+    private static double TotalRamGb()
+    {
+        var m = new MemStatus { Length = (uint)System.Runtime.InteropServices.Marshal.SizeOf<MemStatus>() };
+        return GlobalMemoryStatusEx(ref m) ? m.Total / 1024.0 / 1024 / 1024 : 0;
+    }
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct MemStatus { public uint Length, Load; public ulong Total, Avail, TotalPage, AvailPage, TotalVirtual, AvailVirtual, AvailExt; }
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    private static extern bool GlobalMemoryStatusEx(ref MemStatus m);
 
     public async Task<bool> FixAsync(CatalogEntry e, string id)
     {
@@ -57,6 +107,8 @@ internal sealed class GameDoctorWindows(BoostRoot.Platform.Windows.WindowsRegist
                 case "compat-flags" when gameExe(e) is { } exe:
                     foreach (var (hive, name) in CompatExes(e, exe)) registry.DeleteValue(hive, CompatKey, name);
                     return CompatExes(e, exe).Count == 0;
+                case "mc-ram":
+                    return await Task.Run(FixMcRam);
                 case "boost-active" when e.Profile is { } pr && lastBoost(pr.Id) is { } op:
                     undo(op);
                     return true;

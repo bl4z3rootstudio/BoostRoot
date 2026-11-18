@@ -216,12 +216,16 @@ public sealed class WindowsAppServices : IAppServices
         return true;
     }
 
+    // Settings are only written by this process, so the parsed copy is reused (the auto-boost check asks every 5 s).
+    private volatile AppSettings? _settingsCache;
+
     public AppSettings LoadSettings()
     {
+        if (_settingsCache is { } cached) return cached;
         try
         {
             if (_fs.FileExists(_settingsPath))
-                return JsonSerializer.Deserialize(TextFile.Decode(_fs.ReadAllBytes(_settingsPath)).Text, AppJsonContext.Default.AppSettings) ?? AppSettings.Default;
+                return _settingsCache = JsonSerializer.Deserialize(TextFile.Decode(_fs.ReadAllBytes(_settingsPath)).Text, AppJsonContext.Default.AppSettings) ?? AppSettings.Default;
         }
         catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException) { }
         return AppSettings.Default with { Language = Loc.SystemLanguage() };
@@ -232,6 +236,7 @@ public sealed class WindowsAppServices : IAppServices
     public void SaveSettings(AppSettings settings)
     {
         _fs.WriteAllBytesAtomic(_settingsPath, System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(settings, AppJsonContext.Default.AppSettings)));
+        _settingsCache = settings;
         SettingsChanged?.Invoke(settings);
     }
 
@@ -1034,6 +1039,8 @@ public sealed class WindowsAppServices : IAppServices
             items.Add(new("pf.disk", freeGb >= 20 && c.AvailableFreeSpace * 10 >= c.TotalSize, $"{freeGb:0} GB"));
         }
         catch (IOException) { }
+        if (BoostRoot.Platform.Windows.DisplayChanger.Current() is { } cur && BoostRoot.Platform.Windows.DisplayChanger.MaxRefresh() is var maxHz && maxHz > 0)
+            items.Add(new("pf.hz", cur.Hz + 1 >= maxHz, cur.Hz + 1 >= maxHz ? $"{cur.Hz} Hz ✓" : Loc.I.Format("pf.hzFix", cur.Hz, maxHz), cur.Hz + 1 >= maxHz ? "" : "hz"));
         var dvr = _registry.GetValue(Core.Platform.RegistryHive.CurrentUser, @"System\GameConfigStore", "GameDVR_Enabled")?.Data;
         var dvrOn = dvr == "1";
         items.Add(new("pf.gamebar", !dvrOn, dvrOn ? Loc.I["pf.gamebarFix"] : "✓"));
@@ -1041,6 +1048,8 @@ public sealed class WindowsAppServices : IAppServices
         if (bat.HasBattery) items.Add(new("pf.battery", !bat.HurtsFps, bat.HurtsFps ? Loc.I.Format("pf.batteryFix", bat.Percent ?? 0) : Loc.I["pf.batteryOk"]));
         return items;
     }
+
+    public bool SetMaxRefresh() => BoostRoot.Platform.Windows.DisplayChanger.SetMaxRefresh();
 
     public void PlayBoostSound() => BoostRoot.Platform.Windows.PowerAndSound.PlayBoost();
 

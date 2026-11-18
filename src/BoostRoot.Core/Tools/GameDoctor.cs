@@ -24,7 +24,12 @@ public sealed record DoctorFacts(
     bool BoostActive,
     bool PendingReboot,
     int DriverAgeDays,
-    bool ShaderCacheLarge);
+    bool ShaderCacheLarge,
+    // Minecraft Java only: -Xmx of the official launcher's last used profile (null = not Minecraft / not readable).
+    int? MinecraftXmxMb = null,
+    double TotalRamGb = 0,
+    // "official", "modrinth", "prism"… when the game is Minecraft Java.
+    string? MinecraftLauncher = null);
 
 /// <summary>Turns facts into findings. Every finding either has a one-click fix or plain manual steps.</summary>
 public static class GameDoctor
@@ -77,6 +82,20 @@ public static class GameDoctor
         if (f.ShaderCacheLarge)
             l.Add(new("shader-cache", DoctorSeverity.Info, new("Gölgelendirici önbelleği büyük", "Shader cache is large"),
                 new("Sürücü güncellemesinden sonra takılma ya da çökme varsa temizlemek düzeltir; ilk açılış biraz uzun sürer.", "Clearing it fixes stutter or crashes after a driver update; the first start takes a bit longer."), true));
+        if (f.MinecraftXmxMb is { } xmx && MinecraftRam.Verdict(xmx, f.TotalRamGb) is { } v)
+        {
+            var rec = MinecraftRam.RecommendedGb(f.TotalRamGb);
+            l.Add(v == "low"
+                ? new("mc-ram", DoctorSeverity.Warning, new($"Minecraft'a sadece {xmx / 1024.0:0.#} GB RAM verilmiş", $"Minecraft only gets {xmx / 1024.0:0.#} GB of RAM"),
+                    new($"Bilgisayarında {f.TotalRamGb:0} GB var. Az RAM, özellikle modlu oyunda donma ve takılma yapar. Önerilen: {rec} GB.", $"Your PC has {f.TotalRamGb:0} GB. Too little RAM causes freezes, especially with mods. Recommended: {rec} GB."), true)
+                : new("mc-ram", DoctorSeverity.Warning, new($"Minecraft'a çok fazla RAM verilmiş ({xmx / 1024.0:0.#} GB)", $"Minecraft gets too much RAM ({xmx / 1024.0:0.#} GB)"),
+                    new($"Fazla RAM, Java'nın çöp toplama sırasında oyunu saniyelerce dondurmasına ve Windows'un yavaşlamasına yol açar. Önerilen: {rec} GB.", $"Too much RAM makes Java's garbage collection freeze the game for seconds and starves Windows. Recommended: {rec} GB."), true));
+        }
+        else if (f.MinecraftLauncher is "modrinth" or "prism")
+            l.Add(new("mc-ram-manual", DoctorSeverity.Info, new("Minecraft RAM ayarını kontrol et", "Check Minecraft's RAM setting"),
+                new($"Önerilen: {MinecraftRam.RecommendedGb(f.TotalRamGb)} GB. Çok az da çok fazla da takılma yapar.", $"Recommended: {MinecraftRam.RecommendedGb(f.TotalRamGb)} GB. Both too little and too much cause stutter."), false,
+                new(f.MinecraftLauncher == "modrinth" ? "Modrinth uygulaması → Ayarlar → Java ve bellek → Bellek." : "Prism Launcher → Ayarlar → Java → Maksimum bellek.",
+                    f.MinecraftLauncher == "modrinth" ? "Modrinth app → Settings → Java and memory → Memory." : "Prism Launcher → Settings → Java → Maximum memory.")));
         if (f.DriverAgeDays > 180)
             l.Add(new("driver-old", DoctorSeverity.Warning, new($"Ekran kartı sürücüsü {f.DriverAgeDays} günlük", $"Graphics driver is {f.DriverAgeDays} days old"),
                 new("Yeni oyunlar eski sürücüde çökebilir.", "New games can crash on old drivers."), false,

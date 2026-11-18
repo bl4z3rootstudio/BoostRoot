@@ -55,7 +55,8 @@ public sealed record AppSettings(
     // Remembered between starts: last selected game and the level picked per game.
     string? LastGameId = null,
     Dictionary<string, string>? GameLevels = null,
-    string Theme = "midnight")
+    string Theme = "midnight",
+    bool EcoBackground = false)
 {
     /// <summary>What the overlay draws: the Studio design if one was chosen, else the simple settings.</summary>
     public BoostRoot.Core.Crosshair.CrosshairDesign OverlayCrosshair => CrosshairDesign ?? new(Color: CrosshairOrDefault.Color, Outline: CrosshairOrDefault.Outline, Dot: CrosshairOrDefault.Dot,
@@ -193,6 +194,8 @@ public interface IAppServices
     bool KillProcess(int pid);
     /// <summary>"Ready to play?" checks.</summary>
     IReadOnlyList<PreflightItem> Preflight(AppSettings settings);
+    /// <summary>Puts the monitor on its highest refresh rate (people often run a 144 Hz screen at 60 Hz without knowing).</summary>
+    bool SetMaxRefresh() => false;
     /// <summary>Short chime after a successful boost (only called when Sounds is on).</summary>
     void PlayBoostSound() { }
     /// <summary>One ICMP echo; null when lost/timed out. Measure only — never changes network settings.</summary>
