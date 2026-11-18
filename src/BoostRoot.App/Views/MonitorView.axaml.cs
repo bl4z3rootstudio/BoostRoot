@@ -16,7 +16,7 @@ public sealed partial class MonitorView : UserControl
         {
             // In the tray / minimised nobody sees the numbers: skip the sensor reads.
             if (TopLevel.GetTopLevel(this) is Window { IsVisible: false } or Window { WindowState: WindowState.Minimized }) return;
-            if (DataContext is MonitorViewModel m) { m.Tick(); _ = m.PingTickAsync(); }
+            if (DataContext is MonitorViewModel { Live: true } m) { m.Tick(); _ = m.PingTickAsync(); }
         });
     }
 

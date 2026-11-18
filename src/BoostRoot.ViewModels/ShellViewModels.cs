@@ -385,6 +385,7 @@ public sealed partial class MainViewModel : ObservableObject
         ShowWelcome = !services.LoadSettings().FirstRunDone;
         Crosshair = new CrosshairViewModel(services, d => Settings.UseCrosshair(d));
         Monitor = new MonitorViewModel(services, () => Settings.Current);
+        Monitor.LiveChanged = on => Settings.Update(s => s with { MonitorLive = on });
         Updates = new UpdatesViewModel(services);
         Tests = new TestsViewModel();
         Stats = new StatsViewModel(services);

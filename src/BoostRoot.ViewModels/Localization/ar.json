@@ -802,5 +802,7 @@
  "pol.colRuns": "Runs",
  "pol.colReact": "Reaction (last 10)",
  "pol.colAcc": "Accuracy",
- "pol.detected": "✓ Your sensitivity and crosshair were read from VALORANT's own settings files."
+ "pol.detected": "✓ Your sensitivity and crosshair were read from VALORANT's own settings files.",
+ "mon.live": "Live monitoring",
+ "mon.liveSub": "When on, CPU, GPU, temperature, RAM and ping are read every second. When off, nothing is read even with this page open — zero load."
 }

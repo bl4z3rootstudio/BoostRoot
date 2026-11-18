@@ -640,5 +640,7 @@
  "pol.colRuns": "Deneme",
  "pol.colReact": "Tepki (son 10)",
  "pol.colAcc": "İsabet",
- "pol.detected": "✓ Hassasiyetin ve nişangahın VALORANT'ın kendi ayar dosyalarından otomatik okundu."
+ "pol.detected": "✓ Hassasiyetin ve nişangahın VALORANT'ın kendi ayar dosyalarından otomatik okundu.",
+ "mon.live": "Canlı izleme",
+ "mon.liveSub": "Açıkken işlemci, ekran kartı, sıcaklık, RAM ve ping her saniye okunur. Kapalıyken bu sayfa açık olsa bile hiçbir şey okunmaz — sıfır yük."
 }

@@ -6,6 +6,15 @@
     <StackPanel Margin="48,24" Spacing="16">
       <TextBlock Classes="h1" FontSize="32" Text="{Binding [mon.title], Source={x:Static loc:Loc.I}}" />
       <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [mon.sub], Source={x:Static loc:Loc.I}}" />
+      <Border Classes="card">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Spacing="2" VerticalAlignment="Center">
+            <TextBlock FontWeight="SemiBold" Text="{Binding [mon.live], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [mon.liveSub], Source={x:Static loc:Loc.I}}" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1" IsChecked="{Binding Live}" OnContent="" OffContent="" />
+        </Grid>
+      </Border>
       <UniformGrid Columns="4" Height="170">
         <Border Classes="card" Margin="0,0,12,0"><DockPanel><StackPanel DockPanel.Dock="Top"><TextBlock Classes="muted" Text="{Binding [mon.cpu], Source={x:Static loc:Loc.I}}" /><TextBlock FontSize="18" FontWeight="Bold" Text="{Binding CpuText}" /></StackPanel><c:LineChart Values="{Binding CpuSeries}" Capacity="120" Max="100" Stroke="#C084FC" /></DockPanel></Border>
         <Border Classes="card" Margin="0,0,12,0"><DockPanel><StackPanel DockPanel.Dock="Top"><TextBlock Classes="muted" Text="{Binding [mon.gpu], Source={x:Static loc:Loc.I}}" /><TextBlock FontSize="18" FontWeight="Bold" Text="{Binding GpuText}" /></StackPanel><c:LineChart Values="{Binding GpuSeries}" Capacity="120" Max="100" Stroke="#60A5FA" /></DockPanel></Border>

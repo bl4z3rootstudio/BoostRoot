@@ -56,7 +56,9 @@ public sealed record AppSettings(
     string? LastGameId = null,
     Dictionary<string, string>? GameLevels = null,
     string Theme = "midnight",
-    bool EcoBackground = false)
+    bool EcoBackground = false,
+    // System monitor page reads sensors only while this is on (off for new installs: nothing runs until you ask).
+    bool MonitorLive = false)
 {
     /// <summary>What the overlay draws: the Studio design if one was chosen, else the simple settings.</summary>
     public BoostRoot.Core.Crosshair.CrosshairDesign OverlayCrosshair => CrosshairDesign ?? new(Color: CrosshairOrDefault.Color, Outline: CrosshairOrDefault.Outline, Dot: CrosshairOrDefault.Dot,

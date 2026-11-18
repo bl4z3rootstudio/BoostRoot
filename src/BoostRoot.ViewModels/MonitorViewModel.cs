@@ -18,6 +18,18 @@ public sealed partial class ProcessRowViewModel(ProcessUsage p) : ObservableObje
 /// <summary>Live system monitor (like a gamer's task manager): charts + busiest processes + "ready to play?" checks.</summary>
 public sealed partial class MonitorViewModel(IAppServices services, Func<AppSettings> settings) : ObservableObject
 {
+    /// <summary>Live monitoring on/off (saved). Off = the page reads nothing, even while it is open.</summary>
+    public bool Live
+    {
+        get => settings().MonitorLive;
+        set
+        {
+            if (settings().MonitorLive == value) return;
+            LiveChanged?.Invoke(value);
+            OnPropertyChanged();
+        }
+    }
+    public Action<bool>? LiveChanged { get; set; }
     public ObservableCollection<double> CpuSeries { get; } = [];
     public ObservableCollection<double> GpuSeries { get; } = [];
     public ObservableCollection<double> TempSeries { get; } = [];
