@@ -17,6 +17,13 @@ public sealed partial class App : Application
         {
             var services = WindowsAppServices.Create();
             _ = Task.Run(services.RepairLagTweaks); // 26.11.17: undo the tweak that made some PCs lag
+            // The portable zip ships without ffmpeg (keeps updates small); fetch it quietly once so clips need no wait later.
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(TimeSpan.FromMinutes(2));
+                if (!services.FfmpegInstalled && GameSession.Current is null)
+                    try { await services.InstallFfmpegAsync(null, CancellationToken.None); } catch (Exception) { }
+            });
             var vm = new MainViewModel(services);
             var window = new MainWindow { DataContext = vm };
             desktop.MainWindow = window;

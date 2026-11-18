@@ -386,13 +386,12 @@ public sealed class WindowsAppServices : IAppServices
 
     public bool FfmpegInstalled => Ffmpeg.Installed;
 
-    public Task InstallFfmpegAsync(IProgress<double>? progress, CancellationToken ct)
+    public async Task InstallFfmpegAsync(IProgress<double>? progress, CancellationToken ct)
     {
         if (LoadSettings().Offline) throw new HttpRequestException("Offline mode");
         using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(15) };
         http.DefaultRequestHeaders.UserAgent.ParseAdd("BoostRoot/" + Core.Versioning.AppVersion.Current);
-        return InstallCore(http, progress, ct);
-        static async Task InstallCore(HttpClient h, IProgress<double>? p, CancellationToken c) => await Ffmpeg.InstallAsync(h, p, c);
+        await Ffmpeg.InstallAsync(http, progress, ct);
     }
 
     public string ClipsFolder => ClipRecorder.Root(LoadSettings().ClipsOrDefault);

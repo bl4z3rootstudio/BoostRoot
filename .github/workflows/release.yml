@@ -72,6 +72,8 @@ jobs:
         shell: pwsh
         run: |
           $v = "${{ steps.v.outputs.version }}"
+          # Portable zip stays small (no ffmpeg): old in-app updaters cut downloads at 30 s. The app fetches ffmpeg itself.
+          Remove-Item publish/app/tools/ffmpeg -Recurse -Force -ErrorAction SilentlyContinue
           Compress-Archive -Path publish/app/* -DestinationPath publish/BoostRoot-Portable-$v.zip
           Push-Location publish
           $lines = Get-ChildItem -File -Path *.exe,*.zip | ForEach-Object { "$((Get-FileHash $_ -Algorithm SHA256).Hash.ToLower())  $($_.Name)" }
