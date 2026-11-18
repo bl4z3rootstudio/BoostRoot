@@ -304,6 +304,7 @@ public sealed partial class MainViewModel : ObservableObject
     public ScanViewModel Scan { get; }
     public NetViewModel Net { get; }
     public ToolsViewModel Tools { get; }
+    public PoligonViewModel Poligon { get; }
     public StressViewModel Stress { get; }
     public FpsViewModel Fps { get; }
     public ClipsViewModel Clips { get; }
@@ -376,6 +377,7 @@ public sealed partial class MainViewModel : ObservableObject
         Scan = new ScanViewModel(services, r => { Home.RefreshRecommendation(); Fps!.Cpu = r.Info.CpuName; Fps.Gpu = r.Info.MainGpu?.Name ?? r.Info.Gpus.FirstOrDefault()?.Name ?? ""; Fps.RefreshEstimate(); });
         Net = new NetViewModel(services);
         Tools = new ToolsViewModel(services);
+        Poligon = new PoligonViewModel(services);
         Tools.UpdateSens();
         Stress = new StressViewModel(services);
         Fps = new FpsViewModel(services);
@@ -403,6 +405,7 @@ public sealed partial class MainViewModel : ObservableObject
             new("updates", "M11 3h2v10l3.5-3.5 1.4 1.4L12 16.8 6.1 10.9l1.4-1.4L11 13zM4 19h16v2H4z", Updates),
             new("monitor", "M3 21V10h4v11zm7 0V3h4v18zm7 0v-7h4v7z", Monitor),
             new("tests", "M11 2.1V9H5.1A7 7 0 0 1 11 2.1zm2 0A7 7 0 0 1 18.9 9H13zM5 11h14v4a7 7 0 0 1-14 0z", Tests),
+            new("poligon", "M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm-1 2h2v2h-2z", Poligon),
             new("crosshair", "M11 2h2v7h-2zM11 15h2v7h-2zM2 11h7v2H2zM15 11h7v2h-7zM11 11h2v2h-2z", Crosshair),
             new("tools", "M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z", Tools),
             new("settings", "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z", Settings),
@@ -423,6 +426,7 @@ public sealed partial class MainViewModel : ObservableObject
         if (item.Page == Fps) Fps.Reload();
         if (item.Page == Stats) Stats.Refresh();
         if (item.Page == Scan) Scan.RefreshGains();
+        if (item.Page == Poligon) Poligon.Refresh();
         if (item.Page == Doctor) Doctor.LoadGames(Home.Selected?.Entry.Profile?.Id);
     }
 }

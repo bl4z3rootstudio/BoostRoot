@@ -1,0 +1,65 @@
+name: Poligon
+# Builds the Godot aim trainer (poligon/) for Windows.
+# Every push touching poligon/ runs the headless self-test; "Run workflow" with a version also publishes it
+# to the fixed pre-release "poligon" (pre-release so it never becomes the app's "latest" release).
+on:
+  push:
+    paths: ['poligon/**', '.github/workflows/poligon.yml']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Poligon version (e.g. 1.0.0)'
+        required: true
+permissions:
+  contents: write
+env:
+  GODOT: 4.7.2
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache Godot
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT }}-win
+      - name: Download Godot + Windows templates
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -sSL -o g.zip https://github.com/godotengine/godot/releases/download/${GODOT}-stable/Godot_v${GODOT}-stable_linux.x86_64.zip
+          unzip -oq g.zip && rm g.zip && mv Godot_v${GODOT}-stable_linux.x86_64 godot
+          curl -sSL -o t.tpz https://github.com/godotengine/godot/releases/download/${GODOT}-stable/Godot_v${GODOT}-stable_export_templates.tpz
+          unzip -oq t.tpz 'templates/windows_release_x86_64.exe' 'templates/version.txt' -d tpl && rm t.tpz
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT}.stable
+          mv tpl/templates/* ~/.local/share/godot/export_templates/${GODOT}.stable/
+      - name: Import + self-test
+        working-directory: poligon
+        run: |
+          ~/godot/godot --headless --path . --import > /dev/null 2>&1 || true
+          timeout 600 ~/godot/godot --headless --path . -- --selftest
+      - name: Export Windows build
+        if: github.event_name == 'workflow_dispatch'
+        working-directory: poligon
+        run: |
+          mkdir -p ../build/poligon
+          ~/godot/godot --headless --path . --export-release "Windows" ../build/poligon/BoostRootPoligon.exe
+          test -s ../build/poligon/BoostRootPoligon.exe
+      - name: Publish to the "poligon" pre-release
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          v="${{ inputs.version }}"
+          cd build/poligon
+          echo "$v" > version.txt
+          zip -9 -q ../BoostRoot-Poligon.zip BoostRootPoligon.exe version.txt
+          cd ..
+          sha256sum BoostRoot-Poligon.zip | cut -d' ' -f1 > BoostRoot-Poligon.sha256
+          echo "$v" > poligon-version.txt
+          gh release view poligon > /dev/null 2>&1 || gh release create poligon --prerelease --title "BoostRoot Poligon" --notes "BoostRoot Poligon (aim trainer). BoostRoot downloads this automatically." --target "${{ github.sha }}"
+          gh release upload poligon BoostRoot-Poligon.zip BoostRoot-Poligon.sha256 poligon-version.txt --clobber

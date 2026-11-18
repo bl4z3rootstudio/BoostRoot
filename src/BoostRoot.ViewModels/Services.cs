@@ -113,6 +113,17 @@ public interface IAppServices
     bool SetDns(string address) => false;
     /// <summary>Opens AMD Adrenalin / NVIDIA App (for frame generation and driver features).</summary>
     void OpenGpuApp() { }
+
+    // ---- Poligon (aim trainer, separate Godot app downloaded on first use) ----
+    /// <summary>Installed Poligon version, or null if not downloaded yet.</summary>
+    string? PoligonVersion() => null;
+    /// <summary>Version on GitHub (null = offline / not published).</summary>
+    Task<string?> PoligonLatestAsync(CancellationToken ct) => Task.FromResult<string?>(null);
+    Task<bool> InstallPoligonAsync(IProgress<double>? progress, CancellationToken ct) => Task.FromResult(false);
+    bool LaunchPoligon(string game, double sens, int dpi, string? crosshairCode, bool stretched) => false;
+    IReadOnlyList<BoostRoot.Core.Poligon.PoligonRun> PoligonRuns() => [];
+    /// <summary>The player's VALORANT sensitivity and stretched setting from the game's own config files (null = not found).</summary>
+    (double? Sens, bool? Stretched, string? CrosshairCode) ValorantSettings() => (null, null, null);
     /// <summary>Zips Saved Games + Documents\My Games to Documents\BoostRoot\Yedekler; returns the zip path.</summary>
     string? BackupSaves() => null;
     /// <summary>Puts the DNS back exactly as it was before BoostRoot changed it.</summary>

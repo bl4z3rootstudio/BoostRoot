@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BoostRoot.ViewModels" xmlns:loc="using:BoostRoot.ViewModels.Localization"
+             x:Class="BoostRoot.App.Views.PoligonView" x:DataType="vm:PoligonViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="48,24" Spacing="16">
+      <TextBlock Classes="h1" FontSize="32" Text="{Binding [nav.poligon], Source={x:Static loc:Loc.I}}" />
+      <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [pol.sub], Source={x:Static loc:Loc.I}}" />
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <WrapPanel>
+            <StackPanel Margin="0,0,16,8" Spacing="4">
+              <TextBlock Classes="muted" FontSize="12" Text="{Binding [pol.game], Source={x:Static loc:Loc.I}}" />
+              <ComboBox ItemsSource="{Binding Games}" SelectedIndex="{Binding GameIndex}" MinWidth="200" />
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" Spacing="4">
+              <TextBlock Classes="muted" FontSize="12" Text="{Binding [pol.sens], Source={x:Static loc:Loc.I}}" />
+              <TextBox Text="{Binding Sens}" Width="120" Watermark="0.4" />
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" Spacing="4">
+              <TextBlock Classes="muted" FontSize="12" Text="DPI" />
+              <TextBox Text="{Binding Dpi}" Width="100" />
+            </StackPanel>
+            <StackPanel Margin="0,0,16,8" Spacing="4" VerticalAlignment="Bottom">
+              <ToggleSwitch IsChecked="{Binding Stretched}" Content="{Binding [pol.stretched], Source={x:Static loc:Loc.I}}" />
+            </StackPanel>
+          </WrapPanel>
+          <TextBlock Foreground="{StaticResource AccentLight}" Text="{Binding Cm360}" />
+          <TextBlock Foreground="{StaticResource Good}" FontSize="12" Text="{Binding Detected}" />
+          <StackPanel Spacing="4">
+            <TextBlock Classes="muted" FontSize="12" Text="{Binding [pol.xhair], Source={x:Static loc:Loc.I}}" />
+            <TextBox Text="{Binding CrosshairCode}" Watermark="0;P;c;1;..." />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <Button Classes="primary" Padding="28,12" FontSize="16" Command="{Binding PlayCommand}" IsEnabled="{Binding !Busy}" Content="{Binding [pol.play], Source={x:Static loc:Loc.I}}" />
+            <ProgressBar Width="220" VerticalAlignment="Center" Value="{Binding Progress}" IsVisible="{Binding Busy}" />
+          </StackPanel>
+          <TextBlock TextWrapping="Wrap" Text="{Binding Status}" />
+          <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [pol.note], Source={x:Static loc:Loc.I}}" />
+        </StackPanel>
+      </Border>
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="h2" Text="{Binding [pol.history], Source={x:Static loc:Loc.I}}" />
+          <TextBlock Classes="muted" IsVisible="{Binding !HasRuns}" Text="{Binding [pol.empty], Source={x:Static loc:Loc.I}}" />
+          <Grid ColumnDefinitions="2*,*,*,*,*,*" IsVisible="{Binding HasRuns}">
+            <TextBlock Classes="muted" FontSize="12" Text="{Binding [pol.colDrill], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="1" Classes="muted" FontSize="12" Text="{Binding [pol.colBest], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="2" Classes="muted" FontSize="12" Text="{Binding [pol.colLast], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="3" Classes="muted" FontSize="12" Text="{Binding [pol.colRuns], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="4" Classes="muted" FontSize="12" Text="{Binding [pol.colReact], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Grid.Column="5" Classes="muted" FontSize="12" Text="{Binding [pol.colAcc], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+          <ItemsControl ItemsSource="{Binding Drills}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:PoligonDrillRow">
+                <Grid ColumnDefinitions="2*,*,*,*,*,*" Margin="0,4">
+                  <TextBlock FontWeight="SemiBold" Text="{Binding Name}" />
+                  <TextBlock Grid.Column="1" Foreground="{StaticResource AccentLight}" FontWeight="Bold" Text="{Binding Best}" />
+                  <TextBlock Grid.Column="2" Text="{Binding Last}" />
+                  <TextBlock Grid.Column="3" Text="{Binding Runs}" />
+                  <TextBlock Grid.Column="4" Text="{Binding Reaction}" />
+                  <TextBlock Grid.Column="5" Text="{Binding Accuracy}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

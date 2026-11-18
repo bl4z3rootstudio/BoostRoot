@@ -840,6 +840,110 @@ public sealed class WindowsAppServices : IAppServices
     public Task<DnsResult> MeasureDnsAsync(DnsServer server, CancellationToken ct) => DnsBenchmark.MeasureAsync(server, ct);
     public bool SetDns(string address) => DnsChanger.Set(address);
 
+    // ---------------- Poligon ----------------
+    private static string PoligonDir => Path.Combine(UserDataDir, "poligon");
+    private static string PoligonExe => Path.Combine(PoligonDir, "app", "BoostRootPoligon.exe");
+    private const string PoligonRelease = "https://api.github.com/repos/" + Core.Updates.Updater.Repo + "/releases/tags/poligon";
+
+    public string? PoligonVersion()
+    {
+        try { return File.Exists(PoligonExe) ? File.ReadAllText(Path.Combine(PoligonDir, "app", "version.txt")).Trim() : null; }
+        catch (IOException) { return "?"; }
+    }
+
+    private async Task<Core.Updates.GitHubRelease?> PoligonReleaseAsync(CancellationToken ct)
+    {
+        if (LoadSettings().Offline) return null;
+        using var req = new HttpRequestMessage(HttpMethod.Get, PoligonRelease);
+        req.Headers.UserAgent.ParseAdd("BoostRoot/" + Core.Versioning.AppVersion.Current);
+        using var resp = await _http.SendAsync(req, ct);
+        return resp.IsSuccessStatusCode ? Core.Updates.Updater.ParseRelease(await resp.Content.ReadAsStringAsync(ct)) : null;
+    }
+
+    private async Task<string?> SmallAssetAsync(Core.Updates.GitHubRelease r, string name, CancellationToken ct)
+    {
+        var a = r.Assets.FirstOrDefault(x => x.Name == name);
+        if (a is null) return null;
+        using var req = new HttpRequestMessage(HttpMethod.Get, a.Url);
+        req.Headers.UserAgent.ParseAdd("BoostRoot/" + Core.Versioning.AppVersion.Current);
+        using var resp = await UpdateHttp.SendAsync(req, ct);
+        return resp.IsSuccessStatusCode ? (await resp.Content.ReadAsStringAsync(ct)).Trim() : null;
+    }
+
+    public async Task<string?> PoligonLatestAsync(CancellationToken ct)
+    {
+        try { return await PoligonReleaseAsync(ct) is { } r ? await SmallAssetAsync(r, "poligon-version.txt", ct) : null; }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException) { return null; }
+    }
+
+    public async Task<bool> InstallPoligonAsync(IProgress<double>? progress, CancellationToken ct)
+    {
+        try
+        {
+            if (await PoligonReleaseAsync(ct) is not { } r || r.Assets.FirstOrDefault(a => a.Name == "BoostRoot-Poligon.zip") is not { } zip
+                || await SmallAssetAsync(r, "BoostRoot-Poligon.sha256", ct) is not { Length: 64 } sha) return false;
+            Directory.CreateDirectory(PoligonDir);
+            var zipPath = Path.Combine(PoligonDir, "download.zip");
+            if (!await DownloadVerifiedAsync(zip, sha.ToLowerInvariant(), zipPath, progress, ct)) return false;
+            foreach (var p in System.Diagnostics.Process.GetProcessesByName("BoostRootPoligon")) using (p) try { p.Kill(); p.WaitForExit(3000); } catch (Exception) { }
+            var app = Path.Combine(PoligonDir, "app");
+            if (Directory.Exists(app)) Directory.Delete(app, true);
+            System.IO.Compression.ZipFile.ExtractToDirectory(zipPath, app);
+            File.Delete(zipPath);
+            return File.Exists(PoligonExe);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or IOException or UnauthorizedAccessException or InvalidDataException or TaskCanceledException)
+        {
+            UpdateLog("poligon install failed: " + ex.Message);
+            return false;
+        }
+    }
+
+    public bool LaunchPoligon(string game, double sens, int dpi, string? crosshairCode, bool stretched)
+    {
+        if (!File.Exists(PoligonExe)) return false;
+        var data = Path.Combine(PoligonDir, "data");
+        Directory.CreateDirectory(data);
+        var psi = new System.Diagnostics.ProcessStartInfo(PoligonExe) { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(PoligonExe)! };
+        // Everything after "--" goes to the game's own argument parser.
+        psi.ArgumentList.Add("--");
+        psi.ArgumentList.Add("--data=" + data);
+        psi.ArgumentList.Add("--game=" + game);
+        if (sens > 0) psi.ArgumentList.Add("--sens=" + sens.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        if (dpi > 0) psi.ArgumentList.Add("--dpi=" + dpi);
+        if (!string.IsNullOrWhiteSpace(crosshairCode)) psi.ArgumentList.Add("--xhair=" + crosshairCode.Trim());
+        psi.ArgumentList.Add("--stretched=" + (stretched ? "1" : "0"));
+        try { System.Diagnostics.Process.Start(psi)?.Dispose(); return true; }
+        catch (System.ComponentModel.Win32Exception) { return false; }
+    }
+
+    public (double? Sens, bool? Stretched, string? CrosshairCode) ValorantSettings()
+    {
+        try
+        {
+            var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VALORANT", "Saved", "Config");
+            if (!Directory.Exists(root)) return (null, null, null);
+            FileInfo? Newest(string name) => Directory.EnumerateFiles(root, name, new EnumerationOptions { RecurseSubdirectories = true, MaxRecursionDepth = 3, IgnoreInaccessible = true })
+                .Select(f => new FileInfo(f)).OrderByDescending(f => f.LastWriteTimeUtc).FirstOrDefault();
+            var user = Newest("RiotUserSettings.ini") is { } u ? File.ReadAllText(u.FullName) : "";
+            var sens = Core.Poligon.ValorantConfig.Sensitivity(user);
+            var code = Core.Poligon.ValorantCrosshairConfig.Read(user)?.ToValorantCode();
+            var str = Newest("GameUserSettings.ini") is { } g ? Core.Poligon.ValorantConfig.Stretched(File.ReadAllText(g.FullName)) : null;
+            return (sens, str, code);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return (null, null, null); }
+    }
+
+    public IReadOnlyList<Core.Poligon.PoligonRun> PoligonRuns()
+    {
+        try
+        {
+            var f = Path.Combine(PoligonDir, "data", "results.json");
+            return File.Exists(f) ? Core.Poligon.PoligonRuns.Parse(File.ReadAllText(f)) : [];
+        }
+        catch (IOException) { return []; }
+    }
+
     public string? BackupSaves()
     {
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
