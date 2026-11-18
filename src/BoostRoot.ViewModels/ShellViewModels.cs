@@ -78,7 +78,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     private readonly bool _ready;
 
     public IReadOnlyList<string> Languages => Loc.Languages;
-    public IReadOnlyList<string> Corners { get; } = ["tl", "tr", "bl", "br"];
+    public IReadOnlyList<string> Corners { get; } = ["tl", "tc", "tr", "ml", "mr", "bl", "br"];
     public IReadOnlyList<string> AudioModes { get; } = ["none", "system", "system+mic"];
     public IReadOnlyList<int> ClipHeights { get; } = [720, 1080, 1440];
     public IReadOnlyList<int> ClipFpsOptions { get; } = [30, 60];
@@ -119,6 +119,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty] public partial bool Notifications { get; set; }
     [ObservableProperty] public partial bool Hotkeys { get; set; }
     [ObservableProperty] public partial bool OverlayIcons { get; set; }
+    [ObservableProperty] public partial bool OverlayHorizontal { get; set; }
     [ObservableProperty] public partial string OverlayColor { get; set; }
     [ObservableProperty] public partial int OverlayOpacity { get; set; }
     [ObservableProperty] public partial int OverlayScale { get; set; }
@@ -237,6 +238,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         StartWithWindows = s.StartWithWindows;
         (SessionReport, StutterDetect, PacketLossAlert, PauseDownloads, Notifications, Hotkeys, NetBoost) = (s.SessionReport, s.StutterDetect, s.PacketLossAlert, s.PauseDownloads, s.Notifications, s.Hotkeys, s.NetBoost);
         (OverlayIcons, OverlayColor, OverlayOpacity, OverlayScale, FpsCap) = (s.OverlayIcons, s.OverlayColor, s.OverlayOpacity, s.OverlayScale, s.FpsCap);
+        OverlayHorizontal = s.OverlayHorizontal;
         if (Metrics is not null) foreach (var m in Metrics) m.IsOn = s.Metrics.Contains(m.Key);
     }
 
@@ -252,7 +254,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     {
         AutoUndo = AutoUndo, Accent = Accent ?? "purple", TrayIcon = TrayIcon, AutoBoost = AutoBoost, StartWithWindows = StartWithWindows,
         SessionReport = SessionReport, StutterDetect = StutterDetect, PacketLossAlert = PacketLossAlert, PauseDownloads = PauseDownloads, NetBoost = NetBoost,
-        Notifications = Notifications, Hotkeys = Hotkeys, OverlayIcons = OverlayIcons, OverlayColor = OverlayColor ?? "#FFFFFF",
+        Notifications = Notifications, Hotkeys = Hotkeys, OverlayIcons = OverlayIcons, OverlayHorizontal = OverlayHorizontal, OverlayColor = OverlayColor ?? "#FFFFFF",
         OverlayOpacity = Math.Clamp(OverlayOpacity, 0, 100), OverlayScale = Math.Clamp(OverlayScale, 60, 200), FpsCap = Math.Clamp(FpsCap, 0, 1000),
         Language = Language ?? "tr", Sounds = Sounds, Animations = Animations, Offline = Offline,
         CloseList = [.. (CloseList ?? "").Split([',', ';', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],
@@ -359,12 +361,13 @@ public sealed partial class MainViewModel : ObservableObject
         });
         Home.CopyText = services.CopyToClipboard;
         Home.PureBoostChanged = on => Settings.Update(s => s with { PureBoost = on });
+        Home.RememberChoice = change => Settings.Update(change);
         Home.ManualGamesChanged = change => Settings.Update(s => s with { ManualGames = change(s.ManualGames ?? []) });
         Home.StretchChanged = (id, on) => Settings.Update(s => s with
         {
             StretchGames = on ? [.. (s.StretchGames ?? []).Append(id).Distinct()] : [.. (s.StretchGames ?? []).Where(x => x != id)],
         });
-        Scan = new ScanViewModel(services, r => { Home.RefreshRecommendation(); Fps!.Cpu = r.Info.CpuName; Fps.Gpu = r.Info.Gpus.FirstOrDefault()?.Name ?? ""; });
+        Scan = new ScanViewModel(services, r => { Home.RefreshRecommendation(); Fps!.Cpu = r.Info.CpuName; Fps.Gpu = r.Info.MainGpu?.Name ?? r.Info.Gpus.FirstOrDefault()?.Name ?? ""; Fps.RefreshEstimate(); });
         Net = new NetViewModel(services);
         Tools = new ToolsViewModel(services);
         Stress = new StressViewModel(services);

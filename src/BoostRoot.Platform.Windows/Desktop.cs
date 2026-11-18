@@ -60,6 +60,9 @@ public static partial class WindowStyles
         SetWindowDisplayAffinity(hwnd, 0x11); // WDA_EXCLUDEFROMCAPTURE: overlay never shows in clips
     }
 
+    /// <summary>Games that grab the foreground push other topmost windows down; re-assert our place without stealing focus.</summary>
+    public static void KeepOnTop(nint hwnd) => SetWindowPos(hwnd, -1, 0, 0, 0, 0, 0x1 | 0x2 | 0x10); // HWND_TOPMOST, NOSIZE|NOMOVE|NOACTIVATE
+
     [LibraryImport("user32.dll")] private static partial nint GetWindowLongPtrW(nint hWnd, int index);
     [LibraryImport("user32.dll")] private static partial nint SetWindowLongPtrW(nint hWnd, int index, nint value);
     [LibraryImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] private static partial bool SetWindowPos(nint hWnd, nint after, int x, int y, int cx, int cy, uint flags);

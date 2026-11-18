@@ -24,11 +24,25 @@ public abstract class OverlayWindowBase : Window
         SizeToContent = SizeToContent.WidthAndHeight;
     }
 
+    private DispatcherTimer? _topTimer;
+
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-        if (TryGetPlatformHandle()?.Handle is { } h) WindowStyles.MakeOverlay(h);
+        if (TryGetPlatformHandle()?.Handle is { } h)
+        {
+            WindowStyles.MakeOverlay(h);
+            // Once a second: stay above a borderless/windowed game that took the foreground (cheap: one SetWindowPos).
+            _topTimer = new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Background, (_, _) => WindowStyles.KeepOnTop(h));
+            _topTimer.Start();
+        }
         Place();
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        _topTimer?.Stop();
+        base.OnClosed(e);
     }
 
     protected abstract void Place();
@@ -46,6 +60,7 @@ public sealed class StatsOverlay : OverlayWindowBase
     private readonly bool _icons;
     private readonly IBrush _fg;
     private readonly StackPanel _rows = new() { Spacing = 2 };
+    private readonly bool _horizontal;
     private readonly Dictionary<string, (TextBlock Value, PathIcon? Icon)> _cells = [];
     private readonly DispatcherTimer _timer;
     private readonly Queue<double> _lowWindow = new();
@@ -80,6 +95,8 @@ public sealed class StatsOverlay : OverlayWindowBase
     public StatsOverlay(ISensors sensors, RollingFps fps, AppSettings settings)
     {
         _sensors = sensors; _fps = fps; _metrics = settings.Metrics; _corner = settings.OverlayCorner; _icons = settings.OverlayIcons;
+        _horizontal = settings.OverlayHorizontal;
+        if (_horizontal) { _rows.Orientation = Avalonia.Layout.Orientation.Horizontal; _rows.Spacing = 14; }
         _fg = Color.TryParse(settings.OverlayColor, out var c) ? new SolidColorBrush(c) : Brushes.White;
         var scale = Math.Clamp(settings.OverlayScale, 60, 200) / 100.0;
         var alpha = (byte)Math.Round(Math.Clamp(settings.OverlayOpacity, 0, 100) * 2.55);
@@ -113,6 +130,9 @@ public sealed class StatsOverlay : OverlayWindowBase
         Position = _corner switch
         {
             "tr" => new PixelPoint(s.Right - w - 12, s.Y + 12),
+            "tc" => new PixelPoint(s.X + (s.Width - w) / 2, s.Y + 8),
+            "ml" => new PixelPoint(s.X + 12, s.Y + (s.Height - h) / 2),
+            "mr" => new PixelPoint(s.Right - w - 12, s.Y + (s.Height - h) / 2),
             "bl" => new PixelPoint(s.X + 12, s.Bottom - h - 12),
             "br" => new PixelPoint(s.Right - w - 12, s.Bottom - h - 12),
             _ => new PixelPoint(s.X + 12, s.Y + 12),
@@ -150,6 +170,7 @@ public sealed class StatsOverlay : OverlayWindowBase
             value.Foreground = hot ? Brushes.OrangeRed : _fg;
             if (icon is not null) icon.Foreground = value.Foreground;
         }
+        Place(); // width changes with the numbers; keep right/centre anchoring exact
     }
 }
 

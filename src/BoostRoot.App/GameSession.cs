@@ -85,7 +85,7 @@ public sealed class GameSession : IDisposable
                 using (p) try { if (!p.CloseMainWindow() || !p.WaitForExit(1500)) p.Kill(); } catch (Exception) { }
         DnsChanger.FlushDns();
     }
-    private bool _gameStarted;
+    private bool _gameStarted, _overlayTipShown;
 
     private void Sample()
     {
@@ -170,7 +170,13 @@ public sealed class GameSession : IDisposable
         switch (id)
         {
             case HkOverlay:
-                if (_overlay is null) { _overlay = new StatsOverlay(_sensors, _fps, _settings); _overlay.Show(); }
+                if (_overlay is null)
+                {
+                    _overlay = new StatsOverlay(_sensors, _fps, _settings);
+                    _overlay.Show();
+                    // Exclusive fullscreen draws over every other window; say so once instead of leaving people guessing.
+                    if (!_overlayTipShown) { _overlayTipShown = true; ToastOverlay.Show(Loc.I["overlay.fullscreenTip"], 6); }
+                }
                 else { _overlay.Close(); _overlay = null; }
                 break;
             case HkCrosshair: ToggleCrosshair(); break;

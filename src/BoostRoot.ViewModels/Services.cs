@@ -49,7 +49,12 @@ public sealed record AppSettings(
     IReadOnlyList<ManualGame>? ManualGames = null,
     bool NetBoost = false,
     // "Sadece Boost": apply the boost, then watch nothing — no FPS capture, sensors, overlays, clips, stats or alerts.
-    bool PureBoost = false)
+    bool PureBoost = false,
+    // Overlay laid out in one row (fits along the top edge) instead of a column.
+    bool OverlayHorizontal = false,
+    // Remembered between starts: last selected game and the level picked per game.
+    string? LastGameId = null,
+    Dictionary<string, string>? GameLevels = null)
 {
     /// <summary>What the overlay draws: the Studio design if one was chosen, else the simple settings.</summary>
     public BoostRoot.Core.Crosshair.CrosshairDesign OverlayCrosshair => CrosshairDesign ?? new(Color: CrosshairOrDefault.Color, Outline: CrosshairOrDefault.Outline, Dot: CrosshairOrDefault.Dot,

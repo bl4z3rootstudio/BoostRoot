@@ -49,6 +49,9 @@ public sealed partial class UpdatesViewModel(IAppServices services) : Observable
     [ObservableProperty] public partial string? GpuText { get; set; }
     [ObservableProperty] public partial bool GpuOld { get; set; }
     [ObservableProperty] public partial bool Scanned { get; set; }
+    /// <summary>Installed games with a pending update (Steam).</summary>
+    public System.Collections.ObjectModel.ObservableCollection<string> Games { get; } = [];
+    [RelayCommand] public void OpenSteamDownloads() => services.OpenUrl("steam://open/downloads");
     public int Total => Apps.Count(a => !a.Done) + Windows.Count(w => !w.Hidden) + (GpuOld ? 1 : 0);
     public string Summary => Scanned ? (Total == 0 ? Loc.I["upd.allGood"] : Loc.I.Format("upd.found", Total)) : Loc.I["upd.notScanned"];
 
@@ -70,6 +73,14 @@ public sealed partial class UpdatesViewModel(IAppServices services) : Observable
             foreach (var a in await apps) Apps.Add(new AppUpdateRow(a));
             foreach (var w in (await win).OrderByDescending(w => w.IsDriver).ThenBy(w => w.Optional)) Windows.Add(new WinUpdateRow(w));
             foreach (var b in await bloat) Bloat.Add(new BloatRow(b));
+            // Games: Steam marks a pending update in the app manifest (StateFlags bit 2 = update required).
+            Games.Clear();
+            try
+            {
+                foreach (var g in services.LoadCatalog().Where(e => e.Game is { Source: "steam" } gg && gg.Extra.TryGetValue("state", out var f) && int.TryParse(f, out var n) && (n & (2 | 512 | 1024)) != 0))
+                    Games.Add(g.DisplayName);
+            }
+            catch (Exception) { }
             if (services.CheckDriver() is { } d)
             {
                 GpuOld = d.IsOld;

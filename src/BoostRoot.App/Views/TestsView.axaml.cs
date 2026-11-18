@@ -7,6 +7,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using BoostRoot.Core.Ui;
 using BoostRoot.ViewModels;
+using BoostRoot.ViewModels.Localization;
 
 namespace BoostRoot.App.Views;
 
@@ -63,12 +64,7 @@ public sealed partial class TestsView : UserControl
     {
         InitializeComponent();
         BuildKeyboard();
-        MousePad.PointerMoved += (_, e) =>
-        {
-            var n = Math.Max(1, e.GetIntermediatePoints(MousePad).Count);
-            _mouse.Add(_clock.Elapsed.TotalSeconds, n);
-            if (Vm is { } vm) { vm.MouseHz = $"{_mouse.Rate:0}"; vm.MousePeak = $"{_mouse.Peak:0}"; }
-        };
+        MousePad.PointerMoved += (_, e) => OnPadMoved(MousePad, e);
         MousePad.PointerPressed += (_, e) =>
         {
             var k = e.GetCurrentPoint(MousePad).Properties.PointerUpdateKind;
@@ -78,8 +74,8 @@ public sealed partial class TestsView : UserControl
             if (Vm is { } vm) vm.Clicks = $"{_left} / {_right} / {_middle}";
         };
         DeadPixelButton.Click += (_, _) => DeadPixelWindow.Open();
-        // Bigger pad = more room to move = steadier Hz reading.
-        PadSize.ValueChanged += (_, e) => MousePad.Height = e.NewValue;
+        // Full screen pad: more room to move = steadier Hz reading. The icon bottom-right (or Esc) brings it back.
+        FullPadButton.Click += (_, _) => OpenFullPad();
         LayoutBox.SelectionChanged += (_, _) =>
         {
             _layout = (LayoutBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "100";
@@ -87,6 +83,40 @@ public sealed partial class TestsView : UserControl
             foreach (var k in _tested) if (_keys.TryGetValue(k, out var b)) b.Background = new SolidColorBrush(Color.Parse("#1E5E3A"));
         };
         ResetButton.Click += (_, _) => Reset();
+    }
+
+    private void OnPadMoved(Visual relativeTo, PointerEventArgs e)
+    {
+        var n = Math.Max(1, e.GetIntermediatePoints(relativeTo).Count);
+        _mouse.Add(_clock.Elapsed.TotalSeconds, n);
+        if (Vm is { } vm) { vm.MouseHz = $"{_mouse.Rate:0}"; vm.MousePeak = $"{_mouse.Peak:0}"; }
+    }
+
+    private void OpenFullPad()
+    {
+        var hz = new TextBlock { FontSize = 120, FontWeight = FontWeight.Bold, Foreground = Res("AccentLight", Brushes.Violet), HorizontalAlignment = HorizontalAlignment.Center };
+        var peak = new TextBlock { FontSize = 22, Foreground = Brushes.Gray, HorizontalAlignment = HorizontalAlignment.Center };
+        var close = new Button
+        {
+            HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(24), Padding = new Thickness(12),
+            Content = new PathIcon { Data = Geometry.Parse("M10 3v7H3V8h5V3zm4 0h2v5h5v2h-7zM3 14h7v7H8v-5H3zm11 0h7v2h-5v5h-2z"), Width = 22, Height = 22 },
+        };
+        var root = new Grid
+        {
+            Background = Res("Bg", Brushes.Black), Cursor = new Cursor(StandardCursorType.Cross),
+            Children = { new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, IsHitTestVisible = false, Children = { hz, peak } }, close },
+        };
+        var win = new Window { WindowState = WindowState.FullScreen, WindowDecorations = WindowDecorations.None, Content = root, Topmost = true };
+        root.PointerMoved += (_, e) =>
+        {
+            OnPadMoved(root, e);
+            hz.Text = $"{_mouse.Rate:0} Hz";
+            peak.Text = $"{Loc.I["tests.peak"]}: {_mouse.Peak:0} Hz";
+        };
+        close.Click += (_, _) => win.Close();
+        win.KeyDown += (_, e) => { if (e.Key == Key.Escape) win.Close(); };
+        hz.Text = "— Hz";
+        win.Show();
     }
 
     private static IBrush Res(string key, IBrush fallback) =>

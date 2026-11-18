@@ -44,7 +44,8 @@ public sealed class SteamLocator(LocatorEnvironment env) : IGameLocator
                 {
                     var st = VdfReader.Parse(Util.Read(env.Fs, acf)).Child("AppState");
                     if (st?.Str("appid") is not { } id || st.Str("installdir") is not { } dir) continue;
-                    games.Add(new InstalledGame("steam", id, st.Str("name") ?? dir, Util.J(apps, "common", dir), Util.NoExtra));
+                    games.Add(new InstalledGame("steam", id, st.Str("name") ?? dir, Util.J(apps, "common", dir),
+                        st.Str("StateFlags") is { } flags ? new Dictionary<string, string> { ["state"] = flags } : Util.NoExtra));
                 }
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
             }

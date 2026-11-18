@@ -29,6 +29,20 @@
           <Button Grid.Column="1" Classes="ghost" VerticalAlignment="Center" Command="{Binding OpenGpuCommand}" Content="{Binding [upd.openGpu], Source={x:Static loc:Loc.I}}" />
         </Grid>
       </Border>
+      <Border Classes="card" IsVisible="{Binding Scanned}">
+        <StackPanel Spacing="6">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Classes="h2" Text="{Binding [upd.games], Source={x:Static loc:Loc.I}}" />
+            <Button Grid.Column="1" Classes="ghost" IsVisible="{Binding Games.Count}" Command="{Binding OpenSteamDownloadsCommand}" Content="{Binding [upd.openSteam], Source={x:Static loc:Loc.I}}" />
+          </Grid>
+          <TextBlock Classes="muted" IsVisible="{Binding !Games.Count}" Text="{Binding [upd.gamesNone], Source={x:Static loc:Loc.I}}" />
+          <ItemsControl ItemsSource="{Binding Games}">
+            <ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String">
+              <TextBlock Margin="0,2" Foreground="{StaticResource Warn}" Text="{Binding}" />
+            </DataTemplate></ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
       <Border Classes="card">
         <StackPanel Spacing="8">
           <Grid ColumnDefinitions="*,Auto">

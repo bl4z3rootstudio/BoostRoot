@@ -52,6 +52,32 @@ public sealed partial class FpsViewModel : ObservableObject
 
     public string Cpu { get; set; } = "";
     public string Gpu { get; set; } = "";
+
+    // ---- Estimate (before measuring) ----
+    [ObservableProperty] public partial string? EstimateText { get; set; }
+    [ObservableProperty] public partial string? EstimateBoostText { get; set; }
+    [ObservableProperty] public partial string? EstimateNote { get; set; }
+
+    /// <summary>Estimated range for this PC + the boost effect: measured if a before/after exists, otherwise the typical range.</summary>
+    public void RefreshEstimate()
+    {
+        EstimateText = EstimateBoostText = null;
+        EstimateNote = null;
+        if (Selected?.Profile is not { } p) return;
+        if (FpsEstimator.Estimate(p.Id, Gpu, Cpu) is not { } e)
+        {
+            EstimateNote = Gpu.Length == 0 ? Loc.I["fps.estNoHw"] : Loc.I["fps.estNoGame"];
+            return;
+        }
+        EstimateText = Loc.I.Format("fps.estRange", e.Low, e.High);
+        if (_services.FpsHistory.Comparison(p.Id) is { } c)
+        {
+            var g = FrameStats.Gain(c.Before.Stats, c.After.Stats) / 100.0;
+            EstimateBoostText = Loc.I.Format("fps.estBoostMeasured", (int)(e.Low * (1 + g)), (int)(e.High * (1 + g)), $"{g * 100:+0.#;-0.#}");
+        }
+        else EstimateBoostText = Loc.I.Format("fps.estBoostTypical", e.Low, (int)(e.High * 1.08));
+        EstimateNote = Loc.I[e.Cap is not null ? "fps.estCapped" : e.Limit == "cpu" ? "fps.estCpu" : "fps.estGpu"];
+    }
     private CancellationTokenSource? _cts;
 
     public FpsViewModel(IAppServices services)
@@ -69,7 +95,7 @@ public sealed partial class FpsViewModel : ObservableObject
         LoadHistory();
     }
 
-    partial void OnSelectedChanged(CatalogEntry? value) => LoadComparison();
+    partial void OnSelectedChanged(CatalogEntry? value) { LoadComparison(); RefreshEstimate(); }
 
     [RelayCommand] public void ChooseDuration(MinutesChoice d) { foreach (var x in Durations) x.IsSelected = x == d; }
 

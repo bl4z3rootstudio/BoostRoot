@@ -97,6 +97,7 @@
               <ComboBox.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding Converter={x:Static v:LocKeyConverter.Corner}}" /></DataTemplate></ComboBox.ItemTemplate>
             </ComboBox>
           </Grid>
+          <ToggleSwitch IsChecked="{Binding OverlayHorizontal}" Content="{Binding [settings.overlayHorizontal], Source={x:Static loc:Loc.I}}" />
           <ToggleSwitch IsChecked="{Binding OverlayIcons}" Content="{Binding [settings.overlayIcons], Source={x:Static loc:Loc.I}}" />
           <Grid ColumnDefinitions="*,Auto">
             <TextBlock VerticalAlignment="Center" Text="{Binding [settings.overlayColor], Source={x:Static loc:Loc.I}}" />

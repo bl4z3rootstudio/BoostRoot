@@ -32,6 +32,19 @@
           </ItemsControl>
         </StackPanel>
       </Grid>
+      <!-- Estimate for this PC (before you measure) -->
+      <Border Classes="card">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+          <PathIcon Data="M2 13h4l2.5-6 4 12 3.5-9 1.5 3H22v2h-5.8L15 12.5 11.6 21 7.6 9.5 7.3 10.3 7 15H2z" Width="26" Height="26" Foreground="{StaticResource AccentLight}" VerticalAlignment="Top" />
+          <StackPanel Grid.Column="1" Spacing="4">
+            <TextBlock Classes="h2" Text="{Binding [fps.estTitle], Source={x:Static loc:Loc.I}}" />
+            <TextBlock FontSize="22" FontWeight="Bold" Foreground="{StaticResource AccentLight}" Text="{Binding EstimateText}" IsVisible="{Binding EstimateText, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <TextBlock FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource Good}" Text="{Binding EstimateBoostText}" IsVisible="{Binding EstimateBoostText, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding EstimateNote}" />
+            <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [fps.estHonest], Source={x:Static loc:Loc.I}}" />
+          </StackPanel>
+        </Grid>
+      </Border>
       <StackPanel Orientation="Horizontal" Spacing="12">
         <Button Classes="ghost" Command="{Binding MeasureCommand}" CommandParameter="before" Content="{Binding [fps.measureBefore], Source={x:Static loc:Loc.I}}" />
         <Button Classes="primary" Command="{Binding MeasureCommand}" CommandParameter="after" Content="{Binding [fps.measureAfter], Source={x:Static loc:Loc.I}}" />

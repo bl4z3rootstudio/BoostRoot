@@ -139,3 +139,27 @@ public class WeeklyReportTests
         Assert.Equal(TimeSpan.FromHours(1), w.PreviousWeek);
     }
 }
+
+public class FpsEstimatorTests
+{
+    [Fact]
+    public void GpuNames_MatchTheRightModel()
+    {
+        Assert.Equal(115, BoostRoot.Core.Fps.FpsEstimator.GpuScore("NVIDIA GeForce RTX 4060"));
+        Assert.Equal(140, BoostRoot.Core.Fps.FpsEstimator.GpuScore("NVIDIA GeForce RTX 4060 Ti"));
+        Assert.Equal(110, BoostRoot.Core.Fps.FpsEstimator.GpuScore("AMD Radeon RX 6600 XT"));
+        Assert.Equal(270, BoostRoot.Core.Fps.FpsEstimator.GpuScore("AMD Radeon RX 9070 XT"));
+        Assert.Null(BoostRoot.Core.Fps.FpsEstimator.GpuScore("Microsoft Basic Display Adapter"));
+    }
+
+    [Fact]
+    public void Estimate_IsARange_AndRespectsCaps()
+    {
+        var v = BoostRoot.Core.Fps.FpsEstimator.Estimate("valorant", "AMD Radeon RX 6700 XT", "Intel(R) Core(TM) i5-12400F")!;
+        Assert.True(v.Low < v.High);
+        Assert.Equal("cpu", v.Limit);
+        var e = BoostRoot.Core.Fps.FpsEstimator.Estimate("elden-ring", "NVIDIA GeForce RTX 4090", "AMD Ryzen 7 7800X3D 8-Core Processor")!;
+        Assert.Equal(60, e.High);
+        Assert.Null(BoostRoot.Core.Fps.FpsEstimator.Estimate("unknown-game", "NVIDIA GeForce RTX 4060", "x"));
+    }
+}

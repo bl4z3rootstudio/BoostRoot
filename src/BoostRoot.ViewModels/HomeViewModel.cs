@@ -300,8 +300,11 @@ public sealed partial class HomeViewModel : ObservableObject
     {
         _all = [.. _services.LoadCatalog().Select(e => new GameCardViewModel(e, _services.CoverPath(e)))];
         ApplyFilter();
-        Select(Games.FirstOrDefault(g => g.IsInstalled));
+        Select(Games.FirstOrDefault(g => g.IsInstalled && g.Entry.Profile?.Id == _settings.LastGameId) ?? Games.FirstOrDefault(g => g.IsInstalled));
     }
+
+    /// <summary>Set by the shell: persists last game / per-game level so nothing has to be picked again after a restart.</summary>
+    public Action<Func<AppSettings, AppSettings>>? RememberChoice { get; set; }
 
     [RelayCommand]
     public void Select(GameCardViewModel? game)
@@ -315,7 +318,13 @@ public sealed partial class HomeViewModel : ObservableObject
         if (game?.Entry.Profile is { } p)
         {
             var rec = Recommended(p);
-            foreach (var l in Levels) { l.IsRecommended = l.Level == rec; l.IsSelected = l.Level == rec; }
+            var chosen = _settings.GameLevels?.TryGetValue(p.Id, out var lv) == true && Enum.TryParse<BoostLevel>(lv, out var parsed) && Levels.Any(x => x.Level == parsed) ? parsed : rec;
+            foreach (var l in Levels) { l.IsRecommended = l.Level == rec; l.IsSelected = l.Level == chosen; }
+            if (_settings.LastGameId != p.Id)
+            {
+                _settings = _settings with { LastGameId = p.Id };
+                RememberChoice?.Invoke(s => s with { LastGameId = p.Id });
+            }
             LastOperation = _services.LastBoostOperation(p.Id);
             RefreshChanges();
             _loadingStretch = true;
@@ -329,6 +338,12 @@ public sealed partial class HomeViewModel : ObservableObject
     {
         foreach (var l in Levels) l.IsSelected = l == level;
         RefreshChanges();
+        if (Selected?.Entry.Profile is { } p)
+        {
+            var map = new Dictionary<string, string>(_settings.GameLevels ?? []) { [p.Id] = level.Level.ToString() };
+            _settings = _settings with { GameLevels = map };
+            RememberChoice?.Invoke(s => s with { GameLevels = new Dictionary<string, string>(s.GameLevels ?? []) { [p.Id] = level.Level.ToString() } });
+        }
     }
 
     private bool CanBoost() => Selected?.Entry.Profile is not null && !IsBusy;
