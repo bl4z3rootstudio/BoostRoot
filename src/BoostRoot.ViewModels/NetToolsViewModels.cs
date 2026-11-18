@@ -35,7 +35,7 @@ public sealed partial class NetViewModel(IAppServices services) : ObservableObje
         DnsQuestion = null;
         try
         {
-            foreach (var id in new[] { "net-throttle-off", "games-priority" })
+            foreach (var id in new[] { "net-throttle-off" })
                 if (!services.AppliedTweaks().ContainsKey(id))
                     try { services.SetTweak(id, true); } catch (Exception) { }
             ImproveSteps.Add(Loc.I["improve.throttle"]);

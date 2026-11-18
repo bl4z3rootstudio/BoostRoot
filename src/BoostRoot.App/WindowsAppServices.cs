@@ -32,7 +32,7 @@ internal sealed partial class AppJsonContext : JsonSerializerContext;
 public sealed class WindowsAppServices : IAppServices
 {
     /// <summary>Safe tweaks applied with every boost (spec 6.6). Advanced tweaks are opt-in on their own screen.</summary>
-    public static IReadOnlyList<string> SafeTweaks { get; } = ["power-high", "gamedvr-off", "gamemode-on", "windowed-opt", "games-priority"];
+    public static IReadOnlyList<string> SafeTweaks { get; } = ["power-high", "gamedvr-off", "gamemode-on", "windowed-opt"];
 
     private readonly IFileSystem _fs = PhysicalFileSystem.Instance;
     private readonly WindowsRegistry _registry = new();
@@ -566,6 +566,32 @@ public sealed class WindowsAppServices : IAppServices
     {
         try { return File.Exists(TweakFile) ? JsonSerializer.Deserialize(File.ReadAllText(TweakFile), AppJsonContext.Default.DictionaryStringString) ?? [] : []; }
         catch (Exception ex) when (ex is JsonException or IOException) { return new Dictionary<string, string>(); }
+    }
+
+    /// <summary>26.11.17 repair: undo the MMCSS "games-priority" tweak and the SystemResponsiveness change from 26.11.12–16,
+    /// which caused system-wide lag on some PCs. Runs once; only resets values that still hold exactly what BoostRoot wrote.</summary>
+    public void RepairLagTweaks()
+    {
+        var marker = Path.Combine(UserDataDir, "repair-26.11.17.done");
+        if (File.Exists(marker)) return;
+        try
+        {
+            var map = new Dictionary<string, string>(AppliedTweaks());
+            foreach (var id in new[] { "games-priority", "net-throttle-off" })
+                if (map.Remove(id, out var op)) try { _undo.RevertOperation(op); } catch (Exception) { }
+            Directory.CreateDirectory(UserDataDir);
+            File.WriteAllText(TweakFile, JsonSerializer.Serialize(map, AppJsonContext.Default.DictionaryStringString));
+            const string mm = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile";
+            const string games = mm + @"\Tasks\Games";
+            var R = Core.Platform.RegistryHive.LocalMachine;
+            // Windows defaults; written only where our values are still present.
+            if (_registry.GetValue(R, games, "Scheduling Category")?.Data == "High") _registry.SetValue(R, games, "Scheduling Category", Core.Platform.RegistryValue.Str("Medium"));
+            if (_registry.GetValue(R, games, "SFIO Priority")?.Data == "High") _registry.SetValue(R, games, "SFIO Priority", Core.Platform.RegistryValue.Str("Normal"));
+            if (_registry.GetValue(R, games, "Priority")?.Data == "6") _registry.SetValue(R, games, "Priority", Core.Platform.RegistryValue.Dword(2));
+            if (_registry.GetValue(R, mm, "SystemResponsiveness")?.Data == "10") _registry.SetValue(R, mm, "SystemResponsiveness", Core.Platform.RegistryValue.Dword(20));
+            File.WriteAllText(marker, DateTime.UtcNow.ToString("O"));
+        }
+        catch (Exception) { }
     }
 
     public void SetTweak(string id, bool on)

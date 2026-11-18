@@ -16,6 +16,7 @@ public sealed partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var services = WindowsAppServices.Create();
+            _ = Task.Run(services.RepairLagTweaks); // 26.11.17: undo the tweak that made some PCs lag
             var vm = new MainViewModel(services);
             var window = new MainWindow { DataContext = vm };
             desktop.MainWindow = window;

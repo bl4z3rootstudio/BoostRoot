@@ -54,7 +54,8 @@ public sealed class WindowsProcessManager : IProcessManager
         try
         {
             using var p = Process.GetProcessById(processId);
-            p.PriorityClass = ProcessPriorityClass.High;
+            // AboveNormal, not High: High let a CPU-bound game starve the desktop, mouse input, Discord and audio.
+            if (p.PriorityClass is ProcessPriorityClass.Normal or ProcessPriorityClass.BelowNormal or ProcessPriorityClass.Idle) p.PriorityClass = ProcessPriorityClass.AboveNormal;
             return true;
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception) { return false; }

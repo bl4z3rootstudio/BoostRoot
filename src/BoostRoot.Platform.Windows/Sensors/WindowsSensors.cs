@@ -16,11 +16,33 @@ public sealed class WindowsSensors : ISensors
 
     public string GpuBackend => _nv is not null ? "NVML" : _amd is not null ? "ADL" : "none";
 
+    // GPU driver queries (AMD ADL "PMLog" especially) take the driver lock; polled too often they cause hitches in games and
+    // even on the desktop. Every caller shares one reading that is refreshed at most every few seconds.
+    private static readonly TimeSpan GpuMinInterval = TimeSpan.FromSeconds(3);
+    private SensorSnapshot? _gpu;
+    private DateTime _gpuAt;
+    private readonly object _gpuLock = new();
+
     public SensorSnapshot Read()
     {
         var s = new SensorSnapshot(DateTime.UtcNow);
         try { s = _cpu.Fill(s); } catch (Exception) { }
-        try { s = _nv?.Fill(s) ?? _amd?.Fill(s) ?? s; } catch (Exception) { }
+        try
+        {
+            SensorSnapshot? g;
+            lock (_gpuLock)
+            {
+                if (_gpu is null || DateTime.UtcNow - _gpuAt >= GpuMinInterval)
+                {
+                    _gpu = _nv?.Fill(new SensorSnapshot(DateTime.UtcNow)) ?? _amd?.Fill(new SensorSnapshot(DateTime.UtcNow));
+                    _gpuAt = DateTime.UtcNow;
+                }
+                g = _gpu;
+            }
+            if (g is not null)
+                s = s with { GpuLoad = g.GpuLoad, GpuTempC = g.GpuTempC, GpuHotspotC = g.GpuHotspotC, GpuClockMhz = g.GpuClockMhz, GpuPowerW = g.GpuPowerW, VramUsedMb = g.VramUsedMb };
+        }
+        catch (Exception) { }
         try { s = s with { RamUsedPct = RamPct() }; } catch (Exception) { }
         if (FpsSource is not null) s = s with { Fps = FpsSource() };
         return s;

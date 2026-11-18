@@ -90,7 +90,10 @@ public sealed class GameSession : IDisposable
     private void Sample()
     {
         var spikes = Interlocked.Exchange(ref _spikes, 0);
+        _sampleTick++;
         if (!_settings.StutterDetect && !_settings.SessionReport && !_settings.Notifications && !_settings.PacketLossAlert) return;
+        // Light by design: sensors only every 10 s, or right after a hitch (to name its cause).
+        if (spikes == 0 && _sampleTick % 5 != 0) { if (_settings.PacketLossAlert && _sampleTick % 3 == 0) PingOnce(); return; }
         BoostRoot.Core.Monitoring.SensorSnapshot x;
         try { x = _sensors.Read(); } catch (Exception) { return; }
         if (x.GpuTempC is { } g) _maxGpu = Math.Max(_maxGpu ?? 0, g);
@@ -102,7 +105,13 @@ public sealed class GameSession : IDisposable
             _lastHeatAlert = now;
             ToastOverlay.Show(Loc.I.Pick(new($"Sıcaklık yüksek: ekran kartı {x.GpuTempC:0}°C, işlemci {x.CpuTempC:0}°C", $"Running hot: GPU {x.GpuTempC:0}°C, CPU {x.CpuTempC:0}°C")), 4);
         }
-        if (_settings.PacketLossAlert)
+        if (_settings.PacketLossAlert && _sampleTick % 3 == 0) PingOnce();
+    }
+
+    private int _sampleTick;
+
+    private void PingOnce()
+    {
             _ = Task.Run(async () =>
             {
                 var r = await _pinger.PingAsync("1.1.1.1", TimeSpan.FromMilliseconds(900), CancellationToken.None);

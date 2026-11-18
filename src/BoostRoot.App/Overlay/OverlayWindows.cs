@@ -100,7 +100,7 @@ public sealed class StatsOverlay : OverlayWindowBase
             _cells[m] = (value, icon);
         }
         Content = new Border { Background = new SolidColorBrush(Color.FromArgb(alpha, 10, 8, 18)), CornerRadius = new CornerRadius(8 * scale), Padding = new Thickness(10 * scale, 6 * scale), Child = _rows };
-        _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(500), DispatcherPriority.Background, (_, _) => Refresh());
+        _timer = new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Background, (_, _) => Refresh());
         Opened += (_, _) => _timer.Start();
         Closed += (_, _) => _timer.Stop();
     }
@@ -125,7 +125,7 @@ public sealed class StatsOverlay : OverlayWindowBase
         var fps = _fps.Fps;
         if (fps is { } f) { _lowWindow.Enqueue(f); while (_lowWindow.Count > 20) _lowWindow.Dequeue(); }
         static string N(double? v, string u) => v is { } d ? $"{d:0}{u}" : "—";
-        if (_metrics.Contains("ping") && _tick++ % 4 == 0)
+        if (_metrics.Contains("ping") && _tick++ % 3 == 0)
             _ = Task.Run(async () => { var r = await _pinger.PingAsync("1.1.1.1", TimeSpan.FromMilliseconds(900), CancellationToken.None); _ping = r; });
         foreach (var (m, (value, icon)) in _cells)
         {

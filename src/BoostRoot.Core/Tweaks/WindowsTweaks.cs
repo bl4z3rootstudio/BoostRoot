@@ -57,20 +57,13 @@ public static class WindowsTweaks
             new("Bazı sistemlerde birkaç FPS kazandırır.", "Gains a few FPS on some systems."),
             new("Bilgisayarın kötü amaçlı sürücülere karşı korumasını azaltır. Sadece riski anlıyorsan aç.", "Weakens protection against malicious drivers. Only enable if you understand the risk."),
             true, [new(RegistryHive.LocalMachine, @"SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity", "Enabled", RegistryValue.Dword(0))]),
-        new("games-priority", TweakTier.Safe,
-            new("Oyunlara işlemci ve ekran kartı önceliği", "CPU and GPU priority for games"),
-            new("Windows'un çoklu ortam zamanlayıcısı oyunlara daha yüksek öncelik verir.", "Windows' multimedia scheduler gives games a higher priority."),
-            null, false,
-            [new(RegistryHive.LocalMachine, MmKey + @"\Tasks\Games", "GPU Priority", RegistryValue.Dword(8)),
-             new(RegistryHive.LocalMachine, MmKey + @"\Tasks\Games", "Priority", RegistryValue.Dword(6)),
-             new(RegistryHive.LocalMachine, MmKey + @"\Tasks\Games", "Scheduling Category", RegistryValue.Str("High")),
-             new(RegistryHive.LocalMachine, MmKey + @"\Tasks\Games", "SFIO Priority", RegistryValue.Str("High"))]),
+        // "games-priority" (MMCSS Games: Scheduling Category High) was removed in 26.11.17: it pushes game threads into the
+        // real-time priority band and starved the desktop/input on some PCs (freezes, lag). Old applications are reverted on start.
         new("net-throttle-off", TweakTier.Advanced,
             new("Ağ kısıtlamasını kapat (ping)", "Turn off network throttling (ping)"),
-            new("Windows'un çoklu ortam sırasında ağ paketlerini kısmasını kapatır ve arka plan işlerine ayrılan payı azaltır; ping daha sabit olur.", "Stops Windows from throttling network packets during multimedia and gives background work less time; steadier ping."),
+            new("Windows'un çoklu ortam (müzik, video) sırasında ağ paketlerini kısmasını kapatır.", "Stops Windows from throttling network packets while media is playing."),
             null, false,
-            [new(RegistryHive.LocalMachine, MmKey, "NetworkThrottlingIndex", RegistryValue.Dword(-1)),
-             new(RegistryHive.LocalMachine, MmKey, "SystemResponsiveness", RegistryValue.Dword(10))]),
+            [new(RegistryHive.LocalMachine, MmKey, "NetworkThrottlingIndex", RegistryValue.Dword(-1))]),
     ];
 
     private const string MmKey = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile";
