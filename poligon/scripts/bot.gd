@@ -27,6 +27,7 @@ var _mats: Array[StandardMaterial3D] = []
 var _rng := RandomNumberGenerator.new()
 
 static var _shared := {}
+const BASE_HEAD_Y := 1.6
 
 static func _mat(key: String, color: Color, outline := false) -> StandardMaterial3D:
 	if _shared.has(key):
@@ -56,8 +57,10 @@ func _ready() -> void:
 	var body_col: Color = pal[0]
 	var accent: Color = pal[1]
 	hp = int(Settings.game().get("hp", 150))
-	var head_y: float = Settings.game().get("head_y", 1.6)
-	var head_r: float = Settings.game().get("head_r", 0.125)
+	# Built at VALORANT size; other games scale the whole body so the head sits at their real height.
+	var head_y := BASE_HEAD_Y
+	var head_r := 0.125
+	scale = Vector3.ONE * (float(Settings.game().get("head_y", BASE_HEAD_Y)) / BASE_HEAD_Y)
 	# Legs
 	for sx in [-0.11, 0.11]:
 		_part(_capsule(0.085, 0.82), Vector3(sx, 0.43, 0), body_col)
@@ -148,7 +151,7 @@ func _hitbox(part: String, shape: Shape3D, pos: Vector3) -> void:
 	add_child(a)
 
 func head_position_at(p: Vector3) -> Vector3:
-	return p + Vector3(0, float(Settings.game().get("head_y", 1.6)) * scale.y, 0)
+	return p + Vector3(0, BASE_HEAD_Y * scale.y, 0)
 
 func head_position() -> Vector3:
 	return head_position_at(global_position)
@@ -175,10 +178,10 @@ func face(target: Vector3) -> void:
 		look_at(t, Vector3.UP, true)
 
 ## Returns damage dealt; kills at hp <= 0.
-func hit(part: String, weapon: Dictionary) -> int:
+func hit(part: String, weapon: Dictionary, dist := 10.0) -> int:
 	if not alive:
 		return 0
-	var dmg := int(weapon.get(part, 40))
+	var dmg := GameDefs.damage(weapon, part, dist)
 	hp -= dmg
 	if part == "head":
 		head_hit = true

@@ -143,3 +143,40 @@ public static class ValorantCrosshairConfig
 
 [System.Text.Json.Serialization.JsonSerializable(typeof(string))]
 internal sealed partial class PoligonJson : System.Text.Json.Serialization.JsonSerializerContext;
+
+/// <summary>Reads CS2's cs2_user_convars_*.vcfg: sensitivity and crosshair (converted to a design the range can draw).</summary>
+public static class Cs2Config
+{
+    public static Dictionary<string, string> Convars(string vcfg)
+    {
+        var d = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(vcfg, "\"([A-Za-z0-9_]+)\"\\s+\"([^\"]*)\""))
+            d[m.Groups[1].Value] = m.Groups[2].Value;
+        return d;
+    }
+
+    private static double? Num(Dictionary<string, string> d, string k) =>
+        d.TryGetValue(k, out var v) && double.TryParse(v, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var n) ? n : null;
+
+    public static double? Sensitivity(string vcfg) => Num(Convars(vcfg), "sensitivity") is { } s && s > 0 && s < 100 ? s : null;
+
+    /// <summary>Inverse of CrosshairDesign.ToSourceCommands (sizes are approximate: CS units differ slightly).</summary>
+    public static BoostRoot.Core.Crosshair.CrosshairDesign? Crosshair(string vcfg)
+    {
+        var d = Convars(vcfg);
+        if (Num(d, "cl_crosshairsize") is not { } size) return null;
+        var thick = Num(d, "cl_crosshairthickness") ?? 0.5;
+        var gap = Num(d, "cl_crosshairgap") ?? -1;
+        int Byte(string k, int def) => (int)Math.Clamp(Num(d, k) ?? def, 0, 255);
+        var colorIdx = (int)(Num(d, "cl_crosshaircolor") ?? 1);
+        var color = colorIdx switch
+        {
+            0 => "#FF0000", 1 => "#00FF00", 2 => "#FFFF00", 3 => "#0000FF", 4 => "#00FFFF",
+            _ => $"#{Byte("cl_crosshaircolor_r", 50):X2}{Byte("cl_crosshaircolor_g", 250):X2}{Byte("cl_crosshaircolor_b", 50):X2}",
+        };
+        var alpha = (Num(d, "cl_crosshairusealpha") ?? 1) > 0 ? Byte("cl_crosshairalpha", 200) / 255.0 : 1;
+        var lines = new BoostRoot.Core.Crosshair.CrosshairLines(size > 0, (int)Math.Max(1, Math.Round((thick + 0.5) * 2)), (int)Math.Round(size * 2), (int)Math.Max(0, Math.Round(gap + 4)), Math.Round(alpha, 2));
+        return new("CS2", color, (Num(d, "cl_crosshair_drawoutline") ?? 0) > 0, (int)Math.Clamp(Num(d, "cl_crosshair_outlinethickness") ?? 1, 1, 3), 1,
+            (Num(d, "cl_crosshairdot") ?? 0) > 0, 2, 1, lines, new(false), (Num(d, "cl_crosshair_t") ?? 0) > 0);
+    }
+}

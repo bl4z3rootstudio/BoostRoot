@@ -88,3 +88,49 @@ public class ValorantCrosshairConfigTests
         Assert.Null(ValorantCrosshairConfig.Read("EAresStringSettingName::SavedCrosshairProfileData=\"{bad\""));
     }
 }
+
+public class Cs2ConfigTests
+{
+    private const string Vcfg = """
+    "config"
+    {
+        "convars"
+        {
+            "sensitivity"		"1.250000"
+            "cl_crosshairsize"		"2"
+            "cl_crosshairthickness"		"0.5"
+            "cl_crosshairgap"		"-2"
+            "cl_crosshaircolor"		"5"
+            "cl_crosshaircolor_r"		"0"
+            "cl_crosshaircolor_g"		"255"
+            "cl_crosshaircolor_b"		"255"
+            "cl_crosshairdot"		"0"
+            "cl_crosshair_drawoutline"		"1"
+        }
+    }
+    """;
+
+    [Fact]
+    public void Reads_sens_and_crosshair()
+    {
+        Assert.Equal(1.25, Cs2Config.Sensitivity(Vcfg));
+        var d = Cs2Config.Crosshair(Vcfg)!;
+        Assert.Equal("#00FFFF", d.Color);
+        Assert.Equal(4, d.InnerLines.Length);
+        Assert.Equal(2, d.InnerLines.Offset);
+        Assert.True(d.Outline);
+        Assert.NotNull(BoostRoot.Core.Crosshair.CrosshairDesign.FromValorantCode(d.ToValorantCode()));
+    }
+
+    [Fact]
+    public void Round_trips_our_own_export()
+    {
+        var design = new BoostRoot.Core.Crosshair.CrosshairDesign("t", "#FF00FF", Inner: new(true, 2, 6, 3, 1));
+        var cfg = string.Join("\n", design.ToSourceConvars().Select(kv => $"\"{kv.Key}\" \"{kv.Value}\""));
+        var back = Cs2Config.Crosshair(cfg)!;
+        Assert.Equal(design.Color, back.Color);
+        Assert.Equal(design.InnerLines.Length, back.InnerLines.Length);
+        Assert.Equal(design.InnerLines.Offset, back.InnerLines.Offset);
+        Assert.Equal(design.InnerLines.Thickness, back.InnerLines.Thickness);
+    }
+}

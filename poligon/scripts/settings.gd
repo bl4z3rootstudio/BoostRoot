@@ -8,6 +8,7 @@ var data_dir := "user://"
 var data := {
 	"game": "valorant",
 	"sens": {"valorant": 0.4},
+	"weapon": {},
 	"dpi": 800,
 	"stretched": false,
 	"stretch_w": 1440,
@@ -42,7 +43,7 @@ func _ready() -> void:
 	if not selftest:
 		load_settings()
 	# BoostRoot passes the player's real sensitivity / crosshair code on launch.
-	if overrides.has("game"):
+	if overrides.has("game") and GameDefs.GAMES.has(String(overrides["game"])) and GameDefs.get_game(String(overrides["game"])).get("enabled", false):
 		data["game"] = overrides["game"]
 	if overrides.has("sens") and String(overrides["sens"]).replace(",", ".").is_valid_float():
 		set_sens(String(overrides["sens"]).replace(",", ".").to_float())
@@ -89,6 +90,20 @@ func set_sens(v: float) -> void:
 ## Degrees turned per raw mouse count — identical to the game.
 func deg_per_count() -> float:
 	return sens() * float(game()["yaw"])
+
+func weapon_id() -> String:
+	var w: Dictionary = data["weapon"]
+	var id := String(w.get(String(data["game"]), game().get("default_weapon", "")))
+	return id if (game()["weapons"] as Dictionary).has(id) else String(game()["default_weapon"])
+
+func weapon() -> Dictionary:
+	var w: Dictionary = game()["weapons"][weapon_id()]
+	return w
+
+func set_weapon(id: String) -> void:
+	var w: Dictionary = data["weapon"]
+	w[String(data["game"])] = id
+	data["weapon"] = w
 
 func react_ms() -> int:
 	return int(data["react_ms"])

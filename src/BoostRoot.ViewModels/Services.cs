@@ -122,8 +122,8 @@ public interface IAppServices
     Task<bool> InstallPoligonAsync(IProgress<double>? progress, CancellationToken ct) => Task.FromResult(false);
     bool LaunchPoligon(string game, double sens, int dpi, string? crosshairCode, bool stretched) => false;
     IReadOnlyList<BoostRoot.Core.Poligon.PoligonRun> PoligonRuns() => [];
-    /// <summary>The player's VALORANT sensitivity and stretched setting from the game's own config files (null = not found).</summary>
-    (double? Sens, bool? Stretched, string? CrosshairCode) ValorantSettings() => (null, null, null);
+    /// <summary>The player's sensitivity / stretched mode / crosshair from the game's own config files (null = not found).</summary>
+    (double? Sens, bool? Stretched, string? CrosshairCode) AimSettings(string game) => (null, null, null);
     /// <summary>Zips Saved Games + Documents\My Games to Documents\BoostRoot\Yedekler; returns the zip path.</summary>
     string? BackupSaves() => null;
     /// <summary>Puts the DNS back exactly as it was before BoostRoot changed it.</summary>

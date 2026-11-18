@@ -28,6 +28,7 @@ var _flash: OmniLight3D
 var _flash_mesh: MeshInstance3D
 var _tracer: MeshInstance3D
 var _fx_t := 0.0
+var _trigger_was_down := false
 
 func _ready() -> void:
 	_rng.randomize()
@@ -41,8 +42,9 @@ func _ready() -> void:
 	collision_layer = 1
 	collision_mask = 1
 	cam = Camera3D.new()
-	cam.keep_aspect = Camera3D.KEEP_WIDTH      # horizontal FOV stays fixed whatever the aspect ratio (like VALORANT)
-	cam.fov = float(Settings.game().get("hfov", 103.0))
+	# VALORANT: horizontal FOV fixed for every aspect ratio. CS2: vertical fixed (Hor+).
+	cam.keep_aspect = Camera3D.KEEP_WIDTH if String(Settings.game().get("fov_axis", "h")) == "h" else Camera3D.KEEP_HEIGHT
+	cam.fov = float(Settings.game().get("fov", 103.0))
 	cam.near = 0.03
 	cam.far = 400.0
 	cam.position.y = float(Settings.game().get("eye", 1.6))
@@ -53,7 +55,7 @@ func _ready() -> void:
 	ammo = int(weapon()["mag"])
 
 func weapon() -> Dictionary:
-	return Settings.game()["weapon"]
+	return Settings.weapon()
 
 func _build_viewmodel() -> void:
 	_viewmodel = Node3D.new()
@@ -161,7 +163,7 @@ func look(counts: Vector2) -> void:
 
 func max_speed() -> float:
 	var g := Settings.game()
-	var s := float(g.get("run", 5.4))
+	var s := float(weapon().get("run", 5.4))
 	if crouching:
 		s *= float(g.get("crouch_mult", 0.5))
 	elif walking:
@@ -170,7 +172,7 @@ func max_speed() -> float:
 
 func speed_frac() -> float:
 	var hv := Vector2(velocity.x, velocity.z).length()
-	return hv / float(Settings.game().get("run", 5.4))
+	return hv / float(weapon().get("run", 5.4))
 
 ## Current random spread in degrees (what the next bullet can deviate by).
 func spread_deg() -> float:
@@ -247,8 +249,10 @@ func _process(delta: float) -> void:
 		reloading -= delta
 		if reloading <= 0.0:
 			ammo = int(weapon()["mag"])
-	if can_shoot and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	var down := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	if can_shoot and down and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and (bool(weapon().get("auto", true)) or not _trigger_was_down):
 		fire()
+	_trigger_was_down = down
 	if can_shoot and Input.is_physical_key_pressed(KEY_R) and reloading <= 0.0 and ammo < int(weapon()["mag"]):
 		reloading = float(weapon()["reload"])
 	if _fx_t > 0.0:
@@ -300,6 +304,7 @@ func fire() -> void:
 		res["part"] = a.get_meta("part")
 		res["bot"] = a.get_meta("bot")
 		res["point"] = hit.position
+		res["dist"] = from.distance_to(hit.position)
 	elif hit:
 		res["point"] = hit.position
 	_show_fx(res["point"])

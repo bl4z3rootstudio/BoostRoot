@@ -261,7 +261,7 @@ func _tick_drill() -> void:
 				var b := _new_bot(int(Settings.react_ms() * 1.6))
 				b.global_position = center
 				b.face(player.global_position)
-				b.start_strafe(center, 2.4, float(Settings.game()["run"]) * float(Settings.data["bot_speed"]))
+				b.start_strafe(center, 2.4, float(Settings.game().get("enemy_run", 5.4)) * float(Settings.data["bot_speed"]))
 		"counter":
 			# A target appears only while you are running: you have to stop to hit it.
 			if bots.is_empty() and now >= next_spawn_ms and player.speed_frac() > 0.6:
@@ -303,13 +303,13 @@ func _spawn_peek(deadline: int, _speed_mult: float) -> Bot:
 		if _visible(pts[1] + Vector3(0, 1.6, 0)) and not _visible(pts[0] + Vector3(0, 1.6, 0)):
 			break
 	var b := _new_bot(deadline)
-	var speed := float(Settings.game()["run"]) * float(Settings.data["bot_speed"])
+	var speed := float(Settings.game().get("enemy_run", 5.4)) * float(Settings.data["bot_speed"])
 	b.peek(pts[0], pts[1], speed)
 	b.face(player.global_position)
 	if kind == 2:
 		b.jiggles = 2
 	elif kind == 3:
-		b.scale = Vector3(1.0, 0.72, 1.0)   # crouch peek: head lower than you expect
+		b.scale = Vector3(b.scale.x, b.scale.y * 0.72, b.scale.z)   # crouch peek: head lower than you expect
 	# The clock starts when the enemy clears the edge of the cover, not while it is still hidden.
 	b.spawned_at = Time.get_ticks_msec() + int(0.4 / speed * 1000.0)
 	return b
@@ -330,7 +330,7 @@ func _spawn_open(yaw_deg: float, dist: float, deadline: int, small := false, beh
 	b.global_position = p
 	b.face(player.global_position)
 	if small:
-		b.scale = Vector3.ONE * 0.85
+		b.scale *= 0.85
 	if behind:
 		b.spawned_at = Time.get_ticks_msec()
 	return b
@@ -363,7 +363,7 @@ func _on_shot(res: Dictionary) -> void:
 	if bool(Settings.data["headshot_only"]) and part != "head" and _cur() != "free":
 		Sfx.play("body", -10.0)
 		return
-	b.hit(part, player.weapon())
+	b.hit(part, player.weapon(), float(res.get("dist", 10.0)))
 	_hit_t = 0.1
 	if part == "head":
 		Sfx.play("head", -4.0)
@@ -794,6 +794,12 @@ func _build_menu() -> Control:
 		gb.toggle_mode = true
 		gb.button_pressed = id == Settings.data["game"]
 		gb.custom_minimum_size = Vector2(0, 44)
+		var gid: String = id
+		gb.pressed.connect(func() -> void:
+			if gid != Settings.data["game"]:
+				Settings.data["game"] = gid
+				Settings.save()
+				get_tree().reload_current_scene())
 		games.add_child(gb)
 	left.add_child(games)
 	var grid := GridContainer.new()
@@ -863,7 +869,22 @@ func _build_menu() -> Control:
 	cm_lbl = _label("", 16, TEAL)
 	dpi_row.add_child(cm_lbl)
 	sv.add_child(dpi_row)
-	sv.add_child(_label("Dönüş oyundaki formülle hesaplanır: hassasiyet × %s° / fare adımı.\nGörüş açısı: %s° yatay (oyunla aynı)." % [str(Settings.game()["yaw"]), str(Settings.game()["hfov"])], 13, Color(0.55, 0.57, 0.66)))
+	var fov_txt := "%s° yatay (her ekranda sabit)" % str(Settings.game()["fov"]) if String(Settings.game()["fov_axis"]) == "h" else "%s° dikey (16:9'da 106° yatay)" % str(Settings.game()["fov"])
+	sv.add_child(_label("Dönüş oyundaki formülle hesaplanır: hassasiyet × %s° / fare adımı.\nGörüş açısı: %s — oyunla aynı." % [str(Settings.game()["yaw"]), fov_txt], 13, Color(0.55, 0.57, 0.66)))
+	# Weapon
+	sv.add_child(_label("Silah", 16, Color(0.7, 0.72, 0.8)))
+	var wsel := OptionButton.new()
+	var wids: Array = (Settings.game()["weapons"] as Dictionary).keys()
+	for i in wids.size():
+		var wd: Dictionary = Settings.game()["weapons"][wids[i]]
+		wsel.add_item("%s  ·  %s" % [wd["name"], "otomatik" if wd["auto"] else "tek atış"])
+		if wids[i] == Settings.weapon_id():
+			wsel.select(i)
+	wsel.item_selected.connect(func(i: int) -> void:
+		Settings.set_weapon(String(wids[i]))
+		Settings.save()
+		player.ammo = int(player.weapon()["mag"]))
+	sv.add_child(wsel)
 	# Stretched resolution
 	var st := CheckBox.new()
 	st.text = "Gerilmiş çözünürlük (4:3 stretched)"
@@ -889,8 +910,8 @@ func _build_menu() -> Control:
 		Settings.save())
 	sv.add_child(res)
 	# Crosshair code
-	sv.add_child(_label("VALORANT nişangah kodu", 16, Color(0.7, 0.72, 0.8)))
-	sv.add_child(_label("Oyunda: Ayarlar → Nişangâh → Profil kodunu dışa aktar → buraya yapıştır.", 13, Color(0.55, 0.57, 0.66)))
+	sv.add_child(_label("Nişangah (VALORANT kodu)", 16, Color(0.7, 0.72, 0.8)))
+	sv.add_child(_label("VALORANT: Ayarlar → Nişangâh → Profil kodunu dışa aktar → yapıştır.\nCS2 için: BoostRoot → Nişangah sayfasında tasarla, VALORANT kodunu kopyala.", 13, Color(0.55, 0.57, 0.66)))
 	var xh := LineEdit.new()
 	xh.text = String(Settings.data["xhair"])
 	sv.add_child(xh)
@@ -1032,18 +1053,29 @@ func _build_pause() -> Control:
 
 func _selftest() -> void:
 	var fails: Array[String] = []
-	# 1) Sensitivity must match the game exactly: 100 counts × 0.4 × 0.07 = 2.8°.
-	Settings.data["game"] = "valorant"
+	# 1) Sensitivity must match the game exactly: counts × sens × yaw (VALORANT 100 × 0.4 × 0.07 = 2.8°).
+	var g := Settings.game()
+	print("selftest game: ", g["name"])
 	Settings.set_sens(0.4)
+	var k := 0.4 * float(g["yaw"])
 	player.set_look(0, 0)
 	player.look(Vector2(100, 0))
-	if absf(player.yaw - (-2.8)) > 0.0001:
+	if absf(player.yaw - (-100.0 * k)) > 0.0001:
 		fails.append("sens yaw %f" % player.yaw)
 	player.look(Vector2(0, -50))
-	if absf(player.pitch - 1.4) > 0.0001:
+	if absf(player.pitch - 50.0 * k) > 0.0001:
 		fails.append("sens pitch %f" % player.pitch)
-	if absf(player.cam.fov - 103.0) > 0.001 or player.cam.keep_aspect != Camera3D.KEEP_WIDTH:
+	var want_aspect := Camera3D.KEEP_WIDTH if String(g["fov_axis"]) == "h" else Camera3D.KEEP_HEIGHT
+	if absf(player.cam.fov - float(g["fov"])) > 0.001 or player.cam.keep_aspect != want_aspect:
 		fails.append("fov")
+	# Damage tables: a headshot with the default rifle kills; Phantom falls off with range.
+	var rifle: Dictionary = g["weapons"][g["default_weapon"]]
+	if GameDefs.damage(rifle, "head", 20.0) < int(g["hp"]):
+		fails.append("rifle headshot does not kill")
+	if Settings.data["game"] == "valorant":
+		var ph: Dictionary = g["weapons"]["phantom"]
+		if GameDefs.damage(ph, "head", 10) != 156 or GameDefs.damage(ph, "head", 20) != 140 or GameDefs.damage(ph, "body", 40) != 31:
+			fails.append("phantom falloff")
 	# 2) Crosshair code parsing
 	var x = Crosshair.parse("0;P;c;5;h;0;0l;4;0o;2;0a;1;1b;0")
 	if x == null or (x["color"] as Color).to_html(false) != "00ffff" or x["outline"] or int(x["inner"]["l"]) != 4 or x["outer"]["show"]:
@@ -1062,7 +1094,7 @@ func _selftest() -> void:
 			await get_tree().physics_frame
 			frames += 1
 			if id == "counter":
-				player.velocity = -player.transform.basis.x * 5.4 if (frames / 60) % 2 == 0 else Vector3.ZERO
+				player.velocity = -player.transform.basis.x * float(player.weapon()["run"]) if (frames / 60) % 2 == 0 else Vector3.ZERO
 			for b in bots:
 				if is_instance_valid(b) and b.alive and (b.move_t >= 1.0 or b.strafe):
 					var to := b.head_position() - player.cam.global_position
@@ -1109,12 +1141,12 @@ func _selftest() -> void:
 				continue
 			var to := target.head_position() - player.cam.global_position
 			player.set_look(rad_to_deg(atan2(-to.x, -to.z)), rad_to_deg(atan2(to.y, Vector2(to.x, to.z).length())))
-			player.velocity = player.transform.basis.x * 5.4 if run else Vector3.ZERO
+			player.velocity = player.transform.basis.x * float(player.weapon()["run"]) if run else Vector3.ZERO
 			player.fire_cooldown = 0.0
 			player.shots_in_burst = 0
 			var before := heads
 			target.hp = 1000000
-			player.ammo = 25
+			player.ammo = int(player.weapon()["mag"])
 			player.reloading = 0.0
 			player.fire()
 			if heads > before:

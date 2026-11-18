@@ -11,7 +11,7 @@ public sealed record PoligonDrillRow(string Name, string Best, string Last, stri
 /// <summary>Launcher + history for the Poligon aim trainer (a separate Godot app, downloaded on first use).</summary>
 public sealed partial class PoligonViewModel(IAppServices services) : ObservableObject
 {
-    public IReadOnlyList<string> Games { get; } = ["VALORANT"];
+    public IReadOnlyList<string> Games { get; } = ["VALORANT", "COUNTER-STRIKE 2"];
     [ObservableProperty] public partial int GameIndex { get; set; }
     [ObservableProperty] public partial string Sens { get; set; } = "";
     [ObservableProperty] public partial string Dpi { get; set; } = "800";
@@ -26,7 +26,17 @@ public sealed partial class PoligonViewModel(IAppServices services) : Observable
     public ObservableCollection<PoligonDrillRow> Drills { get; } = [];
     [ObservableProperty] public partial bool HasRuns { get; set; }
 
-    private static string GameId(int i) => i switch { _ => "valorant" };
+    private static string GameId(int i) => i switch { 1 => "cs2", _ => "valorant" };
+
+    partial void OnGameIndexChanged(int value)
+    {
+        // Each game has its own sensitivity scale and crosshair: read them again.
+        Sens = "";
+        CrosshairCode = "";
+        Detected = null;
+        _detected = false;
+        Refresh();
+    }
 
     partial void OnSensChanged(string value) => UpdateCm();
     partial void OnDpiChanged(string value) => UpdateCm();
@@ -48,7 +58,7 @@ public sealed partial class PoligonViewModel(IAppServices services) : Observable
         if (!_detected)
         {
             _detected = true;
-            var (sens, stretched, code) = services.ValorantSettings();
+            var (sens, stretched, code) = services.AimSettings(GameId(GameIndex));
             if (code is not null && string.IsNullOrWhiteSpace(CrosshairCode)) CrosshairCode = code;
             if (sens is { } s && string.IsNullOrWhiteSpace(Sens)) { Sens = s.ToString("0.###", CultureInfo.InvariantCulture); Detected = Loc.I["pol.detected"]; }
             if (stretched is { } st) Stretched = st;

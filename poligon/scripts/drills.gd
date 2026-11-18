@@ -18,7 +18,7 @@ const LIST := [
 		"desc": "Sağa sola koşup duran düşman. Durduğu anı yakala, kafayı tek mermiyle al. Gecikirsen o seni vurur.",
 		"timed": true},
 	{"id": "counter", "name": "Karşı-Strafe", "icon": "⏹",
-		"desc": "Koşarken dur ve vur. Sadece durduğunda (hızın %25'in altında) mermi isabetli gider; ne kadar hızlı durduğunu ms olarak gösterir.",
+		"desc": "Koşarken dur ve vur. Sadece durduğunda (VALORANT'ta hızın %25'i, CS2'de %34'ü altında) mermi isabetli gider; ne kadar hızlı durduğunu ms olarak gösterir.",
 		"timed": true},
 	{"id": "placement", "name": "Nişan Yüksekliği", "icon": "—",
 		"desc": "Düşman köşelerden çıkar. Çıktığı anda nişangahın kafasına ne kadar uzaktı ölçülür. Nişanı hep kafa hizasında tutmayı öğretir.",

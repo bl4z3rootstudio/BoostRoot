@@ -43,7 +43,8 @@ jobs:
         working-directory: poligon
         run: |
           ~/godot/godot --headless --path . --import > /dev/null 2>&1 || true
-          timeout 600 ~/godot/godot --headless --path . -- --selftest
+          timeout 600 ~/godot/godot --headless --path . -- --selftest --game=valorant
+          timeout 600 ~/godot/godot --headless --path . -- --selftest --game=cs2
       - name: Export Windows build
         if: github.event_name == 'workflow_dispatch'
         working-directory: poligon

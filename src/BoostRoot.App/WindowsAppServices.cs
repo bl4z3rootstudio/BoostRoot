@@ -917,7 +917,27 @@ public sealed class WindowsAppServices : IAppServices
         catch (System.ComponentModel.Win32Exception) { return false; }
     }
 
-    public (double? Sens, bool? Stretched, string? CrosshairCode) ValorantSettings()
+    public (double? Sens, bool? Stretched, string? CrosshairCode) AimSettings(string game) => game == "cs2" ? Cs2Settings() : ValorantSettings();
+
+    private (double? Sens, bool? Stretched, string? CrosshairCode) Cs2Settings()
+    {
+        try
+        {
+            if (_registry.GetValue(Core.Platform.RegistryHive.CurrentUser, @"Software\Valve\Steam", "SteamPath")?.Data is not string root) return (null, null, null);
+            var userdata = Path.Combine(root.Replace('/', '\\'), "userdata");
+            if (!Directory.Exists(userdata)) return (null, null, null);
+            var newest = Directory.EnumerateDirectories(userdata)
+                .Select(a => Path.Combine(a, "730", "local", "cfg")).Where(Directory.Exists)
+                .SelectMany(c => Directory.EnumerateFiles(c, "cs2_user_convars_*.vcfg"))
+                .Select(f => new FileInfo(f)).OrderByDescending(f => f.LastWriteTimeUtc).FirstOrDefault();
+            if (newest is null) return (null, null, null);
+            var text = File.ReadAllText(newest.FullName);
+            return (Core.Poligon.Cs2Config.Sensitivity(text), null, Core.Poligon.Cs2Config.Crosshair(text)?.ToValorantCode());
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return (null, null, null); }
+    }
+
+    private (double? Sens, bool? Stretched, string? CrosshairCode) ValorantSettings()
     {
         try
         {
