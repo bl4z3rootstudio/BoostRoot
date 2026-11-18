@@ -43,12 +43,18 @@ var lbl_sub: Label
 var lbl_fps: Label
 var hitmarker: Control
 var vignette: ColorRect
+var ammo_big: Label
+var ammo_small: Label
+var weapon_lbl: Label
+var hp_lbl: Label
+var timer_box: PanelContainer
 var speed_bar: ProgressBar
 var speed_lbl: Label
 var menu: Control
 var pause_panel: Control
 var results_panel: Control
 var results_lbl: RichTextLabel
+var launch_btn: Button
 var drill_buttons := {}
 var selected_drill := "duel"
 var drill_desc: Label
@@ -96,6 +102,10 @@ func _screenshot(prefix: String) -> void:
 	for i in 10:
 		await get_tree().process_frame
 	get_viewport().get_texture().get_image().save_png(prefix + "_range.png")
+	player.set_look(0, 25)
+	for i in 5:
+		await get_tree().process_frame
+	get_viewport().get_texture().get_image().save_png(prefix + "_sky.png")
 	_finish()
 	for i in 5:
 		await get_tree().process_frame
@@ -149,8 +159,7 @@ func _start(id: String, from_routine := false) -> void:
 	player.global_position = Vector3.ZERO
 	player.velocity = Vector3.ZERO
 	player.set_look(0.0, 0.0)
-	player.ammo = int(player.weapon()["mag"])
-	player.reloading = 0.0
+	player.reset_weapons()
 	player.can_shoot = false
 	player.can_move = id in ["counter", "free", "strafe", "flick", "micro", "dm"]
 	xhair.set_code(String(Settings.data["xhair"]))
@@ -520,9 +529,25 @@ func _finish(reason := "") -> void:
 		t += "[font_size=22][color=#ffb347]Hareket ederken %d mermi attın — bunlar isabetsiz gider.[/color][/font_size]\n" % moving_shots
 	t += "\n[font_size=20][color=#9aa0b4]Boşluk: tekrar   ·   Esc: menü[/color][/font_size][/center]"
 	results_lbl.text = t
+	launch_btn.visible = selected_drill == "warmup"
 	player.cam.get_child(0).visible = false
 	hud.visible = false
 	results_panel.visible = true
+
+## After the warm-up: start the real game through its launcher and close the range.
+func _launch_game() -> void:
+	var g := String(Settings.data["game"])
+	if g == "valorant":
+		var rc := "C:/Riot Games/Riot Client/RiotClientServices.exe"
+		var installs := OS.get_environment("ProgramData") + "/Riot Games/RiotClientInstalls.json"
+		if FileAccess.file_exists(installs):
+			var j = JSON.parse_string(FileAccess.get_file_as_string(installs))
+			if j is Dictionary and j.has("rc_default"):
+				rc = String(j["rc_default"])
+		OS.create_process(rc, ["--launch-product=valorant", "--launch-patchline=live"])
+	elif g == "cs2":
+		OS.shell_open("steam://rungameid/730")
+	get_tree().quit()
 
 func _avg(a: Array[float]) -> float:
 	if a.is_empty():
@@ -579,13 +604,13 @@ func _update_hud() -> void:
 	else:
 		lbl_top.text = "SERİ %d" % kills if _cur() == "duel" else "%d" % kills
 	lbl_left.text = "Öldürme %d\nİsabet %%%d\nHS %%%d" % [kills, roundi(acc), roundi(float(heads) / hits * 100.0) if hits > 0 else 0]
-	var r := ""
-	if not reactions.is_empty():
-		r = "Tepki %d ms\n" % roundi(_avg(reactions))
-	r += "%d / %d" % [player.ammo, int(player.weapon()["mag"])]
-	if player.reloading > 0.0:
-		r += "  ŞARJÖR"
-	lbl_right.text = r
+	lbl_right.text = "Tepki %d ms" % roundi(_avg(reactions)) if not reactions.is_empty() else ""
+	var w := player.weapon()
+	var melee: bool = w.get("melee", false)
+	ammo_big.text = "" if melee else str(player.ammo)
+	ammo_small.text = "" if melee else " / %d" % (int(w["mag"]) * 3)
+	weapon_lbl.text = String(w["name"]).to_upper() + ("   ŞARJÖR DOLDURULUYOR" if player.reloading > 0.0 else "") + ("   ⊕ NİŞAN" if player.ads else "")
+	hp_lbl.text = "%d   ⛨ %d" % [mini(100, int(Settings.game().get("hp", 150))), maxi(0, int(Settings.game().get("hp", 150)) - 100)] if int(Settings.game().get("hp", 150)) > 100 else "100   ⛨ 100"
 	if speed_bar.visible:
 		var f := player.speed_frac()
 		speed_bar.value = f * 100.0
@@ -696,6 +721,36 @@ func _build_ui() -> void:
 	lbl_sub.position = Vector2(-400, -110)
 	lbl_sub.size = Vector2(800, 40)
 	hud.add_child(lbl_sub)
+	# VALORANT-like layout: health/armor bottom-centre, ammo bottom-right, timer box top-centre.
+	var hpbox := PanelContainer.new()
+	hpbox.add_theme_stylebox_override("panel", _hud_box())
+	hpbox.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	hpbox.position = Vector2(-110, -86)
+	hpbox.custom_minimum_size = Vector2(220, 58)
+	hp_lbl = _label("", 34, Color.WHITE)
+	hp_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hpbox.add_child(hp_lbl)
+	hud.add_child(hpbox)
+	var ammobox := VBoxContainer.new()
+	ammobox.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	ammobox.position = Vector2(-260, -130)
+	ammobox.custom_minimum_size = Vector2(230, 100)
+	ammobox.alignment = BoxContainer.ALIGNMENT_END
+	var arow := HBoxContainer.new()
+	arow.alignment = BoxContainer.ALIGNMENT_END
+	ammo_big = _label("25", 56, Color.WHITE)
+	ammo_small = _label("/ 75", 24, Color(1, 1, 1, 0.6))
+	ammo_small.size_flags_vertical = Control.SIZE_SHRINK_END
+	arow.add_child(ammo_big)
+	arow.add_child(ammo_small)
+	weapon_lbl = _label("", 18, Color(1, 1, 1, 0.75))
+	weapon_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	ammobox.add_child(arow)
+	ammobox.add_child(weapon_lbl)
+	for l in [ammo_big, ammo_small, weapon_lbl, hp_lbl]:
+		l.add_theme_constant_override("outline_size", 6)
+		l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.55))
+	hud.add_child(ammobox)
 	lbl_fps = _label("", 14, Color(1, 1, 1, 0.55))
 	lbl_fps.position = Vector2(28, 24)
 	root.add_child(lbl_fps)
@@ -732,9 +787,21 @@ func _build_ui() -> void:
 	rb.add_theme_constant_override("separation", 16)
 	rb.add_child(_button("Tekrar", func() -> void: _start(selected_drill), true))
 	rb.add_child(_button("Menü", _show_menu))
+	launch_btn = _button("Isındın! Oyunu aç ▶", _launch_game, true)
+	launch_btn.custom_minimum_size = Vector2(300, 48)
+	rb.add_child(launch_btn)
 	rv.add_child(rb)
 	results_panel.add_child(rv)
 	root.add_child(results_panel)
+
+func _hud_box() -> StyleBoxFlat:
+	var s := StyleBoxFlat.new()
+	s.bg_color = Color(0.05, 0.06, 0.09, 0.55)
+	s.set_corner_radius_all(4)
+	s.set_content_margin_all(8)
+	s.border_color = Color(1, 1, 1, 0.12)
+	s.border_width_bottom = 2
+	return s
 
 func _make_hitmarker() -> Control:
 	var c := Control.new()
@@ -826,9 +893,15 @@ func _build_menu() -> Control:
 	best_lbl = _label("", 18, TEAL)
 	iv.add_child(drill_desc)
 	iv.add_child(best_lbl)
+	var brow := HBoxContainer.new()
+	brow.add_theme_constant_override("separation", 14)
 	var start := _button("BAŞLA", func() -> void: _start(selected_drill), true)
 	start.custom_minimum_size = Vector2(260, 58)
-	iv.add_child(start)
+	brow.add_child(start)
+	var warm := _button("★  MAÇ ÖNCESİ ISINMA (2 dk)", func() -> void: _start("warmup"))
+	warm.custom_minimum_size = Vector2(340, 58)
+	brow.add_child(warm)
+	iv.add_child(brow)
 	info.add_child(iv)
 	left.add_child(info)
 	left.add_child(_label("WASD hareket · Shift yürü · Ctrl eğil · Boşluk zıpla · Sol tık ateş · R şarjör · Esc duraklat", 15, Color(0.55, 0.57, 0.66)))
@@ -986,7 +1059,9 @@ func _build_menu() -> Control:
 		Settings.apply_display()
 		Settings.save(), ""))
 	var fps := OptionButton.new()
-	var caps := [0, 144, 165, 240, 360]
+	var caps := [0, 60, 120, 144, 165, 180, 200, 240, 300, 360]
+	if not caps.has(int(Settings.data["fps_cap"])):
+		caps.append(int(Settings.data["fps_cap"]))
 	for c in caps:
 		fps.add_item("FPS sınırı: yok" if c == 0 else "FPS sınırı: %d" % c)
 	fps.select(maxi(0, caps.find(int(Settings.data["fps_cap"]))))
@@ -1068,6 +1143,21 @@ func _selftest() -> void:
 	var want_aspect := Camera3D.KEEP_WIDTH if String(g["fov_axis"]) == "h" else Camera3D.KEEP_HEIGHT
 	if absf(player.cam.fov - float(g["fov"])) > 0.001 or player.cam.keep_aspect != want_aspect:
 		fails.append("fov")
+	# The HUD crosshair must cover the screen (it is drawn at its centre).
+	await get_tree().process_frame
+	if not xhair.size.is_equal_approx(get_viewport().get_visible_rect().size):
+		fails.append("crosshair control has no size: %s" % str(xhair.size))
+	# Weapon slots: knife runs faster (VALORANT 6.75 m/s) and cannot shoot; equip time blocks firing.
+	player.switch_slot(3)
+	if Settings.data["game"] == "valorant" and absf(player.max_speed() - 6.75) > 0.01:
+		fails.append("knife speed %f" % player.max_speed())
+	var before_shots := player.ammo
+	player.fire()
+	player.switch_slot(1)
+	player.fire()
+	if player.ammo != int(player.weapon()["mag"]):
+		fails.append("fired during equip / with knife")
+	player.equip_t = 0.0
 	# Damage tables: a headshot with the default rifle kills; Phantom falls off with range.
 	var rifle: Dictionary = g["weapons"][g["default_weapon"]]
 	if GameDefs.damage(rifle, "head", 20.0) < int(g["hp"]):

@@ -899,7 +899,21 @@ public sealed class WindowsAppServices : IAppServices
         }
     }
 
-    public bool LaunchPoligon(string game, double sens, int dpi, string? crosshairCode, bool stretched)
+    public int? GameFpsCap(string game)
+    {
+        if (game != "valorant") return null;
+        try
+        {
+            var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VALORANT", "Saved", "Config");
+            if (!Directory.Exists(root)) return null;
+            var f = Directory.EnumerateFiles(root, "RiotUserSettings.ini", new EnumerationOptions { RecurseSubdirectories = true, MaxRecursionDepth = 3, IgnoreInaccessible = true })
+                .Select(x => new FileInfo(x)).OrderByDescending(x => x.LastWriteTimeUtc).FirstOrDefault();
+            return f is null ? null : Core.Poligon.ValorantConfig.FpsCap(File.ReadAllText(f.FullName));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return null; }
+    }
+
+    public bool LaunchPoligon(string game, double sens, int dpi, string? crosshairCode, bool stretched, int fpsCap = 0)
     {
         if (!File.Exists(PoligonExe)) return false;
         var data = Path.Combine(PoligonDir, "data");
@@ -913,6 +927,7 @@ public sealed class WindowsAppServices : IAppServices
         if (dpi > 0) psi.ArgumentList.Add("--dpi=" + dpi);
         if (!string.IsNullOrWhiteSpace(crosshairCode)) psi.ArgumentList.Add("--xhair=" + crosshairCode.Trim());
         psi.ArgumentList.Add("--stretched=" + (stretched ? "1" : "0"));
+        if (fpsCap > 0) psi.ArgumentList.Add("--fps=" + fpsCap);
         try { System.Diagnostics.Process.Start(psi)?.Dispose(); return true; }
         catch (System.ComponentModel.Win32Exception) { return false; }
     }

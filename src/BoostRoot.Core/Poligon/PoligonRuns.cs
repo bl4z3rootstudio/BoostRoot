@@ -75,6 +75,22 @@ public static class ValorantConfig
         return null;
     }
 
+    /// <summary>From RiotUserSettings.ini: the "limit FPS always" value, if that limit is on.</summary>
+    public static int? FpsCap(string ini)
+    {
+        bool on = false;
+        double? cap = null;
+        foreach (var line in ini.Split('\n'))
+        {
+            var l = line.Trim();
+            if (l.Equals("EAresBoolSettingName::LimitFramerateAlways=True", StringComparison.OrdinalIgnoreCase)) on = true;
+            const string key = "EAresFloatSettingName::MaxFramerateAlways=";
+            if (l.StartsWith(key, StringComparison.OrdinalIgnoreCase)
+                && double.TryParse(l[key.Length..], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)) cap = v;
+        }
+        return on && cap is > 20 and < 1000 ? (int)Math.Round(cap.Value) : null;
+    }
+
     /// <summary>From GameUserSettings.ini: a 4:3-ish resolution without letterbox = stretched.</summary>
     public static bool? Stretched(string ini)
     {

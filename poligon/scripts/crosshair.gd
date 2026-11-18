@@ -58,14 +58,16 @@ func set_code(code: String) -> void:
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	resized.connect(queue_redraw)
 
 func _draw() -> void:
 	if spec.is_empty():
 		return
 	var k := get_viewport_rect().size.y / 1080.0
-	var c := size * 0.5
+	# Centre of this control (the HUD covers the screen; the menu preview is a small panel).
+	var area := size if size.x > 1.0 and size.y > 1.0 else get_viewport_rect().size
+	var c := area * 0.5
 	c = Vector2(floor(c.x), floor(c.y))
 	var col: Color = spec["color"]
 	for key in ["outer", "inner"]:
@@ -77,22 +79,26 @@ func _draw() -> void:
 			extra += move_error * 4.0
 		if l["f"]:
 			extra += fire_error * 4.0
-		var t := float(l["t"]) * k
-		var o := (float(l["o"]) + extra) * k
-		var hl := float(l["l"]) * k
-		var vl := float(l["v"]) * k
+		# Whole pixels only (VALORANT draws crisp; half pixels would blur a 1 px line into two faint ones).
+		var t := maxf(1.0, roundf(float(l["t"]) * k))
+		var o := roundf((float(l["o"]) + extra) * k)
+		var hl := maxf(1.0, roundf(float(l["l"]) * k))
+		var vl := maxf(1.0, roundf(float(l["v"]) * k))
 		var a := float(l["a"])
-		# right, left, down, up
-		_bar(Rect2(c.x + o, c.y - t / 2.0, hl, t), col, a, k)
-		_bar(Rect2(c.x - o - hl, c.y - t / 2.0, hl, t), col, a, k)
-		_bar(Rect2(c.x - t / 2.0, c.y + o, t, vl), col, a, k)
-		_bar(Rect2(c.x - t / 2.0, c.y - o - vl, t, vl), col, a, k)
+		var h0 := floorf(t / 2.0)   # pixels above/left of the centre row/column
+		# right, left, down, up — the centre pixel itself is (c.x, c.y)
+		_bar(Rect2(c.x + 1.0 + o, c.y - h0, hl, t), col, a, k)
+		_bar(Rect2(c.x - o - hl, c.y - h0, hl, t), col, a, k)
+		_bar(Rect2(c.x - h0, c.y + 1.0 + o, t, vl), col, a, k)
+		_bar(Rect2(c.x - h0, c.y - o - vl, t, vl), col, a, k)
+		if o <= 0.0:
+			_bar(Rect2(c.x - h0, c.y - h0, t, t), col, a, k)   # lines meet: fill the centre so it is a solid plus
 	if spec["dot"]:
-		var dt := float(spec["dot_t"]) * k
-		_bar(Rect2(c.x - dt / 2.0, c.y - dt / 2.0, dt, dt), col, float(spec["dot_a"]), k)
+		var dt := maxf(1.0, roundf(float(spec["dot_t"]) * k))
+		_bar(Rect2(c.x - floorf(dt / 2.0), c.y - floorf(dt / 2.0), dt, dt), col, float(spec["dot_a"]), k)
 
 func _bar(r: Rect2, col: Color, alpha: float, k: float) -> void:
-	if spec["outline"]:
-		var ot := float(spec["outline_t"]) * k
+	if spec["outline"] and float(spec["outline_a"]) > 0.0:
+		var ot := maxf(1.0, roundf(float(spec["outline_t"]) * k))
 		draw_rect(r.grow(ot), Color(0, 0, 0, float(spec["outline_a"]) * alpha))
 	draw_rect(r, Color(col.r, col.g, col.b, alpha))

@@ -8,22 +8,27 @@ var covers: Array[Dictionary] = []
 const GRID_SHADER := """
 shader_type spatial;
 render_mode specular_schlick_ggx;
-uniform vec3 base : source_color = vec3(0.16, 0.17, 0.2);
-uniform vec3 line : source_color = vec3(0.32, 0.86, 0.8);
+// Range floor: poured concrete with 2 m slabs, painted lane lines and a warm tint.
+uniform vec3 base : source_color = vec3(0.36, 0.36, 0.36);
+uniform vec3 seam : source_color = vec3(0.24, 0.24, 0.25);
+uniform vec3 paint : source_color = vec3(0.95, 0.72, 0.18);
 varying vec3 wpos;
 void vertex() { wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
-float grid(vec2 p, float size, float w) {
-	vec2 g = abs(fract(p / size - 0.5) - 0.5) / fwidth(p / size);
-	return 1.0 - clamp(min(g.x, g.y) / w, 0.0, 1.0);
-}
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float line_at(float v, float w) { float d = abs(v) / fwidth(v); return 1.0 - clamp(d / w, 0.0, 1.0); }
 void fragment() {
-	float g1 = grid(wpos.xz, 1.0, 1.0) * 0.35;
-	float g5 = grid(wpos.xz, 5.0, 1.6);
-	float d = length(wpos.xz);
-	float fade = 1.0 - smoothstep(30.0, 70.0, d);
-	ALBEDO = mix(base, line, max(g1, g5) * fade * 0.55);
-	ROUGHNESS = 0.85;
-	EMISSION = line * g5 * fade * 0.12;
+	vec2 p = wpos.xz;
+	vec2 cell = floor(p / 2.0);
+	float n = hash(cell) * 0.06 + hash(floor(p * 6.0)) * 0.025;
+	vec2 g = abs(fract(p / 2.0 - 0.5) - 0.5) * 2.0;
+	float seams = 1.0 - clamp(min(g.x, g.y) / (fwidth(p.x) * 1.2), 0.0, 1.0);
+	vec3 c = mix(base * (0.94 + n), seam, seams * 0.6);
+	// Lane lines every 6 m towards the targets, and a firing line at the spawn.
+	float lanes = line_at(fract((p.x + 3.0) / 6.0) - 0.5, 3.0) * step(p.y, 2.0) * step(-55.0, p.y);
+	float fire_line = 1.0 - smoothstep(0.0, 0.08, abs(p.y + 1.5));
+	c = mix(c, paint, max(lanes * 0.85, fire_line * step(abs(p.x), 12.0)));
+	ALBEDO = c;
+	ROUGHNESS = 0.9;
 }
 """
 
@@ -32,15 +37,15 @@ func build() -> void:
 	var env := Environment.new()
 	var sky := Sky.new()
 	var sm := ProceduralSkyMaterial.new()
-	sm.sky_top_color = Color(0.25, 0.42, 0.62)
-	sm.sky_horizon_color = Color(0.72, 0.78, 0.86)
+	sm.sky_top_color = Color(0.22, 0.45, 0.78)
+	sm.sky_horizon_color = Color(0.78, 0.84, 0.9)
 	sm.ground_bottom_color = Color(0.1, 0.1, 0.12)
 	sm.ground_horizon_color = Color(0.5, 0.52, 0.56)
 	sky.sky_material = sm
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 0.9
+	env.ambient_light_energy = 0.55
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
 	env.tonemap_exposure = 1.05
 	env.glow_enabled = true
@@ -51,7 +56,8 @@ func build() -> void:
 	add_child(we)
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-52, -35, 0)
-	sun.light_energy = 1.0
+	sun.light_energy = 1.1
+	sun.light_color = Color(1.0, 0.96, 0.9)
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 70.0
 	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
@@ -68,20 +74,28 @@ func build() -> void:
 		lbl.text = "%d m" % d
 		lbl.font_size = 96
 		lbl.pixel_size = 0.012
-		lbl.modulate = Color(0.55, 0.95, 0.9, 0.55)
+		lbl.modulate = Color(0.98, 0.78, 0.2, 0.9)
 		lbl.basis = Basis(Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3(0, 1, 0))  # lying on the floor, readable from the spawn
 		lbl.position = Vector3(0, 0.02, -d)
 		lbl.shaded = false
 		add_child(lbl)
 	# Walls around the play space
-	var wall := _mat(Color(0.42, 0.45, 0.52), 0.95)
+	var wall := _mat(Color(0.6, 0.59, 0.56), 0.95)
 	_solid(Vector3(120, 9, 1), Vector3(0, 4.5, -62), wall)
 	_solid(Vector3(1, 9, 90), Vector3(-45, 4.5, -18), wall)
 	_solid(Vector3(1, 9, 90), Vector3(45, 4.5, -18), wall)
 	_solid(Vector3(90, 9, 1), Vector3(0, 4.5, 26), wall)
+	var stripe := _mat(Color(0.95, 0.45, 0.2), 0.6)
+	var teal := _mat(Color(0.2, 0.7, 0.72), 0.6)
+	_deco(Vector3(120, 0.5, 0.1), Vector3(0, 2.2, -61.45), stripe)
+	_deco(Vector3(120, 0.18, 0.1), Vector3(0, 2.65, -61.45), teal)
+	_deco(Vector3(0.1, 0.5, 90), Vector3(-44.45, 2.2, -18), stripe)
+	_deco(Vector3(0.1, 0.5, 90), Vector3(44.45, 2.2, -18), stripe)
+	var base_mat := _mat(Color(0.25, 0.25, 0.27), 0.9)
+	_deco(Vector3(120, 0.4, 0.2), Vector3(0, 0.2, -61.4), base_mat)
 	# Cover boxes in an arc in front of the player — enemies peek out of these.
-	var crate := _mat(Color(0.86, 0.62, 0.36), 0.75)
-	var concrete := _mat(Color(0.55, 0.57, 0.62), 0.9)
+	var crate := _mat(Color(0.72, 0.4, 0.17), 0.75)
+	var concrete := _mat(Color(0.48, 0.49, 0.52), 0.9)
 	var spots := [
 		[-14, -12, 2.2], [-6, -16, 2.6], [5, -14, 2.2], [13, -11, 2.4],
 		[-20, -22, 3.0], [-9, -27, 2.8], [3, -30, 3.0], [15, -24, 2.8], [24, -18, 2.6],
@@ -98,6 +112,16 @@ func build() -> void:
 	# A few pillars for depth
 	for p in [Vector3(-32, 3, -10), Vector3(32, 3, -8), Vector3(-36, 3, -46), Vector3(36, 3, -48)]:
 		_solid(Vector3(1.4, 6, 1.4), p, concrete)
+
+## Visual-only box (no collision).
+func _deco(size: Vector3, pos: Vector3, mat: Material) -> void:
+	var mi := MeshInstance3D.new()
+	var b := BoxMesh.new()
+	b.size = size
+	mi.mesh = b
+	mi.material_override = mat
+	mi.position = pos
+	add_child(mi)
 
 func _mat(c: Color, rough: float) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()

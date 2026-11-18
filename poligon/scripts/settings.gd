@@ -9,6 +9,7 @@ var data := {
 	"game": "valorant",
 	"sens": {"valorant": 0.4},
 	"weapon": {},
+	"ads_mult": 1.0,
 	"dpi": 800,
 	"stretched": false,
 	"stretch_w": 1440,
@@ -51,6 +52,10 @@ func _ready() -> void:
 		data["dpi"] = int(overrides["dpi"])
 	if overrides.has("xhair") and Crosshair.parse(String(overrides["xhair"])) != null:
 		data["xhair"] = overrides["xhair"]
+	if overrides.has("ads") and String(overrides["ads"]).replace(",", ".").is_valid_float():
+		data["ads_mult"] = String(overrides["ads"]).replace(",", ".").to_float()
+	if overrides.has("fps") and String(overrides["fps"]).is_valid_int():
+		data["fps_cap"] = int(overrides["fps"])   # same frame cap as in the game
 	if overrides.has("stretched"):
 		data["stretched"] = overrides["stretched"] == "1" or overrides["stretched"] == "true"
 	apply_display()

@@ -53,6 +53,13 @@ public class ValorantConfigTests
     }
 
     [Fact]
+    public void Reads_fps_cap_only_when_enabled()
+    {
+        Assert.Equal(180, ValorantConfig.FpsCap("EAresFloatSettingName::MaxFramerateAlways=180\nEAresBoolSettingName::LimitFramerateAlways=True\n"));
+        Assert.Null(ValorantConfig.FpsCap("EAresFloatSettingName::MaxFramerateAlways=180\nEAresBoolSettingName::LimitFramerateAlways=False\n"));
+    }
+
+    [Fact]
     public void Detects_stretched()
     {
         Assert.True(ValorantConfig.Stretched("ResolutionSizeX=1440\nResolutionSizeY=1080\nbShouldLetterbox=False\n"));

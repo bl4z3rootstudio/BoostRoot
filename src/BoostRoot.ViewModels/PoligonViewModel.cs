@@ -93,7 +93,8 @@ public sealed partial class PoligonViewModel(IAppServices services) : Observable
             }
             Installed = services.PoligonVersion();
             var sens = TryNum(Sens, out var s) ? s : 0;
-            Status = services.LaunchPoligon(GameId(GameIndex), sens, int.TryParse(Dpi, out var dpi) ? dpi : 0, CrosshairCode, Stretched)
+            Status = services.LaunchPoligon(GameId(GameIndex), sens, int.TryParse(Dpi, out var dpi) ? dpi : 0, CrosshairCode, Stretched,
+                services.GameFpsCap(GameId(GameIndex)) ?? 0)
                 ? Loc.I["pol.started"] : Loc.I["pol.launchFail"];
         }
         finally { Busy = false; }

@@ -23,10 +23,11 @@ var strafe_timer := 0.0
 var jiggles := 0              # peek-and-pull-back repeats before committing (jiggle peek)
 var _hold := 0.0
 var _flash := 0.0
-var _mats: Array[StandardMaterial3D] = []
 var _rng := RandomNumberGenerator.new()
 
 static var _shared := {}
+static var _meshes := {}
+var _parts: Array[MeshInstance3D] = []
 const BASE_HEAD_Y := 1.6
 
 static func _mat(key: String, color: Color, outline := false) -> StandardMaterial3D:
@@ -35,91 +36,131 @@ static func _mat(key: String, color: Color, outline := false) -> StandardMateria
 	var m := StandardMaterial3D.new()
 	m.albedo_color = color
 	if outline:
+		# VALORANT-style red enemy highlight (inverted hull).
 		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		m.cull_mode = BaseMaterial3D.CULL_FRONT
 		m.grow = true
-		m.grow_amount = 0.018
+		m.grow_amount = 0.012
 	else:
-		m.roughness = 0.55
-		m.metallic = 0.15
+		m.roughness = 0.62
+		m.metallic = 0.25
 	_shared[key] = m
 	return m
 
 func _ready() -> void:
 	_rng.randomize()
-	var palettes := [
-		[Color(0.16, 0.17, 0.21), Color(0.95, 0.27, 0.33)],
-		[Color(0.2, 0.18, 0.24), Color(0.62, 0.42, 0.98)],
-		[Color(0.18, 0.2, 0.19), Color(0.98, 0.6, 0.22)],
-		[Color(0.22, 0.2, 0.18), Color(0.3, 0.85, 0.95)],
-	]
-	var pal: Array = palettes[_rng.randi() % palettes.size()]
-	var body_col: Color = pal[0]
-	var accent: Color = pal[1]
 	hp = int(Settings.game().get("hp", 150))
 	# Built at VALORANT size; other games scale the whole body so the head sits at their real height.
+	scale = Vector3.ONE * (float(Settings.game().get("head_y", BASE_HEAD_Y)) / BASE_HEAD_Y)
+	_build_robot()
 	var head_y := BASE_HEAD_Y
 	var head_r := 0.125
-	scale = Vector3.ONE * (float(Settings.game().get("head_y", BASE_HEAD_Y)) / BASE_HEAD_Y)
-	# Legs
-	for sx in [-0.11, 0.11]:
-		_part(_capsule(0.085, 0.82), Vector3(sx, 0.43, 0), body_col)
-	# Torso + shoulders + arms
-	_part(_capsule(0.2, 0.62, 0.17), Vector3(0, 1.12, 0), body_col)
-	_part(_box(Vector3(0.5, 0.12, 0.24)), Vector3(0, 1.38, 0), body_col)
-	for sx in [-0.29, 0.29]:
-		_part(_capsule(0.06, 0.62), Vector3(sx, 1.1, 0.02), body_col)
-	# Boots, belt, shoulder pads
-	for sx in [-0.11, 0.11]:
-		_part(_box(Vector3(0.13, 0.1, 0.24)), Vector3(sx, 0.05, 0.03), Color(0.08, 0.08, 0.1))
-		_part(_box(Vector3(0.14, 0.08, 0.2)), Vector3(sx * 2.6, 1.42, 0), accent, false)
-	_part(_box(Vector3(0.42, 0.07, 0.3)), Vector3(0, 0.84, 0), Color(0.1, 0.1, 0.12))
-	# Chest stripe (team colour, readable at range)
-	_part(_box(Vector3(0.3, 0.05, 0.02)), Vector3(0, 1.25, 0.17), accent, false)
-	# Neck + head + visor
-	_part(_capsule(0.06, 0.14), Vector3(0, head_y - head_r - 0.04, 0), body_col)
-	var head := SphereMesh.new()
-	head.radius = head_r
-	head.height = head_r * 2.0
-	_part(head, Vector3(0, head_y, 0), Color(0.22, 0.23, 0.28))
-	_part(_box(Vector3(head_r * 1.5, head_r * 0.45, 0.03)), Vector3(0, head_y + 0.01, head_r * 0.85), accent, false)
-	# Hair / cap tuft so the head reads as a head from every side
-	_part(_box(Vector3(head_r * 1.2, head_r * 0.35, head_r * 1.4)), Vector3(0, head_y + head_r * 0.8, -0.01), accent.darkened(0.35), false)
-	# Hitboxes
+	# Hitboxes (unchanged sizes: they are what the game rules are about)
 	_hitbox("head", _sphere_shape(head_r), Vector3(0, head_y, 0))
 	_hitbox("body", _capsule_shape(0.24, 0.8), Vector3(0, 1.12, 0))
 	_hitbox("legs", _box_shape(Vector3(0.4, 0.78, 0.25)), Vector3(0, 0.4, 0))
 
-func _capsule(r: float, h: float, depth := -1.0) -> Mesh:
-	var m := CapsuleMesh.new()
-	m.radius = r
-	m.height = h
-	m.radial_segments = 16
-	m.rings = 6
-	return m
+## Training robot: segmented grey shell, dark joints (original design in the style of a range bot).
+func _build_robot() -> void:
+	var shell := _mat("shell", Color(0.5, 0.51, 0.54))
+	var joint := _mat("joint", Color(0.3, 0.31, 0.34))
+	var dark := _mat("dark", Color(0.08, 0.08, 0.1))
+	var accent := _mat("accent", Color(0.95, 0.45, 0.18))
+	var glow := _glow_mat()
+	# --- head: rounded capsule, eye sensors, ear discs
+	_add(_capsule(0.105, 0.27), Vector3(0, 1.62, 0), shell)
+	_add(_box(Vector3(0.12, 0.035, 0.03)), Vector3(0, 1.635, 0.092), dark)          # visor
+	for sx in [-0.032, 0.032]:
+		_add(_sphere(0.014), Vector3(sx, 1.635, 0.105), glow)                       # glowing eyes
+	for sx in [-0.112, 0.112]:
+		_add(_cyl(0.035, 0.03), Vector3(sx, 1.62, 0), joint, Vector3(0, 0, 90))
+	# --- neck (spring look)
+	for i in 3:
+		_add(_cyl(0.045 - i * 0.004, 0.018), Vector3(0, 1.455 + i * 0.03, 0), joint)
+	# --- torso: chest block + angled front plate + emblem, segmented abdomen, pelvis
+	_add(_box(Vector3(0.4, 0.3, 0.24)), Vector3(0, 1.28, 0), shell)
+	_add(_box(Vector3(0.3, 0.2, 0.06)), Vector3(0, 1.27, 0.12), shell, Vector3(-8, 0, 0))
+	_add(_box(Vector3(0.05, 0.03, 0.02)), Vector3(0, 1.33, 0.155), glow)
+	_add(_box(Vector3(0.41, 0.03, 0.245)), Vector3(0, 1.17, 0), accent)              # waist stripe
+	_add(_box(Vector3(0.26, 0.08, 0.17)), Vector3(0, 1.1, 0), joint)
+	_add(_box(Vector3(0.24, 0.06, 0.16)), Vector3(0, 1.03, 0), shell)
+	_add(_box(Vector3(0.32, 0.1, 0.2)), Vector3(0, 0.94, 0), shell)
+	_add(_box(Vector3(0.12, 0.1, 0.05)), Vector3(0, 0.87, 0.08), joint, Vector3(12, 0, 0))
+	# --- arms
+	for side in [-1.0, 1.0]:
+		var x: float = 0.255 * side
+		_add(_box(Vector3(0.13, 0.16, 0.18)), Vector3(x + 0.02 * side, 1.37, 0), shell)          # shoulder pad
+		_add(_box(Vector3(0.135, 0.03, 0.185)), Vector3(x + 0.02 * side, 1.43, 0), accent)
+		_add(_cyl(0.04, 0.06), Vector3(x, 1.27, 0), joint, Vector3(0, 0, 90))
+		_add(_box(Vector3(0.07, 0.24, 0.07)), Vector3(x + 0.005 * side, 1.13, 0), shell)          # upper arm
+		_add(_cyl(0.038, 0.08), Vector3(x + 0.01 * side, 0.995, 0), joint, Vector3(0, 0, 90))    # elbow
+		_add(_box(Vector3(0.08, 0.22, 0.08)), Vector3(x + 0.012 * side, 0.87, 0.01), shell)      # forearm
+		_add(_box(Vector3(0.095, 0.05, 0.095)), Vector3(x + 0.012 * side, 0.93, 0.01), joint)  # cuff
+		_add(_box(Vector3(0.045, 0.09, 0.08)), Vector3(x + 0.014 * side, 0.715, 0.015), joint)  # hand
+		for f in 3:
+			_add(_box(Vector3(0.012, 0.06, 0.014)), Vector3(x + 0.014 * side, 0.645, -0.015 + f * 0.022), joint)
+	# --- legs
+	for side in [-1.0, 1.0]:
+		var x: float = 0.1 * side
+		_add(_box(Vector3(0.12, 0.08, 0.13)), Vector3(x, 0.855, 0), joint)                       # hip
+		_add(_box(Vector3(0.1, 0.32, 0.11)), Vector3(x, 0.69, 0), shell)                          # thigh
+		_add(_cyl(0.05, 0.12), Vector3(x, 0.52, 0), joint, Vector3(0, 0, 90))                     # knee
+		_add(_box(Vector3(0.08, 0.07, 0.04)), Vector3(x, 0.52, 0.055), shell)                     # knee cap
+		_add(_box(Vector3(0.085, 0.36, 0.09)), Vector3(x, 0.31, 0), shell)                        # shin
+		_add(_cyl(0.035, 0.1), Vector3(x, 0.115, 0), joint, Vector3(0, 0, 90))                   # ankle
+		_add(_box(Vector3(0.11, 0.06, 0.22)), Vector3(x, 0.035, 0.04), shell)                     # foot
 
-func _box(s: Vector3) -> Mesh:
-	var m := BoxMesh.new()
-	m.size = s
-	return m
-
-func _part(mesh: Mesh, pos: Vector3, color: Color, outline := true) -> void:
+func _add(mesh: Mesh, pos: Vector3, mat: Material, rot_deg := Vector3.ZERO) -> void:
 	var mi := MeshInstance3D.new()
 	mi.mesh = mesh
-	var m := StandardMaterial3D.new()
-	m.albedo_color = color
-	m.roughness = 0.6
-	m.metallic = 0.1
-	m.emission_enabled = true
-	m.emission = Color.WHITE
-	m.emission_energy_multiplier = 0.0
-	_mats.append(m)
-	mi.material_override = m
+	mi.material_override = mat
+	mi.material_overlay = _mat("outline", Color(1.0, 0.18, 0.28), true)
 	mi.position = pos
-	if outline:
-		mi.material_overlay = _mat("outline", Color(1.0, 0.18, 0.28), true)
-	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	mi.rotation_degrees = rot_deg
 	add_child(mi)
+	_parts.append(mi)
+
+func _capsule(r: float, h: float) -> Mesh:
+	var key := "cap%.3f_%.3f" % [r, h]
+	if not _meshes.has(key):
+		var m := CapsuleMesh.new()
+		m.radius = r
+		m.height = h
+		m.radial_segments = 14
+		m.rings = 4
+		_meshes[key] = m
+	return _meshes[key]
+
+func _cyl(r: float, h: float) -> Mesh:
+	var key := "cyl%.3f_%.3f" % [r, h]
+	if not _meshes.has(key):
+		var m := CylinderMesh.new()
+		m.top_radius = r
+		m.bottom_radius = r
+		m.height = h
+		m.radial_segments = 12
+		m.rings = 1
+		_meshes[key] = m
+	return _meshes[key]
+
+func _sphere(r: float) -> Mesh:
+	var key := "sph%.3f" % r
+	if not _meshes.has(key):
+		var m := SphereMesh.new()
+		m.radius = r
+		m.height = r * 2.0
+		m.radial_segments = 8
+		m.rings = 4
+		_meshes[key] = m
+	return _meshes[key]
+
+func _box(size: Vector3) -> Mesh:
+	var key := "box%s" % str(size)
+	if not _meshes.has(key):
+		var m := BoxMesh.new()
+		m.size = size
+		_meshes[key] = m
+	return _meshes[key]
 
 func _sphere_shape(r: float) -> Shape3D:
 	var s := SphereShape3D.new()
@@ -149,6 +190,25 @@ func _hitbox(part: String, shape: Shape3D, pos: Vector3) -> void:
 	a.add_child(cs)
 	a.position = pos
 	add_child(a)
+
+static func _glow_mat() -> Material:
+	if not _shared.has("glow"):
+		var m := StandardMaterial3D.new()
+		m.albedo_color = Color(0.3, 0.95, 1.0)
+		m.emission_enabled = true
+		m.emission = Color(0.3, 0.95, 1.0)
+		m.emission_energy_multiplier = 2.5
+		_shared["glow"] = m
+	return _shared["glow"]
+
+static func _flash_mat() -> Material:
+	if not _shared.has("flash"):
+		var m := StandardMaterial3D.new()
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.albedo_color = Color(1, 0.35, 0.35, 0.45)
+		_shared["flash"] = m
+	return _shared["flash"]
 
 func head_position_at(p: Vector3) -> Vector3:
 	return p + Vector3(0, BASE_HEAD_Y * scale.y, 0)
@@ -240,7 +300,9 @@ func _physics_process(delta: float) -> void:
 		else:
 			global_position = next
 	if _flash > 0.0:
+		var was := _flash
 		_flash -= delta
-		var e := 2.5 if _flash > 0.0 else 0.0
-		for m in _mats:
-			m.emission_energy_multiplier = e
+		if was == 0.12 or _flash <= 0.0:
+			var ov: Material = _flash_mat() if _flash > 0.0 else _mat("outline", Color(1.0, 0.18, 0.28), true)
+			for p in _parts:
+				p.material_overlay = ov

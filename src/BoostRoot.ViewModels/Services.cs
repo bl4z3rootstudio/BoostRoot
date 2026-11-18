@@ -120,7 +120,9 @@ public interface IAppServices
     /// <summary>Version on GitHub (null = offline / not published).</summary>
     Task<string?> PoligonLatestAsync(CancellationToken ct) => Task.FromResult<string?>(null);
     Task<bool> InstallPoligonAsync(IProgress<double>? progress, CancellationToken ct) => Task.FromResult(false);
-    bool LaunchPoligon(string game, double sens, int dpi, string? crosshairCode, bool stretched) => false;
+    bool LaunchPoligon(string game, double sens, int dpi, string? crosshairCode, bool stretched, int fpsCap = 0) => false;
+    /// <summary>The game's own FPS limit (VALORANT "limit FPS always"), so the range runs at the same frame rate.</summary>
+    int? GameFpsCap(string game) => null;
     IReadOnlyList<BoostRoot.Core.Poligon.PoligonRun> PoligonRuns() => [];
     /// <summary>The player's sensitivity / stretched mode / crosshair from the game's own config files (null = not found).</summary>
     (double? Sens, bool? Stretched, string? CrosshairCode) AimSettings(string game) => (null, null, null);

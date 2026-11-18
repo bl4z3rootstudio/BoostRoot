@@ -54,38 +54,116 @@ func _ready() -> void:
 	_build_fx()
 	ammo = int(weapon()["mag"])
 
+## 1 = primary (rifle), 2 = secondary (pistol), 3 = knife — same keys as the game.
+var slot := 1
+var equip_t := 0.0
+var ads := false
+var _ammo_by_slot := {}
+var _step_t := 0.0
+
 func weapon() -> Dictionary:
+	var g := Settings.game()
+	if slot == 3:
+		return g["knife"]
+	if slot == 2:
+		return g["weapons"][g["secondary"]]
 	return Settings.weapon()
+
+func switch_slot(s: int) -> void:
+	if s == slot:
+		return
+	_ammo_by_slot[slot] = ammo
+	slot = s
+	ammo = int(_ammo_by_slot.get(s, weapon()["mag"]))
+	reloading = 0.0
+	shots_in_burst = 0
+	equip_t = float(weapon().get("equip", 0.8))   # can't shoot while drawing the weapon
+	ads = false
+	_rebuild_viewmodel()
+	Sfx.play("tick", -8.0)
+
+func reset_weapons() -> void:
+	_ammo_by_slot.clear()
+	slot = 1
+	equip_t = 0.0
+	ads = false
+	ammo = int(weapon()["mag"])
+	reloading = 0.0
+	_rebuild_viewmodel()
+
+func _rebuild_viewmodel() -> void:
+	for c in _viewmodel.get_children():
+		if c != _flash and c != _flash_mesh:
+			c.queue_free()
+	_build_gun_meshes()
 
 func _build_viewmodel() -> void:
 	_viewmodel = Node3D.new()
 	cam.add_child(_viewmodel)
 	_viewmodel.position = Vector3(0.2, -0.2, -0.42)
 	_viewmodel.scale = Vector3.ONE * 0.6
-	var dark := StandardMaterial3D.new()
-	dark.albedo_color = Color(0.3, 0.31, 0.35)
-	dark.metallic = 0.6
-	dark.roughness = 0.35
-	var acc := StandardMaterial3D.new()
-	acc.albedo_color = Color(0.85, 0.32, 0.25)
-	acc.roughness = 0.5
-	var parts := [
-		[Vector3(0.05, 0.07, 0.42), Vector3(0, 0, 0), dark],        # receiver
-		[Vector3(0.025, 0.025, 0.3), Vector3(0, 0.01, -0.33), dark], # barrel
-		[Vector3(0.045, 0.12, 0.05), Vector3(0, -0.08, 0.04), acc],  # magazine
-		[Vector3(0.04, 0.09, 0.04), Vector3(0, -0.07, 0.15), dark],  # grip
-		[Vector3(0.05, 0.06, 0.16), Vector3(0, -0.01, 0.27), acc],   # stock
-		[Vector3(0.02, 0.03, 0.08), Vector3(0, 0.05, -0.05), dark],  # sight
-	]
-	for p in parts:
+	_build_gun_meshes()
+
+static var _vm_mats := {}
+
+static func _vm_mat(key: String, c: Color, metal: float, rough: float) -> StandardMaterial3D:
+	if not _vm_mats.has(key):
+		var m := StandardMaterial3D.new()
+		m.albedo_color = c
+		m.metallic = metal
+		m.roughness = rough
+		_vm_mats[key] = m
+	return _vm_mats[key]
+
+## Simple but readable first-person models: rifle, pistol or knife, plus gloved hands.
+func _build_gun_meshes() -> void:
+	var metal := _vm_mat("metal", Color(0.16, 0.17, 0.19), 0.7, 0.35)
+	var body := _vm_mat("body", Color(0.32, 0.33, 0.36), 0.4, 0.5)
+	var wood := _vm_mat("accent", Color(0.78, 0.36, 0.2), 0.1, 0.55)
+	var glove := _vm_mat("glove", Color(0.12, 0.12, 0.13), 0.0, 0.8)
+	var sleeve := _vm_mat("sleeve", Color(0.24, 0.3, 0.42), 0.0, 0.85)
+	var parts: Array = []
+	var w := weapon()
+	if w.get("melee", false):
+		parts = [
+			[Vector3(0.03, 0.035, 0.13), Vector3(0, -0.02, 0.06), glove],
+			[Vector3(0.012, 0.04, 0.22), Vector3(0, 0.0, -0.11), _vm_mat("blade", Color(0.75, 0.78, 0.82), 0.9, 0.2)],
+			[Vector3(0.06, 0.012, 0.02), Vector3(0, -0.01, -0.005), metal],
+			[Vector3(0.07, 0.08, 0.1), Vector3(0, -0.04, 0.08), glove],
+			[Vector3(0.08, 0.08, 0.3), Vector3(0.01, -0.06, 0.28), sleeve],
+		]
+	elif int(w["mag"]) <= 8:
+		parts = [
+			[Vector3(0.04, 0.06, 0.2), Vector3(0, 0.01, -0.06), body],
+			[Vector3(0.03, 0.03, 0.1), Vector3(0, 0.03, -0.2), metal],
+			[Vector3(0.036, 0.1, 0.05), Vector3(0, -0.06, 0.02), _vm_mat("grip", Color(0.25, 0.2, 0.17), 0.0, 0.7)],
+			[Vector3(0.07, 0.08, 0.09), Vector3(0, -0.07, 0.05), glove],
+			[Vector3(0.08, 0.08, 0.3), Vector3(0.01, -0.1, 0.25), sleeve],
+		]
+	else:
+		parts = [
+			[Vector3(0.05, 0.075, 0.36), Vector3(0, 0, 0), body],                 # receiver
+			[Vector3(0.022, 0.022, 0.32), Vector3(0, 0.012, -0.33), metal],       # barrel
+			[Vector3(0.046, 0.05, 0.16), Vector3(0, -0.005, -0.22), metal],       # handguard
+			[Vector3(0.042, 0.13, 0.055), Vector3(0, -0.095, -0.02), metal],      # magazine
+			[Vector3(0.04, 0.09, 0.045), Vector3(0, -0.075, 0.13), metal],        # grip
+			[Vector3(0.05, 0.07, 0.2), Vector3(0, -0.015, 0.26), wood],           # stock
+			[Vector3(0.018, 0.03, 0.05), Vector3(0, 0.055, -0.08), metal],        # front sight
+			[Vector3(0.03, 0.025, 0.07), Vector3(0, 0.05, 0.07), metal],          # rear sight
+			[Vector3(0.06, 0.07, 0.09), Vector3(-0.005, -0.075, 0.12), glove],    # right hand
+			[Vector3(0.06, 0.06, 0.09), Vector3(-0.02, -0.04, -0.22), glove],     # left hand
+			[Vector3(0.08, 0.08, 0.3), Vector3(0.01, -0.1, 0.3), sleeve],         # right forearm
+		]
+	for pr in parts:
 		var mi := MeshInstance3D.new()
 		var b := BoxMesh.new()
-		b.size = p[0]
+		b.size = pr[0]
 		mi.mesh = b
-		mi.position = p[1]
-		mi.material_override = p[2]
+		mi.position = pr[1]
+		mi.material_override = pr[2]
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		_viewmodel.add_child(mi)
+	_viewmodel.rotation_degrees.y = 4.0
 
 func _build_fx() -> void:
 	_flash = OmniLight3D.new()
@@ -157,6 +235,9 @@ func _apply_look() -> void:
 ## Raw mouse counts in. Same formula as the game: angle = counts × sensitivity × yaw.
 func look(counts: Vector2) -> void:
 	var k := Settings.deg_per_count()
+	if ads:
+		# Zoomed: sensitivity × the game's zoom multiplier, scaled down by the zoom like the game does.
+		k *= float(Settings.data.get("ads_mult", 1.0)) / float(weapon().get("zoom", 1.0))
 	yaw -= counts.x * k
 	pitch = clampf(pitch - counts.y * k, -89.0, 89.0)
 	_apply_look()
@@ -164,6 +245,8 @@ func look(counts: Vector2) -> void:
 func max_speed() -> float:
 	var g := Settings.game()
 	var s := float(weapon().get("run", 5.4))
+	if ads:
+		s *= 0.76
 	if crouching:
 		s *= float(g.get("crouch_mult", 0.5))
 	elif walking:
@@ -172,7 +255,8 @@ func max_speed() -> float:
 
 func speed_frac() -> float:
 	var hv := Vector2(velocity.x, velocity.z).length()
-	return hv / float(weapon().get("run", 5.4))
+	# Accuracy is judged against the gun's own top speed (knife-running does not count as "slow").
+	return hv / float((Settings.weapon() if slot == 3 else weapon()).get("run", 5.4))
 
 ## Current random spread in degrees (what the next bullet can deviate by).
 func spread_deg() -> float:
@@ -190,6 +274,8 @@ func spread_deg() -> float:
 			s += lerpf(float(w["walk_err"]), float(w["run_err"]), clampf((f - walk_f) / (1.0 - walk_f), 0.0, 1.0))
 	if crouching and f <= dz:
 		s *= 0.85
+	if ads:
+		s *= 0.65
 	# Firing error grows with each bullet of a spray and recovers when you stop shooting.
 	s += minf(shots_in_burst, 8) * 0.28
 	return s
@@ -242,6 +328,24 @@ func _physics_process(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	since_shot += delta
+	equip_t -= delta
+	if can_shoot:
+		if Input.is_physical_key_pressed(KEY_1): switch_slot(1)
+		elif Input.is_physical_key_pressed(KEY_2): switch_slot(2)
+		elif Input.is_physical_key_pressed(KEY_3): switch_slot(3)
+	# Right mouse: aim down sights (zoom), like the game's alt-fire on rifles / Sheriff.
+	var want_ads := can_shoot and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and float(weapon().get("zoom", 1.0)) > 1.01 \
+		and reloading <= 0.0 and equip_t <= 0.0
+	if want_ads != ads:
+		ads = want_ads
+	var base_fov := float(Settings.game().get("fov", 103.0))
+	var target_fov := rad_to_deg(2.0 * atan(tan(deg_to_rad(base_fov) / 2.0) / float(weapon().get("zoom", 1.0)))) if ads else base_fov
+	cam.fov = move_toward(cam.fov, target_fov, delta * 220.0)
+	# Footsteps when running (shift-walk and crouch are silent, as in the game).
+	_step_t -= delta
+	if is_on_floor() and not walking and not crouching and speed_frac() > 0.6 and _step_t <= 0.0:
+		_step_t = 0.36
+		Sfx.play("step", -14.0, _rng.randf_range(0.9, 1.1))
 	fire_cooldown -= delta
 	if since_shot > float(weapon()["recover"]):
 		shots_in_burst = 0
@@ -269,14 +373,14 @@ func _process(delta: float) -> void:
 	_viewmodel.rotation_degrees.x = _kick * 6.0
 
 func fire() -> void:
-	if fire_cooldown > 0.0 or reloading > 0.0:
+	if fire_cooldown > 0.0 or reloading > 0.0 or equip_t > 0.0 or weapon().get("melee", false):
 		return
 	if ammo <= 0:
 		Sfx.play("empty")
 		fire_cooldown = 0.25
 		reloading = float(weapon()["reload"])
 		return
-	fire_cooldown = 1.0 / float(weapon()["rps"])
+	fire_cooldown = 1.0 / (float(weapon()["rps"]) * (0.9 if ads else 1.0))
 	ammo -= 1
 	var spread := spread_deg()
 	var moving := speed_frac() > float(Settings.game().get("deadzone", 0.25))
