@@ -37,3 +37,23 @@ public sealed record StressLimits(double GpuEdgeMaxC = 90, double GpuHotspotMaxC
         : s.CpuTempC >= CpuMaxC ? "stress.stop.cpuTemp"
         : null;
 }
+
+/// <summary>
+/// Some drivers report no real hotspot and just repeat the edge temperature (or return junk). A real hotspot is
+/// always above the edge reading, so it is shown only after it has been seen clearly higher at least once.
+/// Works the same for every NVIDIA / AMD card: cards without a real sensor simply never show it.
+/// </summary>
+public sealed class HotspotFilter
+{
+    private bool _real;
+    public double? Apply(double? edgeC, double? hotspotC)
+    {
+        if (hotspotC is not { } h || h <= 0 || h > 150) return null;
+        if (edgeC is { } e)
+        {
+            if (h < e - 0.5) return null;          // below the edge: not a hotspot reading
+            if (h > e + 1.5) _real = true;          // clearly hotter than the edge once → a real sensor
+        }
+        return _real ? h : null;
+    }
+}

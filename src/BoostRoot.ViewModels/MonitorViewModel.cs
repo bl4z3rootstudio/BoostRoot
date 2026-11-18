@@ -98,7 +98,6 @@ public sealed partial class MonitorViewModel(IAppServices services, Func<AppSett
             new(Loc.I["mon.cpuClock"], N(s.CpuMhz, " MHz"), false),
             new(Loc.I["mon.throttle"], s.CpuThrottled ? Loc.I["mon.yes"] : Loc.I["mon.no"], s.CpuThrottled),
             new(Loc.I["mon.gpuTemp"], N(s.GpuTempC, "°C"), s.GpuTempC >= 85),
-            new(Loc.I["mon.hotspot"], N(s.GpuHotspotC, "°C"), s.GpuHotspotC >= 100),
             new(Loc.I["mon.gpuPower"], N(s.GpuPowerW, " W"), false),
             new("VRAM", N(s.VramUsedMb, " MB"), false),
             new(Loc.I["mon.down"], down, false),
@@ -107,6 +106,8 @@ public sealed partial class MonitorViewModel(IAppServices services, Func<AppSett
             new(Loc.I["mon.uptime"], $"{(int)up24.TotalHours} sa {up24.Minutes} dk", up24.TotalDays > 7),
             new(Loc.I["mon.procs"], _procCount > 0 ? _procCount.ToString(System.Globalization.CultureInfo.CurrentCulture) : "—", false),
         ];
+        // Hotspot only on cards that really report one.
+        if (s.GpuHotspotC is { } hot) tiles = [.. tiles[..4], new(Loc.I["mon.hotspot"], N(hot, "°C"), hot >= 100), .. tiles[4..]];
         if (Details.Count != tiles.Length) { Details.Clear(); foreach (var t in tiles) Details.Add(t); }
         else for (var i = 0; i < tiles.Length; i++) if (Details[i] != tiles[i]) Details[i] = tiles[i];
     }

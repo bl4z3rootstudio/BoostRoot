@@ -7,6 +7,7 @@ namespace BoostRoot.Platform.Windows.Sensors;
 /// a missing driver DLL just means that value stays null. No kernel driver is ever loaded.</summary>
 public sealed class WindowsSensors : ISensors
 {
+    private readonly BoostRoot.Core.Monitoring.HotspotFilter _hotspot = new();
     private readonly CpuSensor _cpu = new();
     private readonly NvmlSensor? _nv = NvmlSensor.TryCreate();
     private readonly AdlSensor? _amd;
@@ -40,7 +41,7 @@ public sealed class WindowsSensors : ISensors
                 g = _gpu;
             }
             if (g is not null)
-                s = s with { GpuLoad = g.GpuLoad, GpuTempC = g.GpuTempC, GpuHotspotC = g.GpuHotspotC, GpuClockMhz = g.GpuClockMhz, GpuPowerW = g.GpuPowerW, VramUsedMb = g.VramUsedMb };
+                s = s with { GpuLoad = g.GpuLoad, GpuTempC = g.GpuTempC, GpuHotspotC = _hotspot.Apply(g.GpuTempC, g.GpuHotspotC), GpuClockMhz = g.GpuClockMhz, GpuPowerW = g.GpuPowerW, VramUsedMb = g.VramUsedMb };
         }
         catch (Exception) { }
         try { s = s with { RamUsedPct = RamPct() }; } catch (Exception) { }

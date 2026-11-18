@@ -141,3 +141,27 @@ public class Cs2ConfigTests
         Assert.Equal(design.InnerLines.Thickness, back.InnerLines.Thickness);
     }
 }
+
+public class HotspotFilterTests
+{
+    [Fact]
+    public void Mirrored_edge_value_is_never_shown()
+    {
+        var f = new BoostRoot.Core.Monitoring.HotspotFilter();
+        Assert.Null(f.Apply(70, 70));
+        Assert.Null(f.Apply(71, 71));
+        Assert.Null(f.Apply(50, 49.8));
+    }
+
+    [Fact]
+    public void Real_sensor_shows_after_it_is_clearly_hotter()
+    {
+        var f = new BoostRoot.Core.Monitoring.HotspotFilter();
+        Assert.Null(f.Apply(40, 40));
+        Assert.Equal(86, f.Apply(70, 86));
+        Assert.Equal(41, f.Apply(41, 41));   // idle can be equal once it is known to be real
+        Assert.Null(f.Apply(60, 30));        // junk below edge
+        Assert.Null(f.Apply(60, null));
+        Assert.Null(f.Apply(60, 400));
+    }
+}
