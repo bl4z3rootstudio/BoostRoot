@@ -49,7 +49,7 @@ public sealed record AppSettings(
     IReadOnlyList<ManualGame>? ManualGames = null,
     bool NetBoost = false,
     // "Sadece Boost": apply the boost, then watch nothing — no FPS capture, sensors, overlays, clips, stats or alerts.
-    bool PureBoost = false,
+    bool PureBoost = true,   // Odak Modu on for new installs: the simplest, lightest way to play
     // Overlay laid out in one row (fits along the top edge) instead of a column.
     bool OverlayHorizontal = false,
     // Remembered between starts: last selected game and the level picked per game.

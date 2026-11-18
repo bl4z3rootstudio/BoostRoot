@@ -163,6 +163,8 @@ public sealed class GameSession : IDisposable
             _ = Task.Run(() => RamCleaner.ShrinkSelf(true));
             return;
         }
+        // Normal mode keeps its FPS capture at normal priority (so no frames are missed) but still frees its idle RAM.
+        _ = Task.Run(async () => { await Task.Delay(3000); RamCleaner.TrimSelf(); });
         _frames = _startFrames();
         _frames.Frame += _fps.Add;
         _frames.Frame += ms =>
