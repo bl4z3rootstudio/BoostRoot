@@ -304,20 +304,9 @@ public sealed class WindowsAppServices : IAppServices
         {
             if (e.Game is { Source: "epic" } g && g.Extra.TryGetValue("itemId", out var item) && item.Length > 0)
                 url = EpicCatalogArt(item);
-            else if (e.Game is { Source: "xbox" } || e.Profile?.Detect.ContainsKey("xbox") == true)
-            {
-                var q = Uri.EscapeDataString(e.DisplayName);
-                var json = await _http.GetStringAsync($"https://displaycatalog.mp.microsoft.com/v7.0/productFamilies/autosuggest?market=US&languages=en-US&query={q}&productFamilyNames=Games", ct);
-                using var doc = JsonDocument.Parse(json);
-                foreach (var fam in doc.RootElement.GetProperty("Results").EnumerateArray())
-                    foreach (var p in fam.GetProperty("Products").EnumerateArray())
-                    {
-                        var title = p.TryGetProperty("Title", out var t) ? t.GetString() ?? "" : "";
-                        if (!title.Contains(e.DisplayName.Split(' ')[0], StringComparison.OrdinalIgnoreCase)) continue;
-                        if (p.TryGetProperty("PreferredSkuId", out _) && p.TryGetProperty("ImageUrl", out var img) && img.GetString() is { Length: > 0 } u)
-                        { url = u.StartsWith("//", StringComparison.Ordinal) ? "https:" + u : u; break; }
-                    }
-            }
+            else if (e.Game is { Source: "xbox" or "riot" or "minecraft" or "roblox" } || e.Profile?.Detect.ContainsKey("xbox") == true
+                     || e.Profile?.Detect.ContainsKey("riot") == true)
+                url = await MsStorePosterAsync(e.DisplayName, ct);
             if (url is null) return false;
             var bytes = await _http.GetByteArrayAsync(url, ct);
             if (bytes.Length < 2048) return false;
@@ -325,6 +314,52 @@ public sealed class WindowsAppServices : IAppServices
             return true;
         }
         catch (Exception ex) when (ex is HttpRequestException or IOException or JsonException or KeyNotFoundException or InvalidOperationException or TaskCanceledException) { return false; }
+    }
+
+    /// <summary>
+    /// Poster art from Microsoft's public store catalog (no key needed). Has VALORANT, League of Legends, Minecraft,
+    /// Roblox and most PC games, so it is also the fallback when Steam has nothing.
+    /// </summary>
+    private async Task<string?> MsStorePosterAsync(string name, CancellationToken ct)
+    {
+        // The plain "Minecraft" search lists the spin-offs first; ask for the real game by its store title.
+        if (name.Contains("minecraft", StringComparison.OrdinalIgnoreCase) && !name.Contains("legends", StringComparison.OrdinalIgnoreCase)
+            && !name.Contains("dungeons", StringComparison.OrdinalIgnoreCase))
+            name = "Minecraft: Java & Bedrock Edition for PC";
+        var q = Uri.EscapeDataString(name);
+        var json = await _http.GetStringAsync($"https://displaycatalog.mp.microsoft.com/v7.0/productFamilies/autosuggest?market=US&languages=en-US&query={q}&productFamilyNames=Games,Apps", ct);
+        using var doc = JsonDocument.Parse(json);
+        string Norm(string s) => new([.. s.ToLowerInvariant().Where(char.IsLetterOrDigit)]);
+        var want = Norm(name);
+        string? best = null;
+        var bestScore = 0;
+        foreach (var fam in doc.RootElement.GetProperty("Results").EnumerateArray())
+            foreach (var p in fam.GetProperty("Products").EnumerateArray())
+            {
+                var title = p.TryGetProperty("Title", out var t) ? t.GetString() ?? "" : "";
+                var n = Norm(title);
+                // Skip currency packs, guides and other look-alikes.
+                if (n.Length == 0 || title.Contains("Robux", StringComparison.OrdinalIgnoreCase) || n.Contains("guide") || n.Contains("tips") || n.Contains("codes")) continue;
+                var score = n == want ? 3 : n.StartsWith(want, StringComparison.Ordinal) ? 2 : want.StartsWith(n, StringComparison.Ordinal) && n.Length >= 4 ? 1 : 0;
+                if (score > bestScore && p.TryGetProperty("ProductId", out var pid)) { bestScore = score; best = pid.GetString(); }
+            }
+        if (best is null) return null;
+        var prod = await _http.GetStringAsync($"https://displaycatalog.mp.microsoft.com/v7.0/products?bigIds={best}&market=US&languages=en-US", ct);
+        using var pd = JsonDocument.Parse(prod);
+        string? poster = null, box = null;
+        foreach (var product in pd.RootElement.GetProperty("Products").EnumerateArray())
+            foreach (var lp in product.GetProperty("LocalizedProperties").EnumerateArray())
+                if (lp.TryGetProperty("Images", out var imgs))
+                    foreach (var img in imgs.EnumerateArray())
+                    {
+                        var purpose = img.TryGetProperty("ImagePurpose", out var ip) ? ip.GetString() : null;
+                        var uri = img.TryGetProperty("Uri", out var u) ? u.GetString() : null;
+                        if (uri is null) continue;
+                        if (uri.StartsWith("//", StringComparison.Ordinal)) uri = "https:" + uri;
+                        if (purpose == "Poster") poster ??= uri + "?w=400&h=600&q=90";
+                        else if (purpose == "BoxArt") box ??= uri + "?w=600&h=600&q=90";
+                    }
+        return poster ?? box;
     }
 
     /// <summary>Epic keeps its catalog (with box art links) in a base64 JSON file next to the launcher's data.</summary>
@@ -584,7 +619,8 @@ public sealed class WindowsAppServices : IAppServices
             if (!LoadSettings().Offline && await StoreArtAsync(e, target, ct)) return target;
             // Games that are never on Steam would only match a wrong store page.
             var notOnSteam = e.Game?.Source is "riot" or "minecraft" or "roblox" or "manual" || e.Profile?.Detect.ContainsKey("riot") == true;
-            if (LoadSettings().Offline || notOnSteam) return await GeneratedCoverAsync(e, id);
+            if (LoadSettings().Offline) return await GeneratedCoverAsync(e, id);
+            if (notOnSteam) return await GeneratedCoverAsync(e, id);
             if (appId is null || !appId.All(char.IsAsciiDigit)) appId = await SteamSearchAsync(e.DisplayName, ct);
             if (appId is not null)
             {
@@ -594,6 +630,12 @@ public sealed class WindowsAppServices : IAppServices
                     await File.WriteAllBytesAsync(target, bytes, ct);
                     return target;
                 }
+            }
+            // Not on Steam: try Microsoft's store catalog before falling back to a generated poster.
+            if (await MsStorePosterAsync(e.DisplayName, ct) is { } ms && await _http.GetByteArrayAsync(ms, ct) is { Length: > 2048 } msBytes)
+            {
+                await File.WriteAllBytesAsync(target, msBytes, ct);
+                return target;
             }
             await File.WriteAllTextAsync(miss, appId ?? "", ct);
             return await GeneratedCoverAsync(e, id);

@@ -25,6 +25,29 @@ public class Release26_11_12Tests
     }
 
     [Fact]
+    public void SettingsCode_CarriesBoostChoices_PerGameLevels_AndCrosshair()
+    {
+        var s = AppSettings.Default with
+        {
+            PureBoost = true, EcoBackground = true, NetBoost = true, Theme = "oled", OverlayCorner = "tc",
+            GameLevels = new() { ["valorant"] = "max", ["cs2"] = "balanced" }, StretchGames = ["valorant"], LastGameId = "valorant",
+            CrosshairDesign = new BoostRoot.Core.Crosshair.CrosshairDesign("x", "#00FFFF", Inner: new(true, 1, 2, 0, 1)),
+        };
+        var back = SettingsCode.Decode(SettingsCode.Encode(s), AppSettings.Default with { PureBoost = false })!;
+        Assert.True(back.PureBoost);
+        Assert.True(back.EcoBackground);
+        Assert.True(back.NetBoost);
+        Assert.Equal("oled", back.Theme);
+        Assert.Equal("tc", back.OverlayCorner);
+        Assert.Equal("max", back.GameLevels!["valorant"]);
+        Assert.Equal("balanced", back.GameLevels["cs2"]);
+        Assert.True(back.IsStretched("valorant"));
+        Assert.Equal("valorant", back.LastGameId);
+        Assert.Equal("#00FFFF", back.CrosshairDesign!.Color);
+        Assert.Equal(2, back.CrosshairDesign.InnerLines.Length);
+    }
+
+    [Fact]
     public void Stutter_CauseFollowsTheWorstSensor()
     {
         Assert.Equal(StutterAnalyzer.GpuHot, StutterAnalyzer.Cause(new SensorSnapshot(DateTime.UtcNow, GpuTempC: 88)));

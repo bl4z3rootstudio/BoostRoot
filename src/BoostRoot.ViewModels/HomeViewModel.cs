@@ -406,7 +406,12 @@ public sealed partial class HomeViewModel : ObservableObject
         StatusIsError = false;
     }
 
-    public void ApplySettings(AppSettings settings) => _settings = settings;
+    public void ApplySettings(AppSettings settings)
+    {
+        var pureChanged = settings.PureBoost != _settings.PureBoost;
+        _settings = settings;
+        if (pureChanged) OnPropertyChanged(nameof(PureBoost));   // e.g. a friend's settings code was applied
+    }
 
     /// <summary>Re-evaluates the recommended level after the PC score changes.</summary>
     public void RefreshRecommendation()

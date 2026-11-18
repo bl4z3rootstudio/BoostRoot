@@ -467,7 +467,7 @@
  "settings.fpsCap": "FPS cap (NVIDIA)",
  "settings.useSuggested": "Use suggestion",
  "settings.share": "Share settings",
- "settings.shareSub": "Send your settings to a friend as a code, or apply theirs. Folders and accounts are never included.",
+ "settings.shareSub": "Send your settings to a friend as a code or apply theirs: Focus Mode, per-game Boost level, 4:3 games, favourites, crosshair, overlay, theme and other options. Folders and account details are never included.",
  "settings.copyCode": "Copy code",
  "settings.applyCode": "Apply code",
  "settings.fpsCapOff": "Off",

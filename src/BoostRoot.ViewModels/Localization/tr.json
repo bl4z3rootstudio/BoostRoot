@@ -467,7 +467,7 @@
  "settings.fpsCap": "FPS sınırı (NVIDIA)",
  "settings.useSuggested": "Öneriyi kullan",
  "settings.share": "Ayarları paylaş",
- "settings.shareSub": "Ayarlarını kod olarak arkadaşına gönder ya da onun kodunu uygula. Klasör ve hesap bilgileri koda girmez.",
+ "settings.shareSub": "Ayarlarını kod olarak arkadaşına gönder ya da onun kodunu uygula: Odak Modu, oyun başına Boost seviyesi, 4:3 oyunlar, favoriler, nişangah, bilgi kutusu, tema ve diğer seçenekler. Klasör ve hesap bilgileri koda girmez.",
  "settings.copyCode": "Kodu kopyala",
  "settings.applyCode": "Kodu uygula",
  "settings.fpsCapOff": "Kapalı",
