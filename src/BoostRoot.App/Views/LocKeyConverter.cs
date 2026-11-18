@@ -12,6 +12,7 @@ public sealed class LocKeyConverter(string prefix) : IValueConverter
     public static LocKeyConverter Plain { get; } = new("");
     /// <summary>0 → "Off", otherwise "144 FPS".</summary>
     public static LocKeyConverter FpsCap { get; } = new("fpscap");
+    public static LocKeyConverter Theme { get; } = new("theme.");
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value switch
     {
         int n when prefix == "fpscap" => n == 0 ? Loc.I["settings.fpsCapOff"] : $"{n} FPS",

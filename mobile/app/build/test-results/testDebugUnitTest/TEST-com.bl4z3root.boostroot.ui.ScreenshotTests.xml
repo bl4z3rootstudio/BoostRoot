@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.bl4z3root.boostroot.ui.ScreenshotTests" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-13T18:36:03.554Z" hostname="vm" time="10.463">
+  <properties/>
+  <testcase name="crosshairAr" classname="com.bl4z3root.boostroot.ui.ScreenshotTests" time="7.637"/>
+  <testcase name="app" classname="com.bl4z3root.boostroot.ui.ScreenshotTests" time="0.493"/>
+  <testcase name="appTr" classname="com.bl4z3root.boostroot.ui.ScreenshotTests" time="0.275"/>
+  <testcase name="games" classname="com.bl4z3root.boostroot.ui.ScreenshotTests" time="0.243"/>
+  <testcase name="crosshair" classname="com.bl4z3root.boostroot.ui.ScreenshotTests" time="0.332"/>
+  <testcase name="settings" classname="com.bl4z3root.boostroot.ui.ScreenshotTests" time="0.242"/>
+  <testcase name="network" classname="com.bl4z3root.boostroot.ui.ScreenshotTests" time="0.382"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

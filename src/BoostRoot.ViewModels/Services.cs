@@ -54,7 +54,8 @@ public sealed record AppSettings(
     bool OverlayHorizontal = false,
     // Remembered between starts: last selected game and the level picked per game.
     string? LastGameId = null,
-    Dictionary<string, string>? GameLevels = null)
+    Dictionary<string, string>? GameLevels = null,
+    string Theme = "midnight")
 {
     /// <summary>What the overlay draws: the Studio design if one was chosen, else the simple settings.</summary>
     public BoostRoot.Core.Crosshair.CrosshairDesign OverlayCrosshair => CrosshairDesign ?? new(Color: CrosshairOrDefault.Color, Outline: CrosshairOrDefault.Outline, Dot: CrosshairOrDefault.Dot,
@@ -111,6 +112,8 @@ public interface IAppServices
     bool SetDns(string address) => false;
     /// <summary>Opens AMD Adrenalin / NVIDIA App (for frame generation and driver features).</summary>
     void OpenGpuApp() { }
+    /// <summary>Zips Saved Games + Documents\My Games to Documents\BoostRoot\Yedekler; returns the zip path.</summary>
+    string? BackupSaves() => null;
     /// <summary>Puts the DNS back exactly as it was before BoostRoot changed it.</summary>
     bool RestoreDns() => false;
     bool DnsChangedByBoostRoot => false;

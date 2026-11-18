@@ -120,6 +120,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty] public partial bool Hotkeys { get; set; }
     [ObservableProperty] public partial bool OverlayIcons { get; set; }
     [ObservableProperty] public partial bool OverlayHorizontal { get; set; }
+    [ObservableProperty] public partial string Theme { get; set; } = "midnight";
+    public IReadOnlyList<string> Themes { get; } = [.. ThemePalette.All.Select(t => t.Key)];
+    partial void OnThemeChanged(string value) { if (!_loading) ThemePalette.Raise(value); }
     [ObservableProperty] public partial string OverlayColor { get; set; }
     [ObservableProperty] public partial int OverlayOpacity { get; set; }
     [ObservableProperty] public partial int OverlayScale { get; set; }
@@ -239,6 +242,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         (SessionReport, StutterDetect, PacketLossAlert, PauseDownloads, Notifications, Hotkeys, NetBoost) = (s.SessionReport, s.StutterDetect, s.PacketLossAlert, s.PauseDownloads, s.Notifications, s.Hotkeys, s.NetBoost);
         (OverlayIcons, OverlayColor, OverlayOpacity, OverlayScale, FpsCap) = (s.OverlayIcons, s.OverlayColor, s.OverlayOpacity, s.OverlayScale, s.FpsCap);
         OverlayHorizontal = s.OverlayHorizontal;
+        Theme = s.Theme;
         if (Metrics is not null) foreach (var m in Metrics) m.IsOn = s.Metrics.Contains(m.Key);
     }
 
@@ -254,7 +258,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     {
         AutoUndo = AutoUndo, Accent = Accent ?? "purple", TrayIcon = TrayIcon, AutoBoost = AutoBoost, StartWithWindows = StartWithWindows,
         SessionReport = SessionReport, StutterDetect = StutterDetect, PacketLossAlert = PacketLossAlert, PauseDownloads = PauseDownloads, NetBoost = NetBoost,
-        Notifications = Notifications, Hotkeys = Hotkeys, OverlayIcons = OverlayIcons, OverlayHorizontal = OverlayHorizontal, OverlayColor = OverlayColor ?? "#FFFFFF",
+        Notifications = Notifications, Hotkeys = Hotkeys, OverlayIcons = OverlayIcons, OverlayHorizontal = OverlayHorizontal, Theme = Theme ?? "midnight", OverlayColor = OverlayColor ?? "#FFFFFF",
         OverlayOpacity = Math.Clamp(OverlayOpacity, 0, 100), OverlayScale = Math.Clamp(OverlayScale, 60, 200), FpsCap = Math.Clamp(FpsCap, 0, 1000),
         Language = Language ?? "tr", Sounds = Sounds, Animations = Animations, Offline = Offline,
         CloseList = [.. (CloseList ?? "").Split([',', ';', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)],

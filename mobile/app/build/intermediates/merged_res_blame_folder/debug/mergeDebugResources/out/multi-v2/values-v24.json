@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.bl4z3root.boostroot.app-mergeDebugResources-2:/values-v24/values-v24.xml",
+            "map": [
+                {
+                    "source": "/root/.gradle/caches/9.9.1/transforms/e99ba16fcf1320b89439fa4374f2fe9b/transformed/appcompat-1.8.0/res/values-v24/values-v24.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,212",
+                        "endColumns": "156,134",
+                        "endOffsets": "207,342"
+                    }
+                }
+            ]
+        }
+    ]
+}

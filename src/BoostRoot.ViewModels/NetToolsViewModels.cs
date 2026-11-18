@@ -218,6 +218,19 @@ public sealed partial class ToolsViewModel(IAppServices services) : ObservableOb
     public ObservableCollection<JunkRowViewModel> Junk { get; } = [];
     public ObservableCollection<StartupRowViewModel> Startup { get; } = [];
     [ObservableProperty] public partial string? JunkResult { get; set; }
+    [ObservableProperty] public partial string? BackupResult { get; set; }
+    [ObservableProperty] public partial bool BackupBusy { get; set; }
+
+    [RelayCommand]
+    public async Task BackupSavesAsync()
+    {
+        if (BackupBusy) return;
+        BackupBusy = true;
+        BackupResult = Loc.I["tools.backupRunning"];
+        try { BackupResult = await Task.Run(services.BackupSaves) is { } p ? Loc.I.Format("tools.backupDone", p) : Loc.I["tools.backupNone"]; }
+        catch (Exception) { BackupResult = Loc.I["tools.backupFail"]; }
+        finally { BackupBusy = false; }
+    }
     [ObservableProperty] public partial string? DriverText { get; set; }
     [ObservableProperty] public partial bool DriverIsOld { get; set; }
     [ObservableProperty] public partial bool IsBusy { get; set; }

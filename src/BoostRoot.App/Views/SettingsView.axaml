@@ -23,6 +23,14 @@
       </Border>
       <Border Classes="card">
         <Grid ColumnDefinitions="*,Auto">
+          <TextBlock VerticalAlignment="Center" Text="{Binding [settings.theme], Source={x:Static loc:Loc.I}}" />
+          <ComboBox Grid.Column="1" ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme}" MinWidth="180">
+            <ComboBox.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding Converter={x:Static v:LocKeyConverter.Theme}}" /></DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+        </Grid>
+      </Border>
+      <Border Classes="card">
+        <Grid ColumnDefinitions="*,Auto">
           <TextBlock VerticalAlignment="Center" Text="{Binding [settings.accent], Source={x:Static loc:Loc.I}}" />
           <ItemsControl Grid.Column="1" ItemsSource="{Binding Accents}">
             <ItemsControl.ItemsPanel>

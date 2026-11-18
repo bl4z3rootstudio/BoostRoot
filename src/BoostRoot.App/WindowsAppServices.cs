@@ -253,7 +253,7 @@ public sealed class WindowsAppServices : IAppServices
         var id = entry.Profile?.Id ?? entry.Game?.SourceId;
         if (id is null) return null;
         // Custom picture first, then store art, then the generated poster.
-        foreach (var name in new[] { id + ".custom.png", id + ".jpg", id + ".gen.png" })
+        foreach (var name in new[] { id + ".custom.png", id + ".jpg", id + ".gen2.png" })
         {
             var path = Path.Combine(_coversDir, name);
             if (File.Exists(path)) return path;
@@ -284,7 +284,7 @@ public sealed class WindowsAppServices : IAppServices
     /// <summary>Poster with the game's own .exe icon (or initials) for games without store art.</summary>
     private async Task<string?> GeneratedCoverAsync(CatalogEntry e, string id)
     {
-        var target = Path.Combine(_coversDir, id + ".gen.png");
+        var target = Path.Combine(_coversDir, id + ".gen2.png");
         if (File.Exists(target)) return target;
         var icon = await Task.Run(() => GameExe(e) is { } exe ? ExeIcon.Extract(exe) : null);
         try { await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => CoverPoster.Save(e.DisplayName, icon, target)); }
@@ -292,11 +292,79 @@ public sealed class WindowsAppServices : IAppServices
         return File.Exists(target) ? target : null;
     }
 
+    private async Task<bool> StoreArtAsync(CatalogEntry e, string target, CancellationToken ct)
+    {
+        string? url = null;
+        try
+        {
+            if (e.Game is { Source: "epic" } g && g.Extra.TryGetValue("itemId", out var item) && item.Length > 0)
+                url = EpicCatalogArt(item);
+            else if (e.Game is { Source: "xbox" } || e.Profile?.Detect.ContainsKey("xbox") == true)
+            {
+                var q = Uri.EscapeDataString(e.DisplayName);
+                var json = await _http.GetStringAsync($"https://displaycatalog.mp.microsoft.com/v7.0/productFamilies/autosuggest?market=US&languages=en-US&query={q}&productFamilyNames=Games", ct);
+                using var doc = JsonDocument.Parse(json);
+                foreach (var fam in doc.RootElement.GetProperty("Results").EnumerateArray())
+                    foreach (var p in fam.GetProperty("Products").EnumerateArray())
+                    {
+                        var title = p.TryGetProperty("Title", out var t) ? t.GetString() ?? "" : "";
+                        if (!title.Contains(e.DisplayName.Split(' ')[0], StringComparison.OrdinalIgnoreCase)) continue;
+                        if (p.TryGetProperty("PreferredSkuId", out _) && p.TryGetProperty("ImageUrl", out var img) && img.GetString() is { Length: > 0 } u)
+                        { url = u.StartsWith("//", StringComparison.Ordinal) ? "https:" + u : u; break; }
+                    }
+            }
+            if (url is null) return false;
+            var bytes = await _http.GetByteArrayAsync(url, ct);
+            if (bytes.Length < 2048) return false;
+            await File.WriteAllBytesAsync(target, bytes, ct);
+            return true;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or IOException or JsonException or KeyNotFoundException or InvalidOperationException or TaskCanceledException) { return false; }
+    }
+
+    /// <summary>Epic keeps its catalog (with box art links) in a base64 JSON file next to the launcher's data.</summary>
+    private static string? EpicCatalogArt(string catalogItemId)
+    {
+        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Epic", "EpicGamesLauncher", "Data", "Catalog", "catcache.bin");
+        if (!File.Exists(path)) return null;
+        using var doc = JsonDocument.Parse(Convert.FromBase64String(File.ReadAllText(path)));
+        foreach (var item in doc.RootElement.EnumerateArray())
+        {
+            if (!item.TryGetProperty("id", out var id) || id.GetString() != catalogItemId || !item.TryGetProperty("keyImages", out var imgs)) continue;
+            string? any = null;
+            foreach (var img in imgs.EnumerateArray())
+            {
+                var type = img.TryGetProperty("type", out var t) ? t.GetString() : null;
+                var u = img.TryGetProperty("url", out var uu) ? uu.GetString() : null;
+                if (u is null) continue;
+                if (type is "DieselGameBoxTall" or "OfferImageTall") return u;
+                any ??= u;
+            }
+            return any;
+        }
+        return null;
+    }
+
     /// <summary>The game's main .exe: manual path, the profile's exe name, else the biggest .exe near the install folder.</summary>
     private static string? GameExe(CatalogEntry e)
     {
         if (e.Game is not { } g) return null;
         if (g.Extra.TryGetValue("exe", out var manual) && File.Exists(manual)) return manual;
+        var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+        // Riot ships each game's own icon next to its metadata.
+        if (g.Source == "riot" && Path.Combine(programData, "Riot Games", "Metadata", $"{g.SourceId}.live", $"{g.SourceId}.live.ico") is var ico && File.Exists(ico)) return ico;
+        if (g.Source == "riot" && Path.Combine(g.InstallPath, g.SourceId == "league_of_legends" ? "LeagueClient.exe" : "VALORANT.exe") is var rexe && File.Exists(rexe)) return rexe;
+        if (g.Source == "minecraft")
+        {
+            var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string[] launchers = g.Extra.GetValueOrDefault("launcher") switch
+            {
+                "modrinth" => [Path.Combine(local, "Modrinth App", "Modrinth App.exe"), Path.Combine(local, "Programs", "Modrinth App", "Modrinth App.exe"), @"C:\Program Files\Modrinth App\Modrinth App.exe"],
+                "prism" => [Path.Combine(local, "Programs", "PrismLauncher", "prismlauncher.exe")],
+                _ => [@"C:\XboxGames\Minecraft Launcher\Content\Minecraft.exe", @"C:\Program Files (x86)\Minecraft Launcher\MinecraftLauncher.exe"],
+            };
+            return launchers.FirstOrDefault(File.Exists);
+        }
         if (!Directory.Exists(g.InstallPath)) return null;
         try
         {
@@ -489,7 +557,7 @@ public sealed class WindowsAppServices : IAppServices
     /// Misses are remembered for a week so we don't hammer the store.</summary>
     public async Task<string?> FetchCoverAsync(CatalogEntry e, CancellationToken ct)
     {
-        if (CoverPath(e) is { } have && !have.EndsWith(".gen.png", StringComparison.OrdinalIgnoreCase)) return have;
+        if (CoverPath(e) is { } have && !have.EndsWith(".gen2.png", StringComparison.OrdinalIgnoreCase)) return have;
         var id = e.Profile?.Id ?? e.Game?.SourceId;
         if (id is null) return null;
         Directory.CreateDirectory(_coversDir);
@@ -507,6 +575,8 @@ public sealed class WindowsAppServices : IAppServices
                 File.Copy(local, target, true);
                 return target;
             }
+            // Epic and Xbox games: their own store's box art (Epic from the launcher's local catalog, Xbox from Microsoft's public catalog).
+            if (!LoadSettings().Offline && await StoreArtAsync(e, target, ct)) return target;
             // Games that are never on Steam would only match a wrong store page.
             var notOnSteam = e.Game?.Source is "riot" or "minecraft" or "roblox" or "manual" || e.Profile?.Detect.ContainsKey("riot") == true;
             if (LoadSettings().Offline || notOnSteam) return await GeneratedCoverAsync(e, id);
@@ -764,6 +834,32 @@ public sealed class WindowsAppServices : IAppServices
     public IReadOnlyList<DnsServer> SystemDns() => DnsBenchmark.System();
     public Task<DnsResult> MeasureDnsAsync(DnsServer server, CancellationToken ct) => DnsBenchmark.MeasureAsync(server, ct);
     public bool SetDns(string address) => DnsChanger.Set(address);
+
+    public string? BackupSaves()
+    {
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        string[] sources = [Path.Combine(home, "Saved Games"), Path.Combine(docs, "My Games")];
+        var dir = Path.Combine(docs, "BoostRoot", "Yedekler");
+        Directory.CreateDirectory(dir);
+        var zipPath = Path.Combine(dir, $"oyun-kayitlari-{DateTime.Now:yyyyMMdd-HHmm}.zip");
+        using var zip = System.IO.Compression.ZipFile.Open(zipPath, System.IO.Compression.ZipArchiveMode.Create);
+        var count = 0;
+        foreach (var src in sources.Where(Directory.Exists))
+            foreach (var f in Directory.EnumerateFiles(src, "*", new EnumerationOptions { RecurseSubdirectories = true, IgnoreInaccessible = true }))
+            {
+                try
+                {
+                    var info = new FileInfo(f);
+                    if (info.Length > 200L * 1024 * 1024) continue; // skip huge caches/videos
+                    System.IO.Compression.ZipFileExtensions.CreateEntryFromFile(zip, f, Path.Combine(Path.GetFileName(src), Path.GetRelativePath(src, f)), System.IO.Compression.CompressionLevel.Fastest);
+                    count++;
+                }
+                catch (IOException) { }
+                catch (UnauthorizedAccessException) { }
+            }
+        return count > 0 ? zipPath : null;
+    }
 
     public void OpenGpuApp()
     {

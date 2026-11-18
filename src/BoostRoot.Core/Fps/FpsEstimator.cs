@@ -35,7 +35,39 @@ public static partial class FpsEstimator
         ["forza-horizon-5"] = (120, 190, null), ["rust"] = (100, 110, null), ["valheim"] = (110, 150, null), ["sons-of-the-forest"] = (85, 120, null),
         ["euro-truck-simulator-2"] = (140, 150, null), ["phasmophobia"] = (140, 190, null), ["lethal-company"] = (180, 220, null),
         ["the-last-of-us-part-1"] = (70, 110, null), ["the-last-of-us-part-2"] = (80, 120, null), ["7-days-to-die"] = (70, 100, null),
-        ["stranded-deep"] = (120, 160, null), ["peak"] = (140, 180, null),
+        ["stranded-deep"] = (120, 160, null), ["peak"] = (140, 180, null), ["ranch-simulator"] = (110, 150, null), ["banker-simulator"] = (130, 170, null),
+    };
+
+    /// <summary>How much of the low-settings GPU speed is left at each preset (typical across modern games).</summary>
+    public static readonly (string Key, double Gpu)[] Presets = [("low", 1.0), ("medium", 0.72), ("high", 0.55), ("ultra", 0.42)];
+
+    /// <summary>One range per graphics preset. Unknown games use a genre-wide baseline (flagged as general).</summary>
+    public static IReadOnlyList<(string Preset, int Low, int High)> ByPreset(string profileId, bool competitive, string gpuName, string cpuName, out bool general)
+    {
+        general = !Games.ContainsKey(profileId);
+        (int Gpu, int Cpu, int? Cap) g = Games.TryGetValue(profileId, out var known) ? known : competitive ? (260, 280, null) : (100, 140, null);
+        if (GpuScore(gpuName) is not { } gs) return [];
+        var cpuFps = g.Cpu * CpuFactor(cpuName);
+        var list = new List<(string, int, int)>();
+        foreach (var (key, mul) in Presets)
+        {
+            var mid = Math.Min(g.Gpu * gs / 100.0 * mul, cpuFps);
+            int low = (int)Math.Round(mid * 0.8 / 5) * 5, high = (int)Math.Round(mid * 1.2 / 5) * 5;
+            if (g.Cap is { } cap) { low = Math.Min(low, cap); high = Math.Min(high, cap); }
+            list.Add((key, Math.Max(low, 10), Math.Max(high, 15)));
+        }
+        return list;
+    }
+
+    /// <summary>Free, well-known ways to get more FPS in specific games (shown as advice; BoostRoot does not install mods).</summary>
+    public static string? TipKey(string profileId) => profileId switch
+    {
+        "minecraft" => "fps.tipMinecraft",
+        "valorant" => "fps.tipValorant",
+        "cs2" => "fps.tipCs2",
+        "fortnite" => "fps.tipFortnite",
+        "gta-v" => "fps.tipGta",
+        _ => null,
     };
 
     public static int? GpuScore(string gpuName)
@@ -66,9 +98,13 @@ public static partial class FpsEstimator
         return 0.6;
     }
 
-    public static FpsEstimate? Estimate(string profileId, string gpuName, string cpuName)
+    public static FpsEstimate? Estimate(string profileId, string gpuName, string cpuName, bool competitive = false, bool allowGeneral = false)
     {
-        if (!Games.TryGetValue(profileId, out var g) || GpuScore(gpuName) is not { } gs) return null;
+        (int Gpu, int Cpu, int? Cap) g;
+        if (Games.TryGetValue(profileId, out var known)) g = known;
+        else if (allowGeneral) g = competitive ? (260, 280, null) : (100, 140, null);
+        else return null;
+        if (GpuScore(gpuName) is not { } gs) return null;
         var gpuFps = g.Gpu * gs / 100.0;
         var cpuFps = g.Cpu * CpuFactor(cpuName);
         var mid = Math.Min(gpuFps, cpuFps);

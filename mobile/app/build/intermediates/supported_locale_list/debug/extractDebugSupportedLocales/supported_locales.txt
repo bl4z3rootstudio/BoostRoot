@@ -1,0 +1,9 @@
+*en
+ar
+az
+de
+es
+fr
+pt
+ru
+tr

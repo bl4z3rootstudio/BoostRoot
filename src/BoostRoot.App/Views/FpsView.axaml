@@ -41,6 +41,21 @@
             <TextBlock FontSize="22" FontWeight="Bold" Foreground="{StaticResource AccentLight}" Text="{Binding EstimateText}" IsVisible="{Binding EstimateText, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <TextBlock FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource Good}" Text="{Binding EstimateBoostText}" IsVisible="{Binding EstimateBoostText, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding EstimateNote}" />
+            <TextBlock Classes="muted" FontSize="12" Foreground="{StaticResource Warn}" IsVisible="{Binding EstimateGeneral}" TextWrapping="Wrap" Text="{Binding [fps.estGeneral], Source={x:Static loc:Loc.I}}" />
+            <ItemsControl ItemsSource="{Binding Presets}" Margin="0,6,0,0">
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="4" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:PresetRow">
+                <Border Background="#14FFFFFF" CornerRadius="10" Padding="10,8" Margin="0,0,8,0">
+                  <StackPanel Spacing="2">
+                    <TextBlock Classes="muted" FontSize="12" Text="{Binding Name}" />
+                    <TextBlock FontWeight="Bold" Text="{Binding Range}" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Border IsVisible="{Binding EstimateTip, Converter={x:Static ObjectConverters.IsNotNull}}" Background="#14A855F7" CornerRadius="10" Padding="10,8" Margin="0,6,0,0">
+              <TextBlock TextWrapping="Wrap" FontSize="12" Text="{Binding EstimateTip}" />
+            </Border>
             <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [fps.estHonest], Source={x:Static loc:Loc.I}}" />
           </StackPanel>
         </Grid>

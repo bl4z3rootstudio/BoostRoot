@@ -1,0 +1,22 @@
+[
+    {
+        "merged": "com.bl4z3root.boostroot.app-debug-4:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.bl4z3root.boostroot.app-main-6:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.bl4z3root.boostroot.app-debug-4:/mipmap-anydpi_ic_launcher.xml.flat",
+        "source": "com.bl4z3root.boostroot.app-main-6:/mipmap-anydpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.bl4z3root.boostroot.app-debug-4:/xml-v35__generated_res_locale_config.xml.flat",
+        "source": "com.bl4z3root.boostroot.app-localeConfig-0:/xml-v35/_generated_res_locale_config.xml"
+    },
+    {
+        "merged": "com.bl4z3root.boostroot.app-debug-4:/xml__generated_res_locale_config.xml.flat",
+        "source": "com.bl4z3root.boostroot.app-localeConfig-0:/xml/_generated_res_locale_config.xml"
+    },
+    {
+        "merged": "com.bl4z3root.boostroot.app-debug-4:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.bl4z3root.boostroot.app-main-6:/drawable/ic_launcher_background.xml"
+    }
+]

@@ -1,0 +1,9 @@
+com.bl4z3root.boostroot.app-pngs-0 /home/claude/boostroot/mobile/app/build/generated/res/pngs/debug
+com.bl4z3root.boostroot.app-updated_navigation_xml-1 /home/claude/boostroot/mobile/app/build/generated/updated_navigation_xml/debug
+com.bl4z3root.boostroot.app-debug-2 /home/claude/boostroot/mobile/app/build/intermediates/generated_locale_config_incremental_dir/debug/generateDebugLocaleConfig
+com.bl4z3root.boostroot.app-packageDebugResources-3 /home/claude/boostroot/mobile/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+com.bl4z3root.boostroot.app-packageDebugResources-4 /home/claude/boostroot/mobile/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+com.bl4z3root.boostroot.app-debug-5 /home/claude/boostroot/mobile/app/build/intermediates/merged_res/debug/mergeDebugResources
+com.bl4z3root.boostroot.app-debug-6 /home/claude/boostroot/mobile/app/src/debug/res
+com.bl4z3root.boostroot.app-main-7 /home/claude/boostroot/mobile/app/src/main/res
+gradleHome-0 /root/.gradle

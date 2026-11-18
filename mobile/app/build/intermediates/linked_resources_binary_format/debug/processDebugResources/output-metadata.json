@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "LINKED_RESOURCES_BINARY_FORMAT",
+    "kind": "Directory"
+  },
+  "applicationId": "com.bl4z3root.boostroot",
+  "variantName": "debug",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 261101,
+      "versionName": "26.11.1",
+      "outputFile": "linked-resources-binary-format-debug.ap_"
+    }
+  ],
+  "elementType": "File"
+}

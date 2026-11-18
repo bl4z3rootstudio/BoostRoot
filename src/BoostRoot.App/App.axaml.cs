@@ -58,6 +58,8 @@ public sealed partial class App : Application
 
             ApplyAccent(AccentPalette.Get(services.LoadSettings().Accent));
             AccentPalette.Changed += a => Avalonia.Threading.Dispatcher.UIThread.Post(() => ApplyAccent(a));
+            ApplyTheme(ThemePalette.Get(services.LoadSettings().Theme));
+            ThemePalette.Changed += t => Avalonia.Threading.Dispatcher.UIThread.Post(() => ApplyTheme(t));
             SetupTray(desktop, window, services);
             SetupAutoBoost(services);
             void Flow() => window.FlowDirection = Loc.I.IsRtl ? Avalonia.Media.FlowDirection.RightToLeft : Avalonia.Media.FlowDirection.LeftToRight;
@@ -86,6 +88,20 @@ public sealed partial class App : Application
         if (Styles.OfType<Avalonia.Themes.Fluent.FluentTheme>().FirstOrDefault() is { } fluent
             && fluent.Palettes.TryGetValue(Avalonia.Styling.ThemeVariant.Dark, out var pal) && Avalonia.Media.Color.TryParse(a.Hex, out var ac))
             pal.Accent = ac;
+    }
+
+    /// <summary>Recolours the shared background/panel/text brushes in place (every StaticResource user updates live).</summary>
+    private void ApplyTheme(UiTheme t)
+    {
+        void Set(string key, string hex)
+        {
+            if (this.TryGetResource(key, null, out var r) && r is Avalonia.Media.SolidColorBrush b && Avalonia.Media.Color.TryParse(hex, out var c)) b.Color = c;
+        }
+        Set("Bg", t.Bg); Set("Surface", t.Surface); Set("Surface2", t.Surface2); Set("Sidebar", t.Sidebar);
+        Set("Hero", t.Hero); Set("Border", t.Border); Set("Text", t.Text); Set("Muted", t.Muted);
+        foreach (var (k, hex) in new[] { ("BgColor", t.Bg), ("SurfaceColor", t.Surface), ("Surface2Color", t.Surface2), ("BorderColor", t.Border), ("TextColor", t.Text), ("MutedColor", t.Muted) })
+            if (Avalonia.Media.Color.TryParse(hex, out var c)) Resources[k] = c;
+        RequestedThemeVariant = t.Light ? Avalonia.Styling.ThemeVariant.Light : Avalonia.Styling.ThemeVariant.Dark;
     }
 
     private readonly AutoBoost _auto = new();

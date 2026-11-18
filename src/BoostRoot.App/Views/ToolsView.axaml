@@ -21,6 +21,16 @@
       <Border Classes="card">
         <Grid ColumnDefinitions="*,Auto">
           <StackPanel Spacing="4">
+            <TextBlock Classes="h2" Text="{Binding [tools.backup], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [tools.backupNote], Source={x:Static loc:Loc.I}}" />
+            <TextBlock Foreground="{StaticResource Good}" TextWrapping="Wrap" Text="{Binding BackupResult}" />
+          </StackPanel>
+          <Button Grid.Column="1" Classes="primary" VerticalAlignment="Center" Command="{Binding BackupSavesCommand}" IsEnabled="{Binding !BackupBusy}" Content="{Binding [tools.backupRun], Source={x:Static loc:Loc.I}}" />
+        </Grid>
+      </Border>
+      <Border Classes="card">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Spacing="4">
             <TextBlock Classes="h2" Text="{Binding [tools.ram], Source={x:Static loc:Loc.I}}" />
             <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [tools.ramNote], Source={x:Static loc:Loc.I}}" />
             <TextBlock Foreground="{StaticResource Good}" Text="{Binding RamResult}" />

@@ -43,6 +43,17 @@ public sealed partial class ScanViewModel(IAppServices services, Action<Hardware
         HasGains = Gains.Count > 0;
     }
 
+    [ObservableProperty] public partial string? Bottleneck { get; set; }
+
+    /// <summary>Plain words: is the graphics card or the processor the weaker part for games?</summary>
+    private static string? BottleneckText(BoostRoot.Core.Hardware.HardwareInfo hw)
+    {
+        if (hw.MainGpu is not { } g || BoostRoot.Core.Fps.FpsEstimator.GpuScore(g.Name) is not { } gs) return null;
+        var cpu = BoostRoot.Core.Fps.FpsEstimator.CpuFactor(hw.CpuName) * 100; // same scale: 100 = mid-range
+        var key = gs > cpu * 1.6 ? "scan.bnCpu" : cpu > gs * 1.6 ? "scan.bnGpu" : "scan.bnBalanced";
+        return Loc.I.Format(key, g.Name, hw.CpuName.Trim());
+    }
+
     /// <summary>Last scan result (null until the first scan finishes).</summary>
     public HardwareReport? Report { get; private set; }
 
@@ -56,6 +67,7 @@ public sealed partial class ScanViewModel(IAppServices services, Action<Hardware
         {
             var r = await Task.Run(services.ScanHardware);
             Report = r;
+            Bottleneck = BottleneckText(r.Info);
             RefreshGains();
             Show(r);
             onScanned?.Invoke(r);

@@ -57,6 +57,9 @@ public sealed partial class FpsViewModel : ObservableObject
     [ObservableProperty] public partial string? EstimateText { get; set; }
     [ObservableProperty] public partial string? EstimateBoostText { get; set; }
     [ObservableProperty] public partial string? EstimateNote { get; set; }
+    [ObservableProperty] public partial string? EstimateTip { get; set; }
+    [ObservableProperty] public partial bool EstimateGeneral { get; set; }
+    public ObservableCollection<PresetRow> Presets { get; } = [];
 
     /// <summary>Estimated range for this PC + the boost effect: measured if a before/after exists, otherwise the typical range.</summary>
     public void RefreshEstimate()
@@ -64,11 +67,16 @@ public sealed partial class FpsViewModel : ObservableObject
         EstimateText = EstimateBoostText = null;
         EstimateNote = null;
         if (Selected?.Profile is not { } p) return;
-        if (FpsEstimator.Estimate(p.Id, Gpu, Cpu) is not { } e)
+        Presets.Clear();
+        EstimateTip = FpsEstimator.TipKey(p.Id) is { } tk ? Loc.I[tk] : null;
+        if (FpsEstimator.Estimate(p.Id, Gpu, Cpu, p.Competitive, allowGeneral: true) is not { } e)
         {
-            EstimateNote = Gpu.Length == 0 ? Loc.I["fps.estNoHw"] : Loc.I["fps.estNoGame"];
+            EstimateNote = Gpu.Length == 0 ? Loc.I["fps.estNoHw"] : Loc.I["fps.estNoGpu"];
             return;
         }
+        var presets = FpsEstimator.ByPreset(p.Id, p.Competitive, Gpu, Cpu, out var general);
+        foreach (var (key, lo, hi) in presets) Presets.Add(new PresetRow(Loc.I["fps.preset." + key], $"{lo}–{hi} FPS"));
+        EstimateGeneral = general;
         EstimateText = Loc.I.Format("fps.estRange", e.Low, e.High);
         if (_services.FpsHistory.Comparison(p.Id) is { } c)
         {
@@ -193,3 +201,5 @@ public sealed partial class FpsViewModel : ObservableObject
         if (SavedPath is not null) _services.OpenUrl(SavedPath);
     }
 }
+
+public sealed record PresetRow(string Name, string Range);
