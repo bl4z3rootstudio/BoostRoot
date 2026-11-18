@@ -145,12 +145,24 @@ public sealed class GameSession : IDisposable
         _startedAt = DateTime.UtcNow;
         _timerRes = TimerResolution.Set();
         try { RaisePriority?.Invoke(_names); } catch (Exception) { }
-        if (_settings.PauseDownloads || _settings.NetBoost) _ = Task.Run(() => _pausedServices = BackgroundDownloads.Pause());
-        if (_settings.NetBoost) _ = Task.Run(NetBoostStart);
-        if (_settings.EcoBackground) _ = Task.Run(() => _eco = BackgroundEco.Apply(_names));
+        var focus = _settings.PureBoost; // Odak Modu: every game-side gain on, every BoostRoot extra off
+        if (_settings.PauseDownloads || _settings.NetBoost || focus) _ = Task.Run(() => _pausedServices = BackgroundDownloads.Pause());
+        if (_settings.NetBoost || focus) _ = Task.Run(NetBoostStart);
+        if (_settings.EcoBackground || focus) _ = Task.Run(() => _eco = BackgroundEco.Apply(_names));
         _gameStarted = true;
         // Pure boost: nothing keeps running while you play except the cheap "is the game still open" check (for auto undo).
-        if (_settings.PureBoost) { _ = Task.Run(() => RamCleaner.ShrinkSelf(true)); return; }
+        if (focus)
+        {
+            _timer.Interval = TimeSpan.FromSeconds(5); // only "is the game still open?"
+            try
+            {
+                if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime { MainWindow: { } w })
+                    w.WindowState = Avalonia.Controls.WindowState.Minimized; // a minimised window draws nothing
+            }
+            catch (Exception) { }
+            _ = Task.Run(() => RamCleaner.ShrinkSelf(true));
+            return;
+        }
         _frames = _startFrames();
         _frames.Frame += _fps.Add;
         _frames.Frame += ms =>
