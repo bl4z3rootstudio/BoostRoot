@@ -534,5 +534,17 @@
  "week.top": "En çok oynadığın: {0} ({1})",
  "week.fps": "Ortalama FPS: {0}",
  "week.prev": "Önceki hafta: {0}",
- "week.topShort": "En çok oynanan"
+ "week.topShort": "En çok oynanan",
+ "home.pure": "Sadece Boost (hafif mod)",
+ "home.pureSub": "Açıkken oyun sırasında hiçbir şey izlenmez: FPS ölçümü, sensörler, bilgi kutusu, nişangah, klip, istatistik ve uyarılar kapalı.",
+ "home.pureTip": "Boost yine yapılır; BoostRoot oyun boyunca sadece oyunun kapanıp kapanmadığına bakar.",
+ "tests.padSize": "Alan boyutu",
+ "fg.title": "Yapay zekâ ile daha fazla FPS (kare oluşturma)",
+ "fg.amd": "AMD kartında ücretsiz AFMF var: AMD Adrenalin > Oyun > bu oyun > \"AMD Fluid Motion Frames\"ı aç (RX 6000 ve üstü). Hikâyeli ve hayatta kalma oyunlarında FPS neredeyse iki katına çıkar; biraz gecikme ekler.",
+ "fg.nvidia": "NVIDIA App > Grafik > bu oyun > \"Smooth Motion\"ı aç (RTX 40/50). Oyunda \"DLSS Frame Generation\" varsa onu kullan. Hikâyeli oyunlarda FPS neredeyse iki katına çıkar.",
+ "fg.other": "Oyunun grafik ayarlarında \"FSR 3 Frame Generation\" ya da \"Kare Oluşturma\" varsa aç; hikâyeli oyunlarda FPS neredeyse iki katına çıkar.",
+ "fg.open": "Ekran kartı uygulamasını aç",
+ "improve.measuring": "Bağlantı ölçülüyor...",
+ "improve.before": "Önce: {0}",
+ "improve.after": "Sonra: {0}"
 }

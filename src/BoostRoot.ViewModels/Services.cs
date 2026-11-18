@@ -47,7 +47,9 @@ public sealed record AppSettings(
     bool OverlayIcons = true,
     bool Hotkeys = true,
     IReadOnlyList<ManualGame>? ManualGames = null,
-    bool NetBoost = false)
+    bool NetBoost = false,
+    // "Sadece Boost": apply the boost, then watch nothing — no FPS capture, sensors, overlays, clips, stats or alerts.
+    bool PureBoost = false)
 {
     /// <summary>What the overlay draws: the Studio design if one was chosen, else the simple settings.</summary>
     public BoostRoot.Core.Crosshair.CrosshairDesign OverlayCrosshair => CrosshairDesign ?? new(Color: CrosshairOrDefault.Color, Outline: CrosshairOrDefault.Outline, Dot: CrosshairOrDefault.Dot,
@@ -102,6 +104,8 @@ public interface IAppServices
     Task<DnsResult> MeasureDnsAsync(DnsServer server, CancellationToken ct);
     /// <summary>Switches connected adapters to a public resolver (Cloudflare/Google/Quad9), keeping a backup.</summary>
     bool SetDns(string address) => false;
+    /// <summary>Opens AMD Adrenalin / NVIDIA App (for frame generation and driver features).</summary>
+    void OpenGpuApp() { }
     /// <summary>Puts the DNS back exactly as it was before BoostRoot changed it.</summary>
     bool RestoreDns() => false;
     bool DnsChangedByBoostRoot => false;

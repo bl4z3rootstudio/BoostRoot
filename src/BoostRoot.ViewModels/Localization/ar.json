@@ -696,5 +696,17 @@
  "week.top": "الأكثر لعباً: {0} ({1})",
  "week.fps": "متوسط FPS: {0}",
  "week.prev": "الأسبوع السابق: {0}",
- "week.topShort": "الأكثر لعباً"
+ "week.topShort": "الأكثر لعباً",
+ "home.pure": "Boost فقط (الوضع الخفيف)",
+ "home.pureSub": "عند التفعيل لا تتم مراقبة أي شيء أثناء اللعب: FPS والحساسات والطبقة وعلامة التصويب والمقاطع والإحصائيات والتنبيهات متوقفة.",
+ "home.pureTip": "يتم تطبيق Boost كالمعتاد؛ BoostRoot يتحقق فقط من إغلاق اللعبة.",
+ "tests.padSize": "حجم المنطقة",
+ "fg.title": "FPS أكثر بالذكاء الاصطناعي (توليد الإطارات)",
+ "fg.amd": "كرت AMD لديك يدعم AFMF مجاناً: AMD Adrenalin > الألعاب > هذه اللعبة > فعّل \"AMD Fluid Motion Frames\" (RX 6000 فأحدث). يضاعف FPS تقريباً في ألعاب القصة؛ يضيف تأخيراً بسيطاً.",
+ "fg.nvidia": "NVIDIA App > الرسوميات > هذه اللعبة > فعّل \"Smooth Motion\" (RTX 40/50). إذا كانت اللعبة تدعم \"DLSS Frame Generation\" فاستخدمها.",
+ "fg.other": "إذا كانت اللعبة تحتوي على \"FSR 3 Frame Generation\" ففعّله؛ يضاعف FPS تقريباً في ألعاب القصة.",
+ "fg.open": "فتح تطبيق كرت الشاشة",
+ "improve.measuring": "جارٍ قياس الاتصال...",
+ "improve.before": "قبل: {0}",
+ "improve.after": "بعد: {0}"
 }

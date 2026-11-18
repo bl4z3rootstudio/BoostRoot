@@ -35,6 +35,9 @@ public sealed partial class NetViewModel(IAppServices services) : ObservableObje
         DnsQuestion = null;
         try
         {
+            ImproveSteps.Add(Loc.I["improve.measuring"]);
+            var before = await LineQualityAsync(ct);
+            ImproveSteps[^1] = Loc.I.Format("improve.before", before.Text);
             foreach (var id in new[] { "net-throttle-off" })
                 if (!services.AppliedTweaks().ContainsKey(id))
                     try { services.SetTweak(id, true); } catch (Exception) { }
@@ -55,12 +58,31 @@ public sealed partial class NetViewModel(IAppServices services) : ObservableObje
                 DnsQuestion = Loc.I.Format("improve.askDns", best.Name, best.Address);
             }
             else ImproveSteps.Add(Loc.I["dns.fine"]);
+            var after = await LineQualityAsync(ct);
+            ImproveSteps.Add(Loc.I.Format("improve.after", after.Text));
             ImproveSteps.Add(Loc.I["improve.honest"]);
         }
         finally { Improving = false; }
     }
 
     private static readonly HashSet<string> DnsSwitchable = ["1.1.1.1", "8.8.8.8", "9.9.9.9"];
+
+    /// <summary>20 pings, 150 ms apart: average, jitter (spread) and loss — the numbers the "before/after" lines show.</summary>
+    private static async Task<(double? Avg, double Jitter, int LossPct, string Text)> LineQualityAsync(CancellationToken ct)
+    {
+        var pinger = new BoostRoot.Core.Net.IcmpPinger();
+        var res = new List<double?>();
+        for (var i = 0; i < 20; i++)
+        {
+            res.Add(await pinger.PingAsync("1.1.1.1", TimeSpan.FromMilliseconds(1000), ct));
+            await Task.Delay(150, ct);
+        }
+        var ok = res.Where(r => r is not null).Select(r => r!.Value).ToList();
+        var loss = (int)Math.Round(100.0 * (res.Count - ok.Count) / res.Count);
+        double? avg = ok.Count > 0 ? ok.Average() : null;
+        var jitter = ok.Count > 1 ? ok.Zip(ok.Skip(1), (a, b) => Math.Abs(a - b)).Average() : 0;
+        return (avg, jitter, loss, avg is { } a2 ? $"{a2:0} ms, ±{jitter:0} ms, %{loss}" : "—");
+    }
 
     [RelayCommand]
     public void ApplyDns()

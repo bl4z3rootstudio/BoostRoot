@@ -10,7 +10,11 @@
           <StackPanel Spacing="10">
             <TextBlock Classes="h2" Text="{Binding [tests.mouse], Source={x:Static loc:Loc.I}}" />
             <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [tests.mouseHow], Source={x:Static loc:Loc.I}}" />
-            <Border x:Name="MousePad" Height="190" CornerRadius="12" Background="{StaticResource Surface2}" BorderBrush="{StaticResource Border}" BorderThickness="1" Cursor="Cross">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+              <TextBlock Classes="muted" VerticalAlignment="Center" Text="{Binding [tests.padSize], Source={x:Static loc:Loc.I}}" />
+              <Slider x:Name="PadSize" Grid.Column="1" Minimum="150" Maximum="700" Value="260" />
+            </Grid>
+            <Border x:Name="MousePad" Height="260" CornerRadius="12" Background="{StaticResource Surface2}" BorderBrush="{StaticResource Border}" BorderThickness="1" Cursor="Cross">
               <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
                 <TextBlock HorizontalAlignment="Center" FontFamily="{StaticResource HeadFont}" FontSize="54" FontWeight="Bold" Foreground="{StaticResource AccentLight}"><Run Text="{Binding MouseHz}" /><Run Text=" Hz" FontSize="22" /></TextBlock>
                 <TextBlock HorizontalAlignment="Center" Classes="muted"><Run Text="{Binding [tests.peak], Source={x:Static loc:Loc.I}}" /><Run Text=": " /><Run Text="{Binding MousePeak}" /><Run Text=" Hz" /></TextBlock>
@@ -37,7 +41,16 @@
               <TextBlock Classes="h2" Text="{Binding [tests.keyboard], Source={x:Static loc:Loc.I}}" />
               <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [tests.keyboardHow], Source={x:Static loc:Loc.I}}" />
             </StackPanel>
-            <Button x:Name="ResetButton" Grid.Column="1" Classes="ghost" VerticalAlignment="Top" Content="{Binding [tests.reset], Source={x:Static loc:Loc.I}}" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
+              <ComboBox x:Name="LayoutBox" SelectedIndex="4" MinWidth="150">
+                <ComboBoxItem Tag="60" Content="%60" />
+                <ComboBoxItem Tag="68" Content="%65 / 68 tuş" />
+                <ComboBoxItem Tag="75" Content="%75" />
+                <ComboBoxItem Tag="tkl" Content="TKL (%80)" />
+                <ComboBoxItem Tag="100" Content="%100" />
+              </ComboBox>
+              <Button x:Name="ResetButton" Classes="ghost" Content="{Binding [tests.reset], Source={x:Static loc:Loc.I}}" />
+            </StackPanel>
           </Grid>
           <StackPanel x:Name="Keyboard" Spacing="6" FlowDirection="LeftToRight" />
           <StackPanel Orientation="Horizontal" Spacing="28">

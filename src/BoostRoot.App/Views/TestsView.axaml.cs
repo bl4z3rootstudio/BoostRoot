@@ -12,15 +12,27 @@ namespace BoostRoot.App.Views;
 
 public sealed partial class TestsView : UserControl
 {
-    private static readonly string[][] Rows =
-    [
-        ["Escape", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"],
-        ["OemTilde", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D0", "OemMinus", "OemPlus", "Back"],
-        ["Tab", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "OemOpenBrackets", "OemCloseBrackets", "OemPipe"],
-        ["CapsLock", "A", "S", "D", "F", "G", "H", "J", "K", "L", "OemSemicolon", "OemQuotes", "Enter"],
-        ["LeftShift", "Z", "X", "C", "V", "B", "N", "M", "OemComma", "OemPeriod", "OemQuestion", "RightShift"],
-        ["LeftCtrl", "LWin", "LeftAlt", "Space", "RightAlt", "RightCtrl", "Left", "Up", "Down", "Right"],
-    ];
+    // "|" = gap between key blocks. Layouts: 60, 68 (65%), 75, TKL (80%), 100 (full size).
+    private static string[][] Rows(string layout)
+    {
+        string[] f = ["Escape", "|", "F1", "F2", "F3", "F4", "|", "F5", "F6", "F7", "F8", "|", "F9", "F10", "F11", "F12"];
+        string[] r1 = ["OemTilde", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D0", "OemMinus", "OemPlus", "Back"];
+        string[] r2 = ["Tab", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "OemOpenBrackets", "OemCloseBrackets", "OemPipe"];
+        string[] r3 = ["CapsLock", "A", "S", "D", "F", "G", "H", "J", "K", "L", "OemSemicolon", "OemQuotes", "Enter"];
+        string[] r4 = ["LeftShift", "Z", "X", "C", "V", "B", "N", "M", "OemComma", "OemPeriod", "OemQuestion", "RightShift"];
+        string[] r5 = ["LeftCtrl", "LWin", "LeftAlt", "Space", "RightAlt", "Apps", "RightCtrl"];
+        return layout switch
+        {
+            "60" => [r1, r2, r3, r4, r5],
+            "68" => [[.. r1, "Delete"], [.. r2, "PageUp"], [.. r3, "PageDown"], [.. r4, "Up"], ["LeftCtrl", "LWin", "LeftAlt", "Space", "RightAlt", "RightCtrl", "Left", "Down", "Right"]],
+            "75" => [[.. f, "Delete"], [.. r1, "Home"], [.. r2, "PageUp"], [.. r3, "PageDown"], [.. r4, "Up"], ["LeftCtrl", "LWin", "LeftAlt", "Space", "RightAlt", "RightCtrl", "Left", "Down", "Right"]],
+            "tkl" => [[.. f, "|", "PrintScreen", "Scroll", "Pause"], [.. r1, "|", "Insert", "Home", "PageUp"], [.. r2, "|", "Delete", "End", "PageDown"],
+                      r3, [.. r4, "|", "_", "Up"], [.. r5, "|", "Left", "Down", "Right"]],
+            _ => [[.. f, "|", "PrintScreen", "Scroll", "Pause"], [.. r1, "|", "Insert", "Home", "PageUp", "|", "NumLock", "Divide", "Multiply", "Subtract"],
+                  [.. r2, "|", "Delete", "End", "PageDown", "|", "NumPad7", "NumPad8", "NumPad9", "Add"], [.. r3, "|", "_", "_", "_", "|", "NumPad4", "NumPad5", "NumPad6"],
+                  [.. r4, "|", "_", "Up", "_", "|", "NumPad1", "NumPad2", "NumPad3"], [.. r5, "|", "Left", "Down", "Right", "|", "NumPad0", "Decimal"]],
+        };
+    }
 
     private static readonly Dictionary<string, (string Label, double Width)> Labels = new()
     {
@@ -30,6 +42,11 @@ public sealed partial class TestsView : UserControl
         ["LeftShift"] = ("Shift", 92), ["OemComma"] = ("Ö", 40), ["OemPeriod"] = ("Ç", 40), ["OemQuestion"] = (".", 40), ["RightShift"] = ("Shift", 110),
         ["LeftCtrl"] = ("Ctrl", 60), ["LWin"] = ("Win", 52), ["LeftAlt"] = ("Alt", 52), ["Space"] = ("Space", 290), ["RightAlt"] = ("AltGr", 60), ["RightCtrl"] = ("Ctrl", 60),
         ["Left"] = ("←", 40), ["Up"] = ("↑", 40), ["Down"] = ("↓", 40), ["Right"] = ("→", 40),
+        ["Apps"] = ("Menü", 52), ["Delete"] = ("Del", 40), ["Insert"] = ("Ins", 40), ["Home"] = ("Home", 46), ["End"] = ("End", 40),
+        ["PageUp"] = ("PgUp", 46), ["PageDown"] = ("PgDn", 46), ["PrintScreen"] = ("PrtSc", 50), ["Scroll"] = ("ScrLk", 50), ["Pause"] = ("Pause", 50),
+        ["NumLock"] = ("Num", 40), ["Divide"] = ("/", 40), ["Multiply"] = ("*", 40), ["Subtract"] = ("-", 40), ["Add"] = ("+", 40), ["Decimal"] = (",", 40),
+        ["NumPad0"] = ("0", 86), ["NumPad1"] = ("1", 40), ["NumPad2"] = ("2", 40), ["NumPad3"] = ("3", 40), ["NumPad4"] = ("4", 40), ["NumPad5"] = ("5", 40),
+        ["NumPad6"] = ("6", 40), ["NumPad7"] = ("7", 40), ["NumPad8"] = ("8", 40), ["NumPad9"] = ("9", 40),
     };
 
     private readonly Dictionary<Key, Border> _keys = [];
@@ -61,19 +78,33 @@ public sealed partial class TestsView : UserControl
             if (Vm is { } vm) vm.Clicks = $"{_left} / {_right} / {_middle}";
         };
         DeadPixelButton.Click += (_, _) => DeadPixelWindow.Open();
+        // Bigger pad = more room to move = steadier Hz reading.
+        PadSize.ValueChanged += (_, e) => MousePad.Height = e.NewValue;
+        LayoutBox.SelectionChanged += (_, _) =>
+        {
+            _layout = (LayoutBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "100";
+            BuildKeyboard();
+            foreach (var k in _tested) if (_keys.TryGetValue(k, out var b)) b.Background = new SolidColorBrush(Color.Parse("#1E5E3A"));
+        };
         ResetButton.Click += (_, _) => Reset();
     }
 
     private static IBrush Res(string key, IBrush fallback) =>
         Application.Current?.TryGetResource(key, null, out var r) == true && r is IBrush b ? b : fallback;
 
+    private string _layout = "100";
+
     private void BuildKeyboard()
     {
-        foreach (var row in Rows)
+        Keyboard.Children.Clear();
+        _keys.Clear();
+        foreach (var row in Rows(_layout))
         {
             var panel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6 };
             foreach (var name in row)
             {
+                if (name == "|") { panel.Children.Add(new Border { Width = 14 }); continue; }
+                if (name == "_") { panel.Children.Add(new Border { Width = 40 }); continue; }
                 if (!Enum.TryParse<Key>(name, out var key)) continue;
                 var (label, width) = Labels.TryGetValue(name, out var l) ? l
                     : (name.StartsWith('D') && name.Length == 2 ? name[1..] : name, 40);

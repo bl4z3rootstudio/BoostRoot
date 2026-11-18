@@ -687,5 +687,17 @@
  "week.top": "Am meisten gespielt: {0} ({1})",
  "week.fps": "Ø FPS: {0}",
  "week.prev": "Woche davor: {0}",
- "week.topShort": "Am meisten gespielt"
+ "week.topShort": "Am meisten gespielt",
+ "home.pure": "Nur Boost (leichter Modus)",
+ "home.pureSub": "Wenn an, wird beim Spielen nichts überwacht: FPS, Sensoren, Overlay, Fadenkreuz, Clips, Statistik und Hinweise sind aus.",
+ "home.pureTip": "Der Boost wird trotzdem angewendet; BoostRoot prüft nur, ob das Spiel beendet wurde.",
+ "tests.padSize": "Feldgröße",
+ "fg.title": "Mehr FPS mit KI (Frame Generation)",
+ "fg.amd": "Deine AMD-Karte hat kostenloses AFMF: AMD Adrenalin > Gaming > dieses Spiel > \"AMD Fluid Motion Frames\" an (ab RX 6000). Fast doppelte FPS in Story-/Survival-Spielen; etwas mehr Latenz.",
+ "fg.nvidia": "NVIDIA App > Grafik > dieses Spiel > \"Smooth Motion\" an (RTX 40/50). Hat das Spiel \"DLSS Frame Generation\", nutze das.",
+ "fg.other": "Hat das Spiel \"FSR 3 Frame Generation\", schalte es ein; fast doppelte FPS in Story-Spielen.",
+ "fg.open": "Grafik-App öffnen",
+ "improve.measuring": "Verbindung wird gemessen...",
+ "improve.before": "Vorher: {0}",
+ "improve.after": "Nachher: {0}"
 }

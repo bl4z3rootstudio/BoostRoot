@@ -127,7 +127,7 @@ public sealed class GameSession : IDisposable
 
     private void Tick()
     {
-        if (_startedAt is not null) Sample();
+        if (_startedAt is not null && !_settings.PureBoost) Sample();
         switch (_watcher.Tick(TimeSpan.FromSeconds(2)))
         {
             case GameWatcher.State.Running when !_gameStarted:
@@ -144,6 +144,11 @@ public sealed class GameSession : IDisposable
         _startedAt = DateTime.UtcNow;
         _timerRes = TimerResolution.Set();
         try { RaisePriority?.Invoke(_names); } catch (Exception) { }
+        if (_settings.PauseDownloads || _settings.NetBoost) _ = Task.Run(() => _pausedServices = BackgroundDownloads.Pause());
+        if (_settings.NetBoost) _ = Task.Run(NetBoostStart);
+        _gameStarted = true;
+        // Pure boost: nothing keeps running while you play except the cheap "is the game still open" check (for auto undo).
+        if (_settings.PureBoost) return;
         _frames = _startFrames();
         _frames.Frame += _fps.Add;
         _frames.Frame += ms =>
@@ -152,13 +157,10 @@ public sealed class GameSession : IDisposable
             // A frame 3x slower than the current average (and visibly slow) counts as a hitch.
             if (_fps.Fps is { } avg && avg > 0 && ms > 25 && ms > 3000 / avg) Interlocked.Increment(ref _spikes);
         };
-        if (_settings.PauseDownloads || _settings.NetBoost) _ = Task.Run(() => _pausedServices = BackgroundDownloads.Pause());
-        if (_settings.NetBoost) _ = Task.Run(NetBoostStart);
         if (_settings.Hotkeys) _hotkeys = new HotkeyService([
             (HkOverlay, HotkeyService.Alt, VK_O), (HkCrosshair, HotkeyService.Alt, VK_C),
             (HkSaveReplay, HotkeyService.Alt, VK_F10), (HkRecord, HotkeyService.Alt, VK_F9), (HkScreenshot, HotkeyService.Alt, VK_F1)]);
         if (_hotkeys is not null) _hotkeys.Pressed += id => Dispatcher.UIThread.Post(() => OnHotkey(id));
-        _gameStarted = true;
         if (_settings.CrosshairOrDefault.Enabled) ToggleCrosshair();
         if (_settings.ClipsOrDefault.ReplayEnabled) _clips?.StartReplay(_entry.DisplayName);
     }
@@ -197,7 +199,7 @@ public sealed class GameSession : IDisposable
         if (_stretched) DisplayChanger.Restore();
         if (_timerRes) TimerResolution.Release();
         if (_pausedServices.Count > 0) { var ps = _pausedServices; _ = Task.Run(() => BackgroundDownloads.Resume(ps)); }
-        if (_startedAt is { } st && _entry.Profile is { } pr)
+        if (_startedAt is { } st && _entry.Profile is { } pr && !_settings.PureBoost)
         {
             RecordPlaytime?.Invoke(pr.Id, _entry.DisplayName, st, DateTime.UtcNow);
             List<double> log;

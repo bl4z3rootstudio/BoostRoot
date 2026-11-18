@@ -667,28 +667,56 @@ public sealed class WindowsAppServices : IAppServices
         return true;
     }
 
+    /// <summary>Update downloads get their own client: the shared one has a 30 s timeout, which also covered reading the body,
+    /// so big updates (with ffmpeg) were cut off at ~70 MB on slower connections and the update silently failed.</summary>
+    private static readonly HttpClient UpdateHttp = new() { Timeout = Timeout.InfiniteTimeSpan };
+
     private async Task<bool> DownloadVerifiedAsync(ReleaseAsset asset, string sha, string path, IProgress<double>? progress, CancellationToken ct)
     {
-        using (var resp = await _http.GetAsync(asset.Url, HttpCompletionOption.ResponseHeadersRead, ct))
+        if (File.Exists(path)) File.Delete(path);
+        long done = 0;
+        for (var attempt = 0; attempt < 4; attempt++)
         {
-            resp.EnsureSuccessStatusCode();
-            await using var src = await resp.Content.ReadAsStreamAsync(ct);
-            await using var dst = File.Create(path);
-            var buf = new byte[1 << 16];
-            long done = 0; int n;
-            while ((n = await src.ReadAsync(buf, ct)) > 0)
+            try
             {
-                await dst.WriteAsync(buf.AsMemory(0, n), ct);
-                done += n;
-                if (asset.Size > 0) progress?.Report(done / (double)asset.Size);
+                using var req = new HttpRequestMessage(HttpMethod.Get, asset.Url);
+                req.Headers.UserAgent.ParseAdd("BoostRoot/" + Core.Versioning.AppVersion.Current);
+                if (done > 0) req.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(done, null); // resume
+                using var stall = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                stall.CancelAfter(TimeSpan.FromSeconds(60));
+                using var resp = await UpdateHttp.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, stall.Token);
+                resp.EnsureSuccessStatusCode();
+                if (done > 0 && resp.StatusCode != System.Net.HttpStatusCode.PartialContent) done = 0; // server ignored the range
+                await using var src = await resp.Content.ReadAsStreamAsync(stall.Token);
+                await using var dst = new FileStream(path, done > 0 ? FileMode.Append : FileMode.Create);
+                var buf = new byte[1 << 16];
+                int n;
+                while ((n = await src.ReadAsync(buf, stall.Token)) > 0)
+                {
+                    stall.CancelAfter(TimeSpan.FromSeconds(60)); // only a 60 s stall aborts, never a slow but moving download
+                    await dst.WriteAsync(buf.AsMemory(0, n), ct);
+                    done += n;
+                    if (asset.Size > 0) progress?.Report(done / (double)asset.Size);
+                }
+                if (asset.Size <= 0 || done >= asset.Size) break;
+            }
+            catch (Exception ex) when (ex is HttpRequestException or IOException or OperationCanceledException && !ct.IsCancellationRequested)
+            {
+                UpdateLog($"download attempt {attempt + 1} failed at {done} bytes: {ex.GetType().Name} {ex.Message}");
+                await Task.Delay(TimeSpan.FromSeconds(2 * (attempt + 1)), ct);
             }
         }
         await using (var f = File.OpenRead(path))
         {
             var hash = Convert.ToHexStringLower(await System.Security.Cryptography.SHA256.HashDataAsync(f, ct));
-            if (hash != sha) { f.Close(); File.Delete(path); return false; }
+            if (hash != sha) { UpdateLog($"hash mismatch for {asset.Name} ({done} bytes)"); f.Close(); File.Delete(path); return false; }
         }
         return true;
+    }
+
+    private static void UpdateLog(string line)
+    {
+        try { File.AppendAllText(Path.Combine(UserDataDir, "update.log"), $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {line}{Environment.NewLine}"); } catch (Exception) { }
     }
 
     /// <summary>Uninstaller: reverts every change BoostRoot ever made (journal), including advanced tweaks.</summary>
@@ -737,6 +765,21 @@ public sealed class WindowsAppServices : IAppServices
     public IReadOnlyList<DnsServer> SystemDns() => DnsBenchmark.System();
     public Task<DnsResult> MeasureDnsAsync(DnsServer server, CancellationToken ct) => DnsBenchmark.MeasureAsync(server, ct);
     public bool SetDns(string address) => DnsChanger.Set(address);
+
+    public void OpenGpuApp()
+    {
+        var pf = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+        string[] candidates = GpuVendor == GpuVendor.Amd
+            ? [Path.Combine(pf, "AMD", "CNext", "CNext", "RadeonSoftware.exe")]
+            : [Path.Combine(pf, "NVIDIA Corporation", "NVIDIA App", "CEF", "NVIDIA App.exe"), Path.Combine(pf, "NVIDIA Corporation", "Control Panel Client", "nvcplui.exe")];
+        var exe = candidates.FirstOrDefault(File.Exists);
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe ?? (GpuVendor == GpuVendor.Amd
+                ? "https://www.amd.com/en/products/software/adrenalin.html" : "https://www.nvidia.com/en-us/software/nvidia-app/")) { UseShellExecute = true })?.Dispose();
+        }
+        catch (Exception) { }
+    }
     public bool RestoreDns() => DnsChanger.Restore();
     public bool DnsChangedByBoostRoot => DnsChanger.HasBackup;
     public void FlushDns() => DnsChanger.FlushDns();

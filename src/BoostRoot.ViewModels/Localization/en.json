@@ -534,5 +534,17 @@
  "week.top": "Most played: {0} ({1})",
  "week.fps": "Average FPS: {0}",
  "week.prev": "Week before: {0}",
- "week.topShort": "Most played"
+ "week.topShort": "Most played",
+ "home.pure": "Boost only (light mode)",
+ "home.pureSub": "When on, nothing is watched while you play: FPS capture, sensors, overlay, crosshair, clips, stats and alerts are off.",
+ "home.pureTip": "The boost is still applied; during the game BoostRoot only checks whether the game has closed.",
+ "tests.padSize": "Area size",
+ "fg.title": "More FPS with AI (frame generation)",
+ "fg.amd": "Your AMD card has free AFMF: AMD Adrenalin > Gaming > this game > turn on \"AMD Fluid Motion Frames\" (RX 6000 and newer). Nearly doubles FPS in story and survival games; adds a little latency.",
+ "fg.nvidia": "NVIDIA App > Graphics > this game > turn on \"Smooth Motion\" (RTX 40/50). If the game has \"DLSS Frame Generation\", use that. Nearly doubles FPS in story games.",
+ "fg.other": "If the game has \"FSR 3 Frame Generation\" in its graphics settings, turn it on; nearly doubles FPS in story games.",
+ "fg.open": "Open graphics app",
+ "improve.measuring": "Measuring connection...",
+ "improve.before": "Before: {0}",
+ "improve.after": "After: {0}"
 }

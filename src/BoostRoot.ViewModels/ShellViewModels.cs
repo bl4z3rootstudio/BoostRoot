@@ -358,6 +358,7 @@ public sealed partial class MainViewModel : ObservableObject
             Favorites = on ? [.. (s.Favorites ?? []).Append(id).Distinct()] : [.. (s.Favorites ?? []).Where(x => x != id)],
         });
         Home.CopyText = services.CopyToClipboard;
+        Home.PureBoostChanged = on => Settings.Update(s => s with { PureBoost = on });
         Home.ManualGamesChanged = change => Settings.Update(s => s with { ManualGames = change(s.ManualGames ?? []) });
         Home.StretchChanged = (id, on) => Settings.Update(s => s with
         {

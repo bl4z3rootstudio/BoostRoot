@@ -122,7 +122,7 @@ public sealed partial class HomeViewModel : ObservableObject
     public ObservableCollection<GameCardViewModel> Games { get; } = [];
     public ObservableCollection<LevelOptionViewModel> Levels { get; } = [.. Enum.GetValues<BoostLevel>().Select(l => new LevelOptionViewModel(l))];
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasSelection), nameof(RecommendedText), nameof(CanStretch), nameof(SelectedIsManual))] [NotifyCanExecuteChangedFor(nameof(BoostCommand), nameof(UndoCommand))]
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasSelection), nameof(RecommendedText), nameof(CanStretch), nameof(SelectedIsManual), nameof(ShowFrameGen), nameof(FrameGenText))] [NotifyCanExecuteChangedFor(nameof(BoostCommand), nameof(UndoCommand))]
     public partial GameCardViewModel? Selected { get; set; }
 
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(BoostCommand))] public partial bool IsBusy { get; set; }
@@ -133,6 +133,16 @@ public sealed partial class HomeViewModel : ObservableObject
     [ObservableProperty] public partial BoostResult? LastResult { get; set; }
 
     public bool HasSelection => Selected is not null;
+
+    /// <summary>Frame generation guide: only for story/survival games — never competitive ones (input lag, anti-cheat).</summary>
+    public bool ShowFrameGen => Selected?.Entry.Profile is { Competitive: false } && Selected.Entry.IsInstalled;
+    public string FrameGenText => _services.GpuVendor switch
+    {
+        BoostRoot.Core.Hardware.GpuVendor.Amd => Loc.I["fg.amd"],
+        BoostRoot.Core.Hardware.GpuVendor.Nvidia => Loc.I["fg.nvidia"],
+        _ => Loc.I["fg.other"],
+    };
+    [RelayCommand] public void OpenGpuApp() => _services.OpenGpuApp();
     public bool CanStretch => Selected?.Entry.Profile?.StretchKeys is { Count: > 0 };
     [ObservableProperty] public partial bool IsStretched { get; set; }
     private bool _loadingStretch;
@@ -189,6 +199,20 @@ public sealed partial class HomeViewModel : ObservableObject
 
     /// <summary>Set by the shell: stores the manual games list in settings.</summary>
     public Action<Func<IReadOnlyList<ManualGame>, IReadOnlyList<ManualGame>>>? ManualGamesChanged { get; set; }
+    /// <summary>"Sadece Boost": while playing, BoostRoot watches nothing (no FPS capture, sensors, overlays, clips, stats, alerts).</summary>
+    public bool PureBoost
+    {
+        get => _settings.PureBoost;
+        set
+        {
+            if (_settings.PureBoost == value) return;
+            _settings = _settings with { PureBoost = value };
+            PureBoostChanged?.Invoke(value);
+            OnPropertyChanged();
+        }
+    }
+    public Action<bool>? PureBoostChanged { get; set; }
+
     public bool SelectedIsManual => Selected?.Entry.Game?.Source == "manual";
 
     /// <summary>Adds a game the scan did not find, from its .exe; selects it.</summary>

@@ -690,5 +690,17 @@
  "week.top": "Más jugado: {0} ({1})",
  "week.fps": "FPS medios: {0}",
  "week.prev": "Semana anterior: {0}",
- "week.topShort": "Más jugado"
+ "week.topShort": "Más jugado",
+ "home.pure": "Solo Boost (modo ligero)",
+ "home.pureSub": "Activado, no se vigila nada mientras juegas: FPS, sensores, superposición, mira, clips, estadísticas y avisos desactivados.",
+ "home.pureTip": "El Boost se aplica igual; BoostRoot solo comprueba si el juego se ha cerrado.",
+ "tests.padSize": "Tamaño del área",
+ "fg.title": "Más FPS con IA (generación de fotogramas)",
+ "fg.amd": "Tu AMD tiene AFMF gratis: AMD Adrenalin > Juegos > este juego > activa \"AMD Fluid Motion Frames\" (RX 6000+). Casi duplica los FPS en juegos de historia; añade algo de latencia.",
+ "fg.nvidia": "NVIDIA App > Gráficos > este juego > activa \"Smooth Motion\" (RTX 40/50). Si el juego tiene \"DLSS Frame Generation\", úsalo.",
+ "fg.other": "Si el juego tiene \"FSR 3 Frame Generation\", actívalo; casi duplica los FPS en juegos de historia.",
+ "fg.open": "Abrir app gráfica",
+ "improve.measuring": "Midiendo conexión...",
+ "improve.before": "Antes: {0}",
+ "improve.after": "Después: {0}"
 }

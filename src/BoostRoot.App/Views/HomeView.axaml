@@ -45,6 +45,16 @@
             </Button>
             <Button Classes="ghost" IsVisible="{Binding SelectedIsManual}" Command="{Binding RemoveManualGameCommand}" Content="{Binding [home.removeGame], Source={x:Static loc:Loc.I}}" />
           </StackPanel>
+          <Border IsVisible="{Binding ShowFrameGen}" Background="#14A855F7" BorderBrush="#40A855F7" BorderThickness="1" CornerRadius="12" Padding="14,10" MaxWidth="620" HorizontalAlignment="Left">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+              <PathIcon Data="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4zM19 15l1 2.6 2.6 1-2.6 1L19 22l-1-2.4-2.6-1 2.6-1z" Width="22" Height="22" Foreground="{StaticResource AccentLight}" VerticalAlignment="Top" />
+              <StackPanel Grid.Column="1" Spacing="3">
+                <TextBlock FontWeight="Bold" Text="{Binding [fg.title], Source={x:Static loc:Loc.I}}" />
+                <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding FrameGenText}" />
+              </StackPanel>
+              <Button Grid.Column="2" Classes="ghost" VerticalAlignment="Center" Command="{Binding OpenGpuAppCommand}" Content="{Binding [fg.open], Source={x:Static loc:Loc.I}}" />
+            </Grid>
+          </Border>
           <Expander Header="{Binding [share.title], Source={x:Static loc:Loc.I}}" MaxWidth="620" HorizontalAlignment="Left" IsVisible="{Binding HasSelection}">
             <StackPanel Spacing="8">
               <Button Classes="ghost" HorizontalAlignment="Left" Command="{Binding ShareCommand}" Content="{Binding [share.copy], Source={x:Static loc:Loc.I}}" />
@@ -97,7 +107,8 @@
                   IsVisible="{Binding LastOperation, Converter={x:Static ObjectConverters.IsNotNull}}"
                   Content="{Binding [boost.undo], Source={x:Static loc:Loc.I}}" />
         </StackPanel>
-        <Button Grid.Column="1" Classes="boost" Margin="32,0,0,0" Command="{Binding BoostCommand}" ToolTip.Tip="{Binding [home.boostTip], Source={x:Static loc:Loc.I}}">
+        <StackPanel Grid.Column="1" Margin="32,0,0,0" Spacing="10" VerticalAlignment="Center">
+        <Button Classes="boost" HorizontalAlignment="Center" Command="{Binding BoostCommand}" ToolTip.Tip="{Binding [home.boostTip], Source={x:Static loc:Loc.I}}">
           <Grid Width="240" Height="240">
             <!-- breathing glow -->
             <Ellipse Classes="orbGlow" Width="230" Height="230" RenderTransformOrigin="50%,50%">
@@ -143,6 +154,14 @@
             </StackPanel>
           </Grid>
         </Button>
+        <Border Background="#14FFFFFF" CornerRadius="12" Padding="12,8" MaxWidth="260" HorizontalAlignment="Center"
+                ToolTip.Tip="{Binding [home.pureTip], Source={x:Static loc:Loc.I}}">
+          <StackPanel Spacing="2">
+            <ToggleSwitch IsChecked="{Binding PureBoost}" Content="{Binding [home.pure], Source={x:Static loc:Loc.I}}" FontWeight="SemiBold" />
+            <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding [home.pureSub], Source={x:Static loc:Loc.I}}" />
+          </StackPanel>
+        </Border>
+        </StackPanel>
       </Grid>
     </Border>
     <!-- Game grid -->
