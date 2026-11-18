@@ -25,6 +25,18 @@ public static partial class RamCleaner
         catch (Exception) { }
     }
 
+    /// <summary>Returns BoostRoot's unused memory to Windows (used when the window goes to the tray / taskbar).</summary>
+    public static void TrimSelf()
+    {
+        try
+        {
+            GC.Collect(2, GCCollectionMode.Optimized, false, true);
+            using var me = Process.GetCurrentProcess();
+            EmptyWorkingSet(me.Handle);
+        }
+        catch (Exception) { }
+    }
+
     [LibraryImport("ntdll.dll")]
     private static partial int NtSetSystemInformation(int infoClass, ref int info, int length);
 

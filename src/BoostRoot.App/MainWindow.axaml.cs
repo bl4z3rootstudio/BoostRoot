@@ -17,6 +17,9 @@ public sealed partial class MainWindow : Window
         {
             if (e.Property == WindowStateProperty)
                 MaxIcon.Data = Avalonia.Media.Geometry.Parse(WindowState == WindowState.Maximized ? RestoreData : MaxData);
+            // Out of sight (taskbar or tray): give the memory the UI was using back to Windows / the game.
+            if ((e.Property == WindowStateProperty && WindowState == WindowState.Minimized) || (e.Property == IsVisibleProperty && !IsVisible))
+                _ = Task.Run(async () => { await Task.Delay(1500); BoostRoot.Platform.Windows.RamCleaner.TrimSelf(); });
         };
     }
 

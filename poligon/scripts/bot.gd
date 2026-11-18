@@ -52,13 +52,41 @@ func _ready() -> void:
 	hp = int(Settings.game().get("hp", 150))
 	# Built at VALORANT size; other games scale the whole body so the head sits at their real height.
 	scale = Vector3.ONE * (float(Settings.game().get("head_y", BASE_HEAD_Y)) / BASE_HEAD_Y)
-	_build_robot()
+	_spawn_robot_mesh()
 	var head_y := BASE_HEAD_Y
 	var head_r := 0.125
 	# Hitboxes (unchanged sizes: they are what the game rules are about)
 	_hitbox("head", _sphere_shape(head_r), Vector3(0, head_y, 0))
 	_hitbox("body", _capsule_shape(0.24, 0.8), Vector3(0, 1.12, 0))
 	_hitbox("legs", _box_shape(Vector3(0.4, 0.78, 0.25)), Vector3(0, 0.4, 0))
+
+static var _robot: ArrayMesh = null
+var _pending: Array = []
+
+## All bots share one merged mesh (one draw per material instead of ~50 per bot) → high FPS with many bots.
+func _spawn_robot_mesh() -> void:
+	if _robot == null:
+		_pending.clear()
+		_build_robot()
+		var by_mat := {}
+		for e in _pending:
+			var key: Material = e[2]
+			if not by_mat.has(key):
+				var st := SurfaceTool.new()
+				st.begin(Mesh.PRIMITIVE_TRIANGLES)
+				by_mat[key] = st
+			(by_mat[key] as SurfaceTool).append_from(e[0], 0, e[1])
+		_robot = ArrayMesh.new()
+		for m in by_mat.keys():
+			var st: SurfaceTool = by_mat[m]
+			st.set_material(m)
+			st.commit(_robot)
+		_pending.clear()
+	var mi := MeshInstance3D.new()
+	mi.mesh = _robot
+	mi.material_overlay = _mat("outline", Color(1.0, 0.18, 0.28), true)
+	add_child(mi)
+	_parts.append(mi)
 
 ## Training robot: segmented grey shell, dark joints (original design in the style of a range bot).
 func _build_robot() -> void:
@@ -111,14 +139,8 @@ func _build_robot() -> void:
 		_add(_box(Vector3(0.11, 0.06, 0.22)), Vector3(x, 0.035, 0.04), shell)                     # foot
 
 func _add(mesh: Mesh, pos: Vector3, mat: Material, rot_deg := Vector3.ZERO) -> void:
-	var mi := MeshInstance3D.new()
-	mi.mesh = mesh
-	mi.material_override = mat
-	mi.material_overlay = _mat("outline", Color(1.0, 0.18, 0.28), true)
-	mi.position = pos
-	mi.rotation_degrees = rot_deg
-	add_child(mi)
-	_parts.append(mi)
+	var b := Basis.from_euler(Vector3(deg_to_rad(rot_deg.x), deg_to_rad(rot_deg.y), deg_to_rad(rot_deg.z)))
+	_pending.append([mesh, Transform3D(b, pos), mat])
 
 func _capsule(r: float, h: float) -> Mesh:
 	var key := "cap%.3f_%.3f" % [r, h]

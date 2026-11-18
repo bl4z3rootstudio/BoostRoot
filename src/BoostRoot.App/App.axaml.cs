@@ -48,13 +48,14 @@ public sealed partial class App : Application
             services.ClipboardSetter = text => _ = window.Clipboard?.SetTextAsync(text);
             services.ExitForUpdate = () => Avalonia.Threading.Dispatcher.UIThread.Post(() => desktop.Shutdown());
             Avalonia.Threading.DispatcherTimer.RunOnce(() => _ = vm.CheckUpdateAsync(), TimeSpan.FromSeconds(4));
-            _ = vm.Scan.ScanCommand.ExecuteAsync(null).ContinueWith(_ => Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            // Hardware scan 1.5 s after start so the window appears instantly (WMI queries are the slow part of start-up).
+            Avalonia.Threading.DispatcherTimer.RunOnce(() => _ = vm.Scan.ScanCommand.ExecuteAsync(null).ContinueWith(_ => Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
                 // One quiet heads-up per start for things only the user can fix (driver, RAM speed).
                 if (!services.LoadSettings().Notifications || vm.Scan.Report is not { } r) return;
                 var issue = r.Issues.FirstOrDefault(i => i.Id is "gpu-driver-old" or "ram-xmp");
                 if (issue is not null) BoostRoot.App.Overlay.ToastOverlay.Show(Loc.I.Pick(issue.Title), 5);
-            })); // score drives level recommendations
+            })), TimeSpan.FromSeconds(1.5)); // score drives level recommendations
 
             ApplyAccent(AccentPalette.Get(services.LoadSettings().Accent));
             AccentPalette.Changed += a => Avalonia.Threading.Dispatcher.UIThread.Post(() => ApplyAccent(a));
@@ -111,6 +112,8 @@ public sealed partial class App : Application
     {
         IReadOnlyList<BoostRoot.Games.CatalogEntry>? installed = null;
         var busy = false;
+        // pid → (name, exe path). One cheap process snapshot per tick; the expensive path lookup happens once per new process.
+        var known = new Dictionary<int, (string Name, string? Path)>();
         var timer = new Avalonia.Threading.DispatcherTimer(TimeSpan.FromSeconds(5), Avalonia.Threading.DispatcherPriority.Background, async (_, _) =>
         {
             var settings = services.LoadSettings();
@@ -121,7 +124,23 @@ public sealed partial class App : Application
                 var hit = await Task.Run(() =>
                 {
                     installed ??= [.. services.LoadCatalog().Where(e => e.IsInstalled)];
-                    return _auto.Check(installed, services.RunningApps(), services.RunningProcessPaths());
+                    var now = new Dictionary<int, (string, int)>();
+                    foreach (var p in System.Diagnostics.Process.GetProcesses())
+                        using (p)
+                            try { now[p.Id] = (p.ProcessName, p.SessionId); } catch (Exception) { }
+                    var changed = false;
+                    foreach (var (pid, (name, session)) in now)
+                    {
+                        if (known.ContainsKey(pid) || session == 0) continue;
+                        string? path = null;
+                        try { path = BoostRoot.Platform.Windows.PowerAndSound.ProcessPath(pid); } catch (Exception) { }
+                        known[pid] = (name, path);
+                        changed = true;
+                    }
+                    foreach (var pid in known.Keys.Where(k => !now.ContainsKey(k)).ToList()) { known.Remove(pid); changed = true; }
+                    if (!changed) return null;   // nothing started or closed since the last check (closing re-arms a game)
+                    return _auto.Check(installed, [.. known.Values.Select(v => v.Name).Distinct(StringComparer.OrdinalIgnoreCase)],
+                        [.. known.Values.Where(v => v.Path is not null).Select(v => v.Path!)]);
                 });
                 if (hit is null) return;
                 // Game launchers stay open: the game was just started from one and may need it (online/DRM).

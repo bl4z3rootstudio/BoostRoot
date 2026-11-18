@@ -16,6 +16,8 @@
     <PublishAot>true</PublishAot>
     <InvariantGlobalization>false</InvariantGlobalization>
     <OptimizationPreference>Size</OptimizationPreference>
+    <!-- Small heap: no background GC thread needed (less CPU/RAM while idle in the tray). -->
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.6" />
